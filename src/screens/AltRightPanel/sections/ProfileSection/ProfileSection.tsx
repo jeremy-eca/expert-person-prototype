@@ -1993,6 +1993,7 @@ export const ProfileSection = ({
                       ))}
                     </div>
                   </div>
+                            >
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -2000,6 +2001,7 @@ export const ProfileSection = ({
                     <label className="text-white text-sm font-medium mb-2 block">Bio</label>
                     <Textarea
                       value={editBio}
+                            </Badge>
                       onChange={(e) => setEditBio(e.target.value)}
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 min-h-[120px]"
                       placeholder="Enter bio..."
