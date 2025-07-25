@@ -40,7 +40,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../components/ui/card";
+import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
+import { Edit2Icon } from "lucide-react";
 
 import { PersonProfile } from "../../../../types/frontend.types";
 import { personService } from "../../../../services/api/personService";
@@ -64,6 +66,16 @@ export const ProfileSection = ({ activeSection, profile, onProfileUpdate }: Prof
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const [editingPersonal, setEditingPersonal] = useState(false);
+  const [personalData, setPersonalData] = useState({
+    firstName: profile?.name?.split(' ')[0] || '',
+    middleName: '',
+    lastName: profile?.name?.split(' ').slice(1).join(' ') || '',
+    preferredName: profile?.name?.split(' ')[0] || '',
+    pronouns: 'She/her/hers',
+    dateOfBirth: profile?.dateOfBirth || '01 December 1980'
+  });
 
   // Update bio when profile changes
   React.useEffect(() => {
@@ -123,6 +135,553 @@ export const ProfileSection = ({ activeSection, profile, onProfileUpdate }: Prof
     setTempBioText(bioText);
     setIsEditingBio(false);
   };
+
+  const renderDetailsSection = () => (
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Bio Card */}
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Bio</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (editingBio) {
+                      // Save logic here
+                      setEditingBio(false);
+                    } else {
+                      setEditingBio(true);
+                    }
+                  }}
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  {editingBio ? <SaveIcon className="w-4 h-4" /> : <Edit2Icon className="w-4 h-4" />}
+                  <span className="ml-2">{editingBio ? 'Save' : 'Edit'}</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {editingBio ? (
+                <Textarea
+                  value={bioText}
+                  onChange={(e) => setBioText(e.target.value)}
+                  className="w-full bg-[#1D252D] border-[#40505C] text-white placeholder:text-gray-400 min-h-[120px]"
+                  placeholder="Enter bio information..."
+                />
+              ) : (
+                <p className="text-white leading-relaxed">
+                  {profile?.bio || "Donec ut molestie leo, in dictum quam. Nulla non dolor et enim ullamcorper condimentum a non nisl. Praesent efficitur lectus ac lorem cursus, quis pretium mi pretium. Sed consectetur, diam eget condimentum tempus, enim nisl interdum nulla, ac dapibus magna tortor quis arcu. Cras semper non nisl in luctus. In mi nunc, elementum ac dolor fringilla, accumsan bibendum turpis."}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Languages Card */}
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardContent className="p-0 space-y-4">
+              <div>
+                <h3 className="text-white text-sm font-medium mb-3">Fluent in</h3>
+                <div className="flex gap-2">
+                  <Badge className="bg-[#1D252D] text-white border-[#40505C] px-3 py-1">English</Badge>
+                  <Badge className="bg-[#1D252D] text-white border-[#40505C] px-3 py-1">French</Badge>
+                  <Badge className="bg-[#1D252D] text-white border-[#40505C] px-3 py-1">Italian</Badge>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-white text-sm font-medium mb-3">Open to working</h3>
+                <Badge className="bg-[#1D252D] text-white border-[#40505C] px-3 py-1">Anywhere</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Personal Card */}
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Personal</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (editingPersonal) {
+                      // Save logic here
+                      setEditingPersonal(false);
+                    } else {
+                      setEditingPersonal(true);
+                    }
+                  }}
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  {editingPersonal ? <SaveIcon className="w-4 h-4" /> : <Edit2Icon className="w-4 h-4" />}
+                  <span className="ml-2">{editingPersonal ? 'Save' : 'Edit'}</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 space-y-4">
+              {editingPersonal ? (
+                <>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">First name</label>
+                    <Input
+                      value={personalData.firstName}
+                      onChange={(e) => setPersonalData({...personalData, firstName: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Middle name</label>
+                    <Input
+                      value={personalData.middleName}
+                      onChange={(e) => setPersonalData({...personalData, middleName: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Last name</label>
+                    <Input
+                      value={personalData.lastName}
+                      onChange={(e) => setPersonalData({...personalData, lastName: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Preferred name</label>
+                    <Input
+                      value={personalData.preferredName}
+                      onChange={(e) => setPersonalData({...personalData, preferredName: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Pronouns</label>
+                    <Input
+                      value={personalData.pronouns}
+                      onChange={(e) => setPersonalData({...personalData, pronouns: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Date of birth</label>
+                    <Input
+                      value={personalData.dateOfBirth}
+                      onChange={(e) => setPersonalData({...personalData, dateOfBirth: e.target.value})}
+                      className="bg-[#1D252D] border-[#40505C] text-white"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">First name</span>
+                    <span className="text-white text-sm font-medium">Hannah</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">Middle name</span>
+                    <span className="text-white text-sm font-medium">Naomi</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">Last name</span>
+                    <span className="text-white text-sm font-medium">Williams</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">Preferred name</span>
+                    <span className="text-white text-sm font-medium">Hannah</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">Pronouns</span>
+                    <span className="text-white text-sm font-medium">She/her/hers</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white text-sm">Date of birth</span>
+                    <span className="text-white text-sm font-medium">01 December 1980</span>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLocationSection = () => (
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column - Current Location */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Current Location</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Address</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentLocation?.address || 'Barcelona, Spain'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Duration</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentLocation?.duration || '2 years'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Permanent Home */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Permanent Home</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Address</span>
+                  <span className="text-white text-sm font-medium">{profile?.permanentHome?.address || 'San Francisco, CA, USA'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Property Type</span>
+                  <span className="text-white text-sm font-medium">{profile?.permanentHome?.propertyType || 'Owned'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderWorkSection = () => (
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column - Current Position */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Current Position</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Job Title</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.jobTitle || 'Senior Software Engineer'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Department</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.department || 'Engineering'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Start Date</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.startDate || '2022-01-15'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Manager</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.manager || 'Sarah Johnson'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Employment Details */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Employment Details</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Employment Type</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.employmentType || 'Full-time'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Work Location</span>
+                  <span className="text-white text-sm font-medium">{profile?.currentPosition?.workLocation || 'Hybrid'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderContactSection = () => (
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column - Work Contact */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Work Contact</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Work Email</span>
+                  <span className="text-white text-sm font-medium">{profile?.contact?.workEmail || 'michael.chen@company.com'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Work Phone</span>
+                  <span className="text-white text-sm font-medium">{profile?.contact?.workPhone || '+34 612 345 678'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Personal Contact */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Personal Contact</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Personal Email</span>
+                  <span className="text-white text-sm font-medium">{profile?.contact?.personalEmail || 'm.chen@gmail.com'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Mobile Phone</span>
+                  <span className="text-white text-sm font-medium">{profile?.contact?.mobilePhone || '+1 415 555 0123'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFamilySection = () => (
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column - Family Summary */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Family Summary</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Marital Status</span>
+                  <span className="text-white text-sm font-medium">{profile?.familySummary?.maritalStatus || 'Married'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Total Dependents</span>
+                  <span className="text-white text-sm font-medium">{profile?.familySummary?.totalDependents || 2}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Passports Held</span>
+                  <span className="text-white text-sm font-medium">{profile?.familySummary?.passportsHeld || 2}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Emergency Contact */}
+        <div className="space-y-6">
+          <Card 
+            className="border-0 rounded-xl p-6 gap-6" 
+            style={{ 
+              background: '#252E38',
+              boxShadow: '0px 6px 18px 0px #00000026'
+            }}
+          >
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white text-lg font-medium">Emergency Contact</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2 h-auto"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  <span className="ml-2">Edit</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Name</span>
+                  <span className="text-white text-sm font-medium">{profile?.emergencyContact?.name || 'Jennifer Chen'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Relationship</span>
+                  <span className="text-white text-sm font-medium">{profile?.emergencyContact?.relationship || 'Spouse'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white text-sm">Phone</span>
+                  <span className="text-white text-sm font-medium">{profile?.emergencyContact?.phone || '+1 415 555 0124'}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderComingSoonSection = (title: string) => (
+    <div className="flex-1 p-6 flex items-center justify-center">
+      <Card 
+        className="border-0 rounded-xl p-6 gap-6" 
+        style={{ 
+          background: '#252E38',
+          boxShadow: '0px 6px 18px 0px #00000026'
+        }}
+      >
+        <CardContent className="p-0 text-center">
+          <h3 className="text-white text-lg font-medium mb-2">{title}</h3>
+          <p className="text-white">Coming soon...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   const renderDetailsContent = () => (
     <div className="flex flex-col gap-6 w-full">
@@ -1435,27 +1994,27 @@ export const ProfileSection = ({ activeSection, profile, onProfileUpdate }: Prof
   const renderContent = () => {
     switch (activeSection) {
       case "details":
-        return renderDetailsContent();
+        return renderDetailsSection();
       case "location":
-        return renderLocationContent();
+        return renderLocationSection();
       case "work":
-        return renderWorkContent();
+        return renderWorkSection();
       case "contact":
-        return renderContactContent();
+        return renderContactSection();
       case "family":
-        return renderFamilyContent();
+        return renderFamilySection();
       case "legal":
-        return renderLegalContent();
+        return renderComingSoonSection("Legal & Compliance");
       case "moves":
-        return renderMovesContent();
+        return renderComingSoonSection("Moves & Assignments");
       case "documents":
-        return renderDocumentsContent();
+        return renderComingSoonSection("Documents");
       case "communication":
-        return renderCommunicationContent();
+        return renderComingSoonSection("Communication");
       case "activity":
-        return renderActivityContent();
+        return renderComingSoonSection("Activity");
       default:
-        return renderDetailsContent();
+        return renderComingSoonSection("Section");
     }
   };
 
