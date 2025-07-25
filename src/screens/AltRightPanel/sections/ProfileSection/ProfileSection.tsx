@@ -2001,12 +2001,24 @@ export const ProfileSection = ({
                   </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Languages with proficiency (e.g., English (Native), Spanish (Conversational))</label>
-                    <Input
-                      value={editLanguages}
-                      onChange={(e) => setEditLanguages(e.target.value)}
-                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
-                      placeholder="English (Native), Spanish (Conversational), French (Basic)"
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        value={editLanguages}
+                        onChange={(e) => setEditLanguages(e.target.value)}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 flex-1"
+                        placeholder="English (Native), Spanish (Conversational), French (Basic)"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => setShowLanguageModal(true)}
+                        className="h-[52px] w-[52px] bg-[#2A3440] border-[#40505C] border-2 border-dashed text-white hover:bg-[#40505C] hover:border-white"
+                        title="Add Language"
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Nationalities (comma separated)</label>
@@ -2099,6 +2111,49 @@ export const ProfileSection = ({
                 </div>
               ) : (
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Date of Birth
+                    </label>
+                    <Input
+                      type="date"
+                      value={profile?.dateOfBirth || ''}
+                      onChange={(e) => onProfileUpdate?.({
+                        ...profile!,
+                        dateOfBirth: e.target.value
+                      })}
+                      className="bg-[#2A3440] border-[#40505C] text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Languages
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={profile?.languages?.join(', ') || ''}
+                        onChange={(e) => {
+                          const languages = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
+                          onProfileUpdate?.({
+                            ...profile!,
+                            languages
+                          });
+                        }}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 flex-1"
+                        placeholder="e.g., English (Native), Spanish (Conversational), French (Basic)"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => setShowLanguageModal(true)}
+                        className="h-[52px] w-[52px] bg-[#2A3440] border-[#40505C] border-2 border-dashed text-white hover:bg-[#40505C] hover:border-white"
+                        title="Add Language"
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Title</label>
                     <Input
