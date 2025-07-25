@@ -1964,18 +1964,6 @@ export const ProfileSection = ({
                             <span>{nationality}</span>
                           </Badge>
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                        {isEditingDetails && (
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="outline"
-                            className="h-6 w-6 rounded-full border-dashed border-gray-400 hover:border-gray-600"
-                            onClick={() => setShowLanguageModal(true)}
-                            title="Add Language"
-                          >
-                            <PlusIcon className="h-3 w-3" />
-                          </Button>
-                        )}
                             {nationality}
                           </div>
                         </div>
