@@ -28,7 +28,7 @@ export class HMACService {
    * Generates HMAC headers matching the Postman script exactly
    */
   generateHeaders(method: string, url: string, body?: any): HMACHeaders {
-    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const timestamp = Date.now().toString();
     
 
     if (!this.config.clientId || !this.config.secretKey) {
