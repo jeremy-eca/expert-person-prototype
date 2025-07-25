@@ -87,16 +87,16 @@ export const NavigationSection = ({
   ];
 
   return (
-    <aside className="flex flex-col w-[220px] items-start gap-4 self-stretch border-r" style={{ backgroundColor: '#252E38', borderRightColor: '#40505C' }}>
+    <aside className="flex flex-col w-[220px] items-start gap-4 self-stretch border-r bg-[#252E38] border-r-[#40505C]">
       {/* Header with Talent button */}
       <div className="flex flex-col items-start justify-center p-4 w-full">
         <Button
           variant="outline"
-          className="flex items-center gap-4 px-3 py-2.5 bg-card rounded-md w-full justify-start"
+          className="flex items-center gap-4 px-3 py-2.5 bg-[#1D252D] border-[#40505C] text-white hover:bg-[#2A3440] rounded-md w-full justify-start"
         >
           <div className="flex items-center gap-3">
             <ChevronLeftIcon className="w-4 h-4" />
-            <span className="font-label-sm-lighter text-foreground tracking-[var(--label-sm-lighter-letter-spacing)] leading-[var(--label-sm-lighter-line-height)] font-[number:var(--label-sm-lighter-font-weight)] text-[length:var(--label-sm-lighter-font-size)]">
+            <span className="font-label-sm-lighter text-white tracking-[var(--label-sm-lighter-letter-spacing)] leading-[var(--label-sm-lighter-line-height)] font-[number:var(--label-sm-lighter-font-weight)] text-[length:var(--label-sm-lighter-font-size)]">
               Talent
             </span>
           </div>
@@ -113,13 +113,13 @@ export const NavigationSection = ({
           </Avatar>
 
           <div className="flex flex-col items-center gap-3 w-full">
-            <h3 className="w-full mt-[-1.00px] font-label-md-heavier font-[number:var(--label-md-heavier-font-weight)] text-foreground text-[length:var(--label-md-heavier-font-size)] text-center tracking-[var(--label-md-heavier-letter-spacing)] leading-[var(--label-md-heavier-line-height)]">
+            <h3 className="w-full mt-[-1.00px] font-label-md-heavier font-[number:var(--label-md-heavier-font-weight)] text-white text-[length:var(--label-md-heavier-font-size)] text-center tracking-[var(--label-md-heavier-letter-spacing)] leading-[var(--label-md-heavier-line-height)]">
               {profile?.name || "Loading..."}
             </h3>
 
             <Badge
               variant="outline"
-              className="bg-card text-muted-foreground px-3 py-1 font-label-xs-lighter font-[number:var(--label-xs-lighter-font-weight)] text-[length:var(--label-xs-lighter-font-size)] tracking-[var(--label-xs-lighter-letter-spacing)] leading-[var(--label-xs-lighter-line-height)]"
+              className="bg-[#1D252D] text-gray-300 border-[#40505C] px-3 py-1 font-label-xs-lighter font-[number:var(--label-xs-lighter-font-weight)] text-[length:var(--label-xs-lighter-font-size)] tracking-[var(--label-xs-lighter-letter-spacing)] leading-[var(--label-xs-lighter-line-height)]"
             >
               Employee ID: #{profile?.id?.substring(0, 6) || "------"}
             </Badge>
@@ -147,16 +147,16 @@ export const NavigationSection = ({
               key={item.id}
               variant="ghost"
               onClick={() => onSectionChange(item.id)}
-              className={`flex h-[42px] items-start justify-start gap-3 p-3 w-full rounded-md ${
-                activeSection === item.id ? "bg-primary/20" : "hover:bg-muted"
+              className={`flex h-[42px] items-start justify-start gap-3 p-3 w-full rounded-md transition-colors ${
+                activeSection === item.id ? "bg-[#1D252D] text-white" : "text-gray-300 hover:bg-[#2A3440] hover:text-white"
               }`}
             >
               {item.icon}
               <span
-                className={`flex-1 text-sm tracking-[0.28px] leading-4 text-left ${
+                className={`flex-1 text-sm tracking-[0.28px] leading-4 text-left transition-colors ${
                   activeSection === item.id
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground font-normal"
+                    ? "text-white font-medium"
+                    : "text-gray-300 font-normal"
                 }`}
               >
                 {item.label}
@@ -170,7 +170,7 @@ export const NavigationSection = ({
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-[898px] left-52 bg-background rounded-[3px] p-0 h-6 w-6"
+        className="absolute top-[898px] left-52 bg-[#1D252D] text-white hover:bg-[#2A3440] rounded-[3px] p-0 h-6 w-6"
       >
         <PanelLeftOpenIcon className="h-6 w-6" />
       </Button>

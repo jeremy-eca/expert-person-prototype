@@ -137,7 +137,7 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-[#1D252D]">
       {/* Top Navigation Bar */}
       <TopNavigation />
       
@@ -168,7 +168,7 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
         </div>
         
         {/* Left sidebar navigation */}
-        <div className="flex flex-col w-[72px] items-start gap-4 relative self-stretch border-r border-border bg-card">
+        <div className="flex flex-col w-[72px] items-start gap-4 relative self-stretch border-r border-[#40505C] bg-[#252E38]">
         {/* Top logo */}
         <img
           className="relative self-stretch w-full flex-[0_0_auto]"
@@ -186,7 +186,7 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
                   variant="ghost"
                   size="icon"
                   className={`h-10 w-full rounded-md flex items-center justify-center ${
-                    icon.active ? "bg-primary/10" : "hover:bg-muted"
+                    icon.active ? "bg-[#1D252D]" : "hover:bg-[#2A3440]"
                   }`}
                   onClick={() => handleSidebarNavigation(icon.action)}
                   title={icon.alt}
@@ -208,10 +208,10 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
         </div>
 
         {/* Bottom section with purple button */}
-        <div className="flex flex-col h-[72px] items-center justify-center gap-4 relative self-stretch w-full border-t border-border">
+        <div className="flex flex-col h-[72px] items-center justify-center gap-4 relative self-stretch w-full border-t border-[#40505C]">
           <Button
             size="icon"
-            className="inline-flex flex-col items-center justify-center p-2 bg-primary rounded-md hover:bg-primary/90"
+            className="inline-flex flex-col items-center justify-center p-2 bg-[#732cec] rounded-md hover:bg-[#5a23b8]"
           >
             <div className="relative w-[16.83px] h-4 overflow-hidden">
               <div className="relative w-[17px] h-4">

@@ -24,7 +24,7 @@ export const TopNavigation = ({
   ]
 }: TopNavigationProps): JSX.Element => {
   return (
-    <div className="flex items-center h-14 px-6 border-b border-border bg-background">
+    <div className="flex items-center h-14 px-6 border-b border-[#40505C] bg-[#252E38]">
       <Breadcrumb>
         <BreadcrumbList>
           {breadcrumbItems.map((item, index) => (
@@ -32,10 +32,10 @@ export const TopNavigation = ({
               <BreadcrumbItem>
                 <BreadcrumbLink 
                   href={item.href} 
-                  className={`font-label-sm-mid ${
+                  className={`font-label-sm-mid transition-colors ${
                     item.active 
-                      ? "text-foreground font-medium" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-white font-medium" 
+                      : "text-gray-400 hover:text-white"
                   }`}
                 >
                   {item.label}
@@ -43,7 +43,7 @@ export const TopNavigation = ({
               </BreadcrumbItem>
               {index < breadcrumbItems.length - 1 && (
                 <BreadcrumbSeparator>
-                  <ChevronRightIcon className="h-4 w-4 text-muted-foreground" />
+                  <ChevronRightIcon className="h-4 w-4 text-gray-400" />
                 </BreadcrumbSeparator>
               )}
             </React.Fragment>
