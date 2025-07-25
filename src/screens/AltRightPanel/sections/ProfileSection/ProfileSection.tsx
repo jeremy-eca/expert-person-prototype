@@ -1936,11 +1936,27 @@ export const ProfileSection = ({
                   <div>
                     <h3 className="text-white font-medium mb-3">Languages</h3>
                     <div className="flex gap-2">
-                      {(profile.languages || ["English (Native)", "Mandarin (Professional)", "Spanish (Conversational)"]).map((language, index) => (
-                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0 text-xs">
-                          {language.includes('(') ? language : `${language} (Fluent)`}
-                        </Badge>
-                      ))}
+                      {profile.languages?.length ? (
+                        profile.languages.map((lang, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="bg-[#40505C] text-white border-[#40505C] px-3 py-1"
+                          >
+                            {lang}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-gray-400">Not specified</span>
+                      )}
+                      {isEditingDetails && (
+                        <Button
+                          onClick={() => setIsAddLanguageModalOpen(true)}
+                          className="mt-3 w-full bg-[#732cec] hover:bg-[#5a23b8] text-white"
+                        >
+                          Add Language
+                        </Button>
+                      )}
                     </div>
                     
                     {/* Add Language Button */}
