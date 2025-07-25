@@ -1535,18 +1535,8 @@ export const ProfileSection = ({
       );
     case "communication":
       return (
+import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon } from "lucide-react";
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
-          <p className="text-white text-lg">Communication section coming soon...</p>
-        </div>
-      );
-    case "activity":
-      return (
-        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
-          <p className="text-white text-lg">Activity section coming soon...</p>
-        </div>
-      );
-    default:
-      return renderDetailsSection();
   }
 
 };
