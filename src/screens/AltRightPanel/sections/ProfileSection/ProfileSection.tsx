@@ -2015,20 +2015,7 @@ export const ProfileSection = ({
                                 key={index}
                                 variant="secondary"
                                 className="bg-[#40505C] text-white hover:bg-[#4A5560] flex items-center gap-1"
-                                onClick={() => setShowLanguageModal(true)}
                               >
-                                <PlusIcon className="w-4 h-4" />
-                                Add Language
-                              </Button>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="outline"
-                        className="h-[52px] w-[52px] border-2 border-dashed border-[#40505C] bg-transparent hover:bg-[#2A3440] text-white"
-                        onClick={() => setShowLanguageModal(true)}
-                      >
-                        <PlusIcon className="h-5 w-5" />
-                      </Button>
                                 {language}
                                 <button
                                   onClick={() => handleRemoveLanguage(language)}
@@ -2038,14 +2025,54 @@ export const ProfileSection = ({
                                 </button>
                               </Badge>
                             ))}
+                            {(!profile?.languages || profile.languages.length === 0) ? (
+                              <Badge
+                                variant="outline"
+                                className="h-[52px] w-[52px] border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer flex items-center justify-center"
+                                onClick={() => setShowLanguageModal(true)}
+                              >
+                                <PlusIcon className="w-4 h-4" />
+                              </Badge>
+                            ) : (
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="outline"
+                                className="h-[52px] w-[52px] border-2 border-dashed border-gray-300 hover:border-gray-400"
+                                onClick={() => setShowLanguageModal(true)}
+                              >
+                                <PlusIcon className="w-4 h-4" />
+                              </Button>
+                            )}
                           </div>
                         ) : (
-                          <Input
-                            value={profile.languages?.join(', ') || ''}
-                            placeholder="English (Native), Spanish (Conversational), French (Basic)"
-                            className="h-[52px] bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
-                            readOnly
-                          />
+                          <div className="flex flex-wrap gap-2">
+                            {profile?.languages?.map((language, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="px-3 py-1 bg-blue-100 text-blue-800"
+                              >
+                                {language}
+                                <button
+                                  onClick={() => removeLanguage(language)}
+                                  className="ml-2 text-blue-600 hover:text-blue-800"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="border-dashed"
+                              onClick={() => setShowLanguageModal(true)}
+                            >
+                              <PlusIcon className="w-4 h-4 mr-1" />
+                              Add Language
+                            </Button>
+                          </div>
                         )}
                       </div>
                       {isEditingDetails && (
