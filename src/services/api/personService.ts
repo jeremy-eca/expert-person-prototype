@@ -59,13 +59,13 @@ export class PersonService {
     }>('/persons/list', queryParams);
     
     // Map the API response directly to PersonListItem format
-    const mappedPersons = response.data.data.map(item => 
+    const mappedPersons = (response.data.data ?? []).map(item => 
       mapPersonListItemFromApi(item)
     );
     
     return {
       persons: mappedPersons,
-      total: response.data.totalCount,
+      total: response.data.totalCount ?? 0,
       limit: queryParams.limit,
       offset: queryParams.offset
     };
@@ -105,7 +105,7 @@ export class PersonService {
     }>('/persons/list', queryParams);
     
     // Transform the API response to match our expected format
-    const transformedPersons = response.data.data.map((item: any) => ({
+    const transformedPersons = (response.data.data ?? []).map((item: any) => ({
       id: item.person_id,
       person_id: item.person_id,
       first_name: item.first_name,
@@ -123,7 +123,7 @@ export class PersonService {
     
     return {
       persons: transformedPersons as Person[],
-      total: response.data.totalCount,
+      total: response.data.totalCount ?? 0,
       limit: queryParams.limit,
       offset: queryParams.offset
     };
