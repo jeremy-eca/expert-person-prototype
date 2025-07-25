@@ -170,8 +170,8 @@ export const ProfileSection = ({
             </CardHeader>
             <CardContent className="p-6 pt-0 space-y-6">
               {!isEditingBio ? (
-                <>
-                  <p className="text-white leading-relaxed">
+                <div>
+                  <p className="text-white leading-relaxed text-sm">
                     {profile.bio || "No bio available"}
                   </p>
                   
@@ -202,7 +202,7 @@ export const ProfileSection = ({
                       ))}
                     </div>
                   </div>
-                </>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div>
