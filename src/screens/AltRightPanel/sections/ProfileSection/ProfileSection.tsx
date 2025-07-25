@@ -2016,6 +2016,15 @@ export const ProfileSection = ({
                                 key={index}
                                 variant="secondary"
                                 className="bg-[#40505C] text-white hover:bg-[#4A5560] flex items-center gap-1"
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-[52px] w-[52px] border-2 border-dashed border-[#40505C] bg-transparent hover:bg-[#2A3440] text-white"
+                        onClick={() => setShowLanguageModal(true)}
+                      >
+                        <PlusIcon className="h-5 w-5" />
+                      </Button>
                               >
                                 {language}
                                 <button
