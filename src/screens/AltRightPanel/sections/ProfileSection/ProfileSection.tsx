@@ -128,6 +128,7 @@ export const ProfileSection = ({
             <h1 className="text-2xl font-semibold text-white mb-2">{profile.name}</h1>
             <p className="text-gray-400">Job title | Department</p>
           </div>
+        </div>
       </div>
 
       {/* Two Column Layout */}
