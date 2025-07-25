@@ -4,11 +4,10 @@ import { NavigationSection } from "./sections/NavigationSection";
 import { ProfileSection } from "./sections/ProfileSection/ProfileSection";
 import { TopNavigation } from "./sections/TopNavigation/TopNavigation";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { personService } from "../../services/api/personService";
 import { mapPersonToProfile } from "../../services/mappers/personMapper";
 import { PersonProfile } from "../../types/frontend.types";
 import { ChevronLeftIcon } from "lucide-react";
-import { getMockProfile } from "./getMockProfile";
+import { getMockProfile, getMockPersonComposite } from "./getMockProfile";
 
 export type ProfileSectionType = 
   | "details" 
@@ -81,15 +80,15 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
         setLoading(true);
         setError(null);
         
-        // Fetch person with all related data
-        const person = await personService.getPersonWithAllData(personId);
+        // Use mock data for now - replace with actual API call later
+        const person = getMockPersonComposite(personId);
         const mappedProfile = mapPersonToProfile(person);
         setProfile(mappedProfile);
       } catch (err) {
         console.error('Failed to fetch person:', err);
         setError('Failed to load person details.');
         
-        // Fallback to mock data for development
+        // Fallback to basic mock profile
         setProfile(getMockProfile(personId));
       } finally {
         setLoading(false);
