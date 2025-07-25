@@ -2160,22 +2160,17 @@ export const ProfileSection = ({
                     <div className="flex gap-2">
                       <Input
                         value={profile?.languages?.join(', ') || ''}
-                        onChange={(e) => {
-                          const languages = e.target.value.split(',').map(lang => lang.trim()).filter(Boolean);
-                          onProfileUpdate?.({
-                            ...profile!,
-                            languages
-                          });
-                        }}
-                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 flex-1"
-                        placeholder="e.g., English (Native), Spanish (Conversational), French (Basic)"
+                        readOnly
+                        className="h-[52px] bg-gray-50 flex-1"
+                        placeholder="No languages specified"
                       />
                       <Button
                         type="button"
                         onClick={() => setShowLanguageModal(true)}
-                        className="h-[52px] w-[52px] border-2 border-dashed border-gray-300 bg-white hover:bg-gray-50 flex items-center justify-center"
+                        className="h-[52px] w-[52px] border-2 border-dashed border-gray-300 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 flex items-center justify-center"
+                        variant="outline"
                       >
-                        <PlusIcon className="w-5 h-5 text-gray-600" />
+                        <PlusIcon className="h-5 w-5" />
                       </Button>
                     </div>
                   </div>
