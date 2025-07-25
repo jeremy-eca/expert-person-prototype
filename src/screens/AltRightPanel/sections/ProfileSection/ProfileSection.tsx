@@ -55,6 +55,7 @@ export const ProfileSection = ({
     language: '',
     proficiency: 'Basic' as 'Basic' | 'Conversational' | 'Professional' | 'Native'
   });
+  const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   // Temporary edit values
