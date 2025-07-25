@@ -1,6 +1,15 @@
 // Frontend-specific types that map to UI components
 // These types bridge the gap between API data and UI display
 
+// Language skill with proficiency level for JSONB storage
+export interface LanguageSkill {
+  id: string;
+  language: string;
+  proficiency: 'Basic' | 'Conversational' | 'Professional' | 'Native';
+  isPrimary?: boolean;
+  dateAdded?: string;
+}
+
 export interface PersonProfile {
   // Header info
   id: string;
@@ -15,7 +24,7 @@ export interface PersonProfile {
   dateOfBirth?: string;
   nationality?: string;
   nationalities?: string[];
-  languages?: string[];
+  languages?: LanguageSkill[];
   
   // Location Section
   currentLocation?: {

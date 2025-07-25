@@ -18,6 +18,7 @@ import {
   PersonProfile, 
   PersonListItem,
   FamilyMember,
+  LanguageSkill,
   EmploymentHistoryItem,
   LocationHistoryItem,
   ContactHistoryItem,
@@ -98,16 +99,37 @@ export function mapPersonToProfile(person: PersonComposite): PersonProfile {
       undefined,
     languages: (() => {
       if (!person.languages) return [];
-      const langs = [];
-      if (person.languages.primary) langs.push(person.languages.primary);
-      if (person.languages.secondary) {
-        if (Array.isArray(person.languages.secondary)) {
-          langs.push(...person.languages.secondary);
-        } else if (typeof person.languages.secondary === 'string') {
-          langs.push(person.languages.secondary);
-        }
+      const languages: LanguageSkill[] = [];
+      
+      // Add primary language
+      if (person.languages.primary) {
+        languages.push({
+          id: `lang_primary_${Date.now()}`,
+          language: person.languages.primary,
+          proficiency: 'Native',
+          isPrimary: true,
+          dateAdded: new Date().toISOString()
+        });
       }
-      return langs;
+      
+      // Add secondary languages
+      if (person.languages.secondary) {
+        const secondaryLangs = Array.isArray(person.languages.secondary) 
+          ? person.languages.secondary 
+          : [person.languages.secondary];
+          
+        secondaryLangs.forEach((lang, index) => {
+          languages.push({
+            id: `lang_secondary_${index}_${Date.now()}`,
+            language: lang,
+            proficiency: 'Professional', // Default proficiency for secondary languages
+            isPrimary: false,
+            dateAdded: new Date().toISOString()
+          });
+        });
+      }
+      
+      return languages;
     })(),
     
     // Location Section

@@ -1,4 +1,4 @@
-import { PersonProfile } from '../../types/frontend.types';
+import { PersonProfile, LanguageSkill } from '../../types/frontend.types';
 import { PersonComposite } from '../../types/api.types';
 
 // Mock profile data for development fallback
@@ -14,7 +14,29 @@ export function getMockProfile(id: string): PersonProfile {
     dateOfBirth: "1985-03-15",
     nationality: "United States",
     nationalities: ["United States", "China"],
-    languages: ["English", "Mandarin", "Spanish"],
+    languages: [
+      {
+        id: "lang_1",
+        language: "English",
+        proficiency: "Native",
+        isPrimary: true,
+        dateAdded: "2022-01-15"
+      },
+      {
+        id: "lang_2", 
+        language: "Mandarin",
+        proficiency: "Professional",
+        isPrimary: false,
+        dateAdded: "2022-01-15"
+      },
+      {
+        id: "lang_3",
+        language: "Spanish", 
+        proficiency: "Conversational",
+        isPrimary: false,
+        dateAdded: "2023-03-10"
+      }
+    ],
     
     currentLocation: {
       address: "Barcelona, Spain",
