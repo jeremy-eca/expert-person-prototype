@@ -210,6 +210,10 @@ export const ProfileSection = ({
               {!isEditingPersonal ? (
                 <div className="space-y-4">
                   <div className="flex justify-between">
+                    <span className="text-gray-400">Title</span>
+                    <span className="text-white">Mr.</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-400">First name</span>
                     <span className="text-white">{profile.name.split(" ")[0] || "Hannah"}</span>
                   </div>
@@ -226,6 +230,14 @@ export const ProfileSection = ({
                     <span className="text-white">{profile.name.split(" ")[0] || "Hannah"}</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-gray-400">Gender at birth</span>
+                    <span className="text-white">Male</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Gender identity</span>
+                    <span className="text-white">Male</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-gray-400">Pronouns</span>
                     <span className="text-white">She/her/hers</span>
                   </div>
@@ -236,6 +248,13 @@ export const ProfileSection = ({
                 </div>
               ) : (
                 <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Title</label>
+                    <Input
+                      value="Mr."
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">First name</label>
                     <Input
@@ -249,6 +268,20 @@ export const ProfileSection = ({
                     <Input
                       value={editLastName}
                       onChange={(e) => setEditLastName(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Gender at birth</label>
+                    <Input
+                      value="Male"
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Gender identity</label>
+                    <Input
+                      value="Male"
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
                     />
                   </div>
