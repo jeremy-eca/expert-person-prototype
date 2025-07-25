@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
-import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon } from "lucide-react";
+import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile } from "../../../../types/frontend.types";
 
@@ -29,6 +29,11 @@ export const ProfileSection = ({
   const [isEditingAssignment, setIsEditingAssignment] = useState(false);
   const [isEditingPermanentHome, setIsEditingPermanentHome] = useState(false);
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+  const [isEditingCurrentAddress, setIsEditingCurrentAddress] = useState(false);
+  const [isEditingPermanentAddress, setIsEditingPermanentAddress] = useState(false);
+  const [useGoogleLookup, setUseGoogleLookup] = useState(true);
+  const [googleSearchTerm, setGoogleSearchTerm] = useState("");
+  const [googleSuggestions, setGoogleSuggestions] = useState<any[]>([]);
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
@@ -37,6 +42,25 @@ export const ProfileSection = ({
   const [editFirstName, setEditFirstName] = useState(profile.name.split(" ")[0] || "");
   const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
   const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
+  
+  // Address edit states
+  const [editCurrentAddress, setEditCurrentAddress] = useState({
+    line1: profile.currentLocation?.address.split(", ")[0] || "",
+    line2: "",
+    city: "Barcelona",
+    state: "Catalonia", 
+    postcode: "08013",
+    country: "Spain"
+  });
+  
+  const [editPermanentAddress, setEditPermanentAddress] = useState({
+    line1: "1234 Market Street",
+    line2: "Unit 567",
+    city: "San Francisco",
+    state: "California",
+    postcode: "94102", 
+    country: "United States"
+  });
 
   // Helper function to get nationality flags
   const getNationalityFlag = (nationality: string): string => {
@@ -82,6 +106,93 @@ export const ProfileSection = ({
       dateOfBirth: editDateOfBirth
     });
     setIsEditingPersonal(false);
+  };
+
+  const handleSaveCurrentAddress = () => {
+    // Update profile with new current address
+    const newAddress = `${editCurrentAddress.line1}${editCurrentAddress.line2 ? ', ' + editCurrentAddress.line2 : ''}, ${editCurrentAddress.city}, ${editCurrentAddress.state} ${editCurrentAddress.postcode}, ${editCurrentAddress.country}`;
+    onProfileUpdate({
+      ...profile,
+      currentLocation: {
+        ...profile.currentLocation,
+        address: newAddress
+      }
+    });
+    setIsEditingCurrentAddress(false);
+  };
+
+  const handleSavePermanentAddress = () => {
+    // Update profile with new permanent address
+    const newAddress = `${editPermanentAddress.line1}${editPermanentAddress.line2 ? ', ' + editPermanentAddress.line2 : ''}, ${editPermanentAddress.city}, ${editPermanentAddress.state} ${editPermanentAddress.postcode}, ${editPermanentAddress.country}`;
+    onProfileUpdate({
+      ...profile,
+      permanentHome: {
+        ...profile.permanentHome,
+        address: newAddress,
+        propertyType: profile.permanentHome?.propertyType || 'Owned'
+      }
+    });
+    setIsEditingPermanentAddress(false);
+  };
+
+  // Mock Google Places API lookup
+  const handleGoogleSearch = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setGoogleSuggestions([]);
+      return;
+    }
+    
+    // Mock Google Places API response
+    const mockSuggestions = [
+      {
+        place_id: "1",
+        description: `${searchTerm}, Barcelona, Spain`,
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Barcelona, Spain"
+        }
+      },
+      {
+        place_id: "2", 
+        description: `${searchTerm}, Madrid, Spain`,
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Madrid, Spain"
+        }
+      },
+      {
+        place_id: "3",
+        description: `${searchTerm}, Valencia, Spain`, 
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Valencia, Spain"
+        }
+      }
+    ];
+    
+    setGoogleSuggestions(mockSuggestions);
+  };
+
+  const handleSelectGoogleSuggestion = (suggestion: any, isCurrentAddress: boolean) => {
+    // Parse the suggestion and populate address fields
+    const parts = suggestion.description.split(", ");
+    const addressData = {
+      line1: parts[0] || "",
+      line2: "",
+      city: parts[1] || "",
+      state: parts[2] || "",
+      postcode: "",
+      country: parts[parts.length - 1] || ""
+    };
+    
+    if (isCurrentAddress) {
+      setEditCurrentAddress(addressData);
+    } else {
+      setEditPermanentAddress(addressData);
+    }
+    
+    setGoogleSuggestions([]);
+    setGoogleSearchTerm("");
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,53 +260,198 @@ export const ProfileSection = ({
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-500/20 text-green-400 border-0">Current</Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-[#2A3440] p-2"
-                >
-                  <Edit2Icon className="w-4 h-4" />
-                  Edit
-                </Button>
+                {!isEditingCurrentAddress ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingCurrentAddress(true)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <Edit2Icon className="w-4 h-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingCurrentAddress(false)}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <XIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSaveCurrentAddress}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <SaveIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 1</label>
-                    <p className="text-white font-medium">Carrer de Mallorca, 123</p>
+              {!isEditingCurrentAddress ? (
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 1</label>
+                      <p className="text-white font-medium">Carrer de Mallorca, 123</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 2</label>
+                      <p className="text-white font-medium">Apt 4B</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">City</label>
+                      <p className="text-white font-medium">Barcelona</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">State/Region</label>
+                      <p className="text-white font-medium">Catalonia</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Postcode</label>
+                      <p className="text-white font-medium">08013</p>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-gray-400 text-sm">Address Line 2</label>
-                    <p className="text-white font-medium">Apt 4B</p>
+                    <label className="text-gray-400 text-sm">Country</label>
+                    <p className="text-white font-medium">Spain 🇪🇸</p>
+                  </div>
+                  <div className="pt-4 border-t border-[#40505C]">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Duration at this address</span>
+                      <span className="text-white">2 years, 3 months</span>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">City</label>
-                    <p className="text-white font-medium">Barcelona</p>
+              ) : (
+                <div className="space-y-4">
+                  {/* Google Lookup Toggle */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white text-sm font-medium">Address Lookup</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(true)}
+                        className="text-xs"
+                      >
+                        <SearchIcon className="w-3 h-3 mr-1" />
+                        Google
+                      </Button>
+                      <Button
+                        variant={!useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(false)}
+                        className="text-xs"
+                      >
+                        Manual
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">State/Region</label>
-                    <p className="text-white font-medium">Catalonia</p>
+
+                  {/* Google Search */}
+                  {useGoogleLookup && (
+                    <div className="relative">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          value={googleSearchTerm}
+                          onChange={(e) => {
+                            setGoogleSearchTerm(e.target.value);
+                            handleGoogleSearch(e.target.value);
+                          }}
+                          placeholder="Search for address..."
+                          className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+                        />
+                      </div>
+                      
+                      {/* Google Suggestions */}
+                      {googleSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {googleSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.place_id}
+                              onClick={() => handleSelectGoogleSuggestion(suggestion, true)}
+                              className="w-full px-3 py-2 text-left hover:bg-[#1D252D] text-white text-sm flex items-center gap-2"
+                            >
+                              <MapPinIcon className="w-4 h-4 text-gray-400" />
+                              <div>
+                                <div className="font-medium">{suggestion.structured_formatting.main_text}</div>
+                                <div className="text-gray-400 text-xs">{suggestion.structured_formatting.secondary_text}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Manual Address Fields */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 1</label>
+                      <Input
+                        value={editCurrentAddress.line1}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, line1: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 2</label>
+                      <Input
+                        value={editCurrentAddress.line2}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, line2: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Apartment, suite, etc. (optional)"
+                      />
+                    </div>
                   </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">City</label>
+                      <Input
+                        value={editCurrentAddress.city}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, city: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">State/Region</label>
+                      <Input
+                        value={editCurrentAddress.state}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, state: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Postcode</label>
+                      <Input
+                        value={editCurrentAddress.postcode}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, postcode: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+                  
                   <div>
-                    <label className="text-gray-400 text-sm">Postcode</label>
-                    <p className="text-white font-medium">08013</p>
+                    <label className="text-white text-sm font-medium mb-2 block">Country</label>
+                    <Input
+                      value={editCurrentAddress.country}
+                      onChange={(e) => setEditCurrentAddress({...editCurrentAddress, country: e.target.value})}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
                   </div>
                 </div>
-                <div>
-                  <label className="text-gray-400 text-sm">Country</label>
-                  <p className="text-white font-medium">Spain 🇪🇸</p>
-                </div>
-                <div className="pt-4 border-t border-[#40505C]">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">Duration at this address</span>
-                    <span className="text-white">2 years, 3 months</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -215,53 +471,198 @@ export const ProfileSection = ({
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-blue-500/20 text-blue-400 border-0">Permanent</Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-[#2A3440] p-2"
-                >
-                  <Edit2Icon className="w-4 h-4" />
-                  Edit
-                </Button>
+                {!isEditingPermanentAddress ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingPermanentAddress(true)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <Edit2Icon className="w-4 h-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingPermanentAddress(false)}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <XIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSavePermanentAddress}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <SaveIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 1</label>
-                    <p className="text-white font-medium">1234 Market Street</p>
+              {!isEditingPermanentAddress ? (
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 1</label>
+                      <p className="text-white font-medium">1234 Market Street</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 2</label>
+                      <p className="text-white font-medium">Unit 567</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">City</label>
+                      <p className="text-white font-medium">San Francisco</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">State/Region</label>
+                      <p className="text-white font-medium">California</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Postcode</label>
+                      <p className="text-white font-medium">94102</p>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-gray-400 text-sm">Address Line 2</label>
-                    <p className="text-white font-medium">Unit 567</p>
+                    <label className="text-gray-400 text-sm">Country</label>
+                    <p className="text-white font-medium">United States 🇺🇸</p>
+                  </div>
+                  <div className="pt-4 border-t border-[#40505C]">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Property Type</span>
+                      <span className="text-white">Owned</span>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">City</label>
-                    <p className="text-white font-medium">San Francisco</p>
+              ) : (
+                <div className="space-y-4">
+                  {/* Google Lookup Toggle */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white text-sm font-medium">Address Lookup</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(true)}
+                        className="text-xs"
+                      >
+                        <SearchIcon className="w-3 h-3 mr-1" />
+                        Google
+                      </Button>
+                      <Button
+                        variant={!useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(false)}
+                        className="text-xs"
+                      >
+                        Manual
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">State/Region</label>
-                    <p className="text-white font-medium">California</p>
+
+                  {/* Google Search */}
+                  {useGoogleLookup && (
+                    <div className="relative">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          value={googleSearchTerm}
+                          onChange={(e) => {
+                            setGoogleSearchTerm(e.target.value);
+                            handleGoogleSearch(e.target.value);
+                          }}
+                          placeholder="Search for address..."
+                          className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+                        />
+                      </div>
+                      
+                      {/* Google Suggestions */}
+                      {googleSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {googleSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.place_id}
+                              onClick={() => handleSelectGoogleSuggestion(suggestion, false)}
+                              className="w-full px-3 py-2 text-left hover:bg-[#1D252D] text-white text-sm flex items-center gap-2"
+                            >
+                              <MapPinIcon className="w-4 h-4 text-gray-400" />
+                              <div>
+                                <div className="font-medium">{suggestion.structured_formatting.main_text}</div>
+                                <div className="text-gray-400 text-xs">{suggestion.structured_formatting.secondary_text}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Manual Address Fields */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 1</label>
+                      <Input
+                        value={editPermanentAddress.line1}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, line1: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 2</label>
+                      <Input
+                        value={editPermanentAddress.line2}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, line2: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Apartment, suite, etc. (optional)"
+                      />
+                    </div>
                   </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">City</label>
+                      <Input
+                        value={editPermanentAddress.city}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, city: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">State/Region</label>
+                      <Input
+                        value={editPermanentAddress.state}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, state: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Postcode</label>
+                      <Input
+                        value={editPermanentAddress.postcode}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, postcode: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+                  
                   <div>
-                    <label className="text-gray-400 text-sm">Postcode</label>
-                    <p className="text-white font-medium">94102</p>
+                    <label className="text-white text-sm font-medium mb-2 block">Country</label>
+                    <Input
+                      value={editPermanentAddress.country}
+                      onChange={(e) => setEditPermanentAddress({...editPermanentAddress, country: e.target.value})}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
                   </div>
                 </div>
-                <div>
-                  <label className="text-gray-400 text-sm">Country</label>
-                  <p className="text-white font-medium">United States 🇺🇸</p>
-                </div>
-                <div className="pt-4 border-t border-[#40505C]">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">Property Type</span>
-                    <span className="text-white">Owned</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -337,9 +738,7 @@ export const ProfileSection = ({
       {/* Add Address Modal/Form would go here */}
       <div className="fixed bottom-8 right-8">
         <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6 py-3 rounded-full shadow-lg">
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
+          <PlusIcon className="w-5 h-5 mr-2" />
           Add New Address
         </Button>
       </div>
