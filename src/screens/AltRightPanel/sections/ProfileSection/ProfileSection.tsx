@@ -19,6 +19,9 @@ export const ProfileSection = ({
   profile,
   onProfileUpdate 
 }: ProfileSectionProps): JSX.Element => {
+  // SVG data URI for map grid pattern
+  const gridPatternSvg = "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 10 0 L 0 0 0 10' fill='none' stroke='white' stroke-width='0.5' opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grid)' /%3E%3C/svg%3E";
+
   // Edit states for different cards
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [isEditingPersonal, setIsEditingPersonal] = useState(false);
@@ -324,7 +327,7 @@ export const ProfileSection = ({
           {/* Map Placeholder */}
           <div className="bg-[#252E38] rounded-xl shadow-[0px_6px_18px_0px_#00000026] overflow-hidden">
             <div className="h-64 bg-gradient-to-br from-blue-400 to-green-400 relative">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"%3E%3Cpath d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100" height="100" fill="url(%23grid)" /%3E%3C/svg%3E')] opacity-20"></div>
+              <div className={`absolute inset-0 bg-[url('${gridPatternSvg}')] opacity-20`}></div>
               
               {/* Location markers */}
               <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
