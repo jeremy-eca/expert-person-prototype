@@ -1,0 +1,297 @@
+{
+	"info": {
+		"_postman_id": "84c91f25-5d3c-4e1a-8f31-6e35cd91c70a",
+		"name": "Expert Persons - Passports",
+		"description": "Collection of API endpoints for managing person passport records in the Expert Persons microservice.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Passports By Person ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-tenant-id",
+						"value": "{{tenant_id}}",
+						"type": "text",
+						"description": "Tenant identifier"
+						},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"description": "JWT authentication token"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/passports/:personId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"passports",
+						":personId"
+					],
+					"variable": [
+						{
+							"key": "personId",
+							"value": "{{person_id}}",
+							"description": "UUID of the person"
+						}
+					],
+					"query": [
+						{
+							"key": "ownerType",
+							"value": "person",
+							"description": "Filter by owner type (person, partner, child)",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Retrieve all passports associated with a specific person ID."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Passport By ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-tenant-id",
+						"value": "{{tenant_id}}",
+						"type": "text",
+						"description": "Tenant identifier"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"description": "JWT authentication token"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/passports/:passportId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"passports",
+						":passportId"
+					],
+					"variable": [
+						{
+							"key": "passportId",
+							"value": "{{passport_id}}",
+							"description": "UUID of the passport record"
+						}
+					]
+				},
+				"description": "Retrieve a specific passport record by its ID."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Passport",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-tenant-id",
+						"value": "{{tenant_id}}",
+						"type": "text",
+						"description": "Tenant identifier"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"description": "JWT authentication token"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"person_id\": \"{{person_id}}\",\n    \"passport_number\": \"AB123456\",\n    \"issuing_country_id\": \"{{country_id}}\",\n    \"issue_date\": \"2022-01-01\",\n    \"expiry_date\": \"2032-01-01\",\n    \"is_primary\": true,\n    \"is_active\": true,\n    \"notes\": \"Primary passport\",\n    \"owner_type\": \"person\",\n    \"owner_id\": \"{{person_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/passports/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"passports",
+						""
+					]
+				},
+				"description": "Create a new passport record for a person."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Passport",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-tenant-id",
+						"value": "{{tenant_id}}",
+						"type": "text",
+						"description": "Tenant identifier"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"description": "JWT authentication token"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"passport_number\": \"AB123456-Updated\",\n    \"expiry_date\": \"2033-01-01\",\n    \"is_primary\": false,\n    \"notes\": \"Updated passport record\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/passports/:passportId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"passports",
+						":passportId"
+					],
+					"variable": [
+						{
+							"key": "passportId",
+							"value": "{{passport_id}}",
+							"description": "UUID of the passport record"
+						}
+					]
+				},
+				"description": "Update an existing passport record."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Passport",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-tenant-id",
+						"value": "{{tenant_id}}",
+						"type": "text",
+						"description": "Tenant identifier"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"description": "JWT authentication token"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/passports/:passportId",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"passports",
+						":passportId"
+					],
+					"variable": [
+						{
+							"key": "passportId",
+							"value": "{{passport_id}}",
+							"description": "UUID of the passport record"
+						}
+					]
+				},
+				"description": "Soft delete a passport record."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "Base URL for the Expert Persons API"
+		},
+		{
+			"key": "tenant_id",
+			"value": "",
+			"type": "string",
+			"description": "Current tenant UUID"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token"
+		},
+		{
+			"key": "person_id",
+			"value": "",
+			"type": "string",
+			"description": "Person UUID"
+		},
+		{
+			"key": "passport_id",
+			"value": "",
+			"type": "string",
+			"description": "Passport record UUID"
+		},
+		{
+			"key": "country_id",
+			"value": "",
+			"type": "string",
+			"description": "Country UUID for issuing country"
+		}
+	]
+}

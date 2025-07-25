@@ -1,0 +1,313 @@
+{
+  "info": {
+    "name": "Person Flags API",
+    "description": "Collection for testing the Person Flags API endpoints with HMAC authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Flags for Person",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Client-ID",
+            "value": "{{client_id}}",
+            "type": "text",
+            "description": "Client identifier for HMAC authentication"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}",
+            "type": "text",
+            "description": "HMAC-SHA256 signature"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}",
+            "type": "text",
+            "description": "Request timestamp"
+          },
+          {
+            "key": "X-Tenant-ID",
+            "value": "{{tenant_id}}",
+            "type": "text",
+            "description": "Tenant identifier"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/persons/{{person_id}}/flags",
+          "host": ["{{base_url}}"],
+          "path": ["api", "persons", "{{person_id}}", "flags"]
+        },
+        "description": "Retrieves all flags for a specific person"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Flag by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Client-ID",
+            "value": "{{client_id}}",
+            "type": "text",
+            "description": "Client identifier for HMAC authentication"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}",
+            "type": "text",
+            "description": "HMAC-SHA256 signature"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}",
+            "type": "text",
+            "description": "Request timestamp"
+          },
+          {
+            "key": "X-Tenant-ID",
+            "value": "{{tenant_id}}",
+            "type": "text",
+            "description": "Tenant identifier"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/flags/{{flag_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "flags", "{{flag_id}}"]
+        },
+        "description": "Retrieves a specific flag by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Flag",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Client-ID",
+            "value": "{{client_id}}",
+            "type": "text",
+            "description": "Client identifier for HMAC authentication"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}",
+            "type": "text",
+            "description": "HMAC-SHA256 signature"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}",
+            "type": "text",
+            "description": "Request timestamp"
+          },
+          {
+            "key": "X-Tenant-ID",
+            "value": "{{tenant_id}}",
+            "type": "text",
+            "description": "Tenant identifier"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"flag_type_id\": \"{{$guid}}\",\n    \"value\": \"Important Information\",\n    \"effective_from\": \"2025-01-01\",\n    \"effective_to\": \"2025-12-31\",\n    \"notes\": \"This is a test flag created via Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/persons/{{person_id}}/flags",
+          "host": ["{{base_url}}"],
+          "path": ["api", "persons", "{{person_id}}", "flags"]
+        },
+        "description": "Creates a new flag for a person"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Flag",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "X-Client-ID",
+            "value": "{{client_id}}",
+            "type": "text",
+            "description": "Client identifier for HMAC authentication"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}",
+            "type": "text",
+            "description": "HMAC-SHA256 signature"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}",
+            "type": "text",
+            "description": "Request timestamp"
+          },
+          {
+            "key": "X-Tenant-ID",
+            "value": "{{tenant_id}}",
+            "type": "text",
+            "description": "Tenant identifier"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"value\": \"Updated Flag Information\",\n    \"notes\": \"This flag has been updated via Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flags/{{flag_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "flags", "{{flag_id}}"]
+        },
+        "description": "Updates an existing flag"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Flag",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Client-ID",
+            "value": "{{client_id}}",
+            "type": "text",
+            "description": "Client identifier for HMAC authentication"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}",
+            "type": "text",
+            "description": "HMAC-SHA256 signature"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}",
+            "type": "text",
+            "description": "Request timestamp"
+          },
+          {
+            "key": "X-Tenant-ID",
+            "value": "{{tenant_id}}",
+            "type": "text",
+            "description": "Tenant identifier"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/flags/{{flag_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "flags", "{{flag_id}}"]
+        },
+        "description": "Deletes a flag (soft delete)"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Base URL for the API"
+    },
+    {
+      "key": "client_id",
+      "value": "expert-core",
+      "type": "string",
+      "description": "Client ID for HMAC authentication"
+    },
+    {
+      "key": "tenant_id",
+      "value": "01958944-0916-78c8-978d-d2707b71e17d",
+      "type": "string",
+      "description": "Tenant identifier"
+    },
+    {
+      "key": "person_id",
+      "value": "123e4567-e89b-12d3-a456-426614174000",
+      "type": "string",
+      "description": "Person UUID for testing"
+    },
+    {
+      "key": "flag_id",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string",
+      "description": "Flag UUID for testing"
+    },
+    {
+      "key": "timestamp",
+      "value": "",
+      "type": "string",
+      "description": "Current timestamp (auto-generated)"
+    },
+    {
+      "key": "signature",
+      "value": "",
+      "type": "string",
+      "description": "HMAC signature (auto-generated)"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate timestamp",
+          "const timestamp = Math.floor(Date.now() / 1000);",
+          "pm.environment.set('timestamp', timestamp);",
+          "",
+          "// Get request details",
+          "const method = pm.request.method;",
+          "const url = pm.request.url.toString();",
+          "const body = pm.request.body ? pm.request.body.raw : '';",
+          "",
+          "// Create string to sign",
+          "const stringToSign = method + '\\n' + url + '\\n' + body + '\\n' + timestamp;",
+          "",
+          "// Generate HMAC signature (Note: This requires the secret key to be set)",
+          "// In a real environment, you would need to implement proper HMAC generation",
+          "// For testing, you may need to generate the signature externally",
+          "console.log('String to sign:', stringToSign);",
+          "",
+          "// Set a placeholder signature - replace with actual HMAC generation",
+          "pm.environment.set('signature', 'PLACEHOLDER_SIGNATURE');"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test(\"Status code is 200 or 201\", function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});",
+          "",
+          "pm.test(\"Response has the correct structure\", function () {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "    pm.expect(jsonData).to.have.property('data');",
+          "    pm.expect(jsonData).to.have.property('message');",
+          "});"
+        ]
+      }
+    }
+  ]
+}

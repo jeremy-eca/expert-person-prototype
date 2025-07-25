@@ -1,0 +1,305 @@
+{
+	"info": {
+		"_postman_id": "a2e6c389-f7e4-4e6c-8c9d-2d1f2b6f5a7d",
+		"name": "Expert Persons - HMAC JWT Auth",
+		"description": "API collection for Expert Persons microservice with HMAC JWT authentication",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (JWT Auth)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with username and password to get JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Service Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"",
+									"if (response.success && response.data && response.data.token) {",
+									"    pm.environment.set(\"serviceToken\", response.data.token);",
+									"    console.log(\"Service token saved to environment\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							},
+							{
+								"key": "X-Tenant-ID",
+								"value": "{{tenantId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/service-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"service-token"
+							]
+						},
+						"description": "Generate a service token using existing JWT token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints"
+		},
+		{
+			"name": "Persons",
+			"item": [
+				{
+					"name": "Get All Persons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{serviceToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons?limit=10&offset=0&include=children,partners,addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "include",
+									"value": "children,partners,addresses",
+									"description": "Optional comma-separated list of related data to include"
+								}
+							]
+						},
+						"description": "Get all persons with pagination and optional includes"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Person by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{serviceToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/:personId?include=children,partners,addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								":personId"
+							],
+							"query": [
+								{
+									"key": "include",
+									"value": "children,partners,addresses",
+									"description": "Optional comma-separated list of related data to include"
+								}
+							],
+							"variable": [
+								{
+									"key": "personId",
+									"value": "",
+									"description": "ID of the person to retrieve"
+								}
+							]
+						},
+						"description": "Get a specific person by ID with optional includes"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{serviceToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"preferred_name\": \"Johnny\",\n  \"email\": \"john.doe@example.com\",\n  \"date_of_birth\": \"1980-01-01\",\n  \"employee_reference\": {\n    \"primary\": \"EMP-1234\",\n    \"secondary\": \"HR-5678\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						},
+						"description": "Create a new person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{serviceToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Updated\",\n  \"preferred_name\": \"Johnny Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/:personId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								":personId"
+							],
+							"variable": [
+								{
+									"key": "personId",
+									"value": "",
+									"description": "ID of the person to update"
+								}
+							]
+						},
+						"description": "Update an existing person"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{serviceToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/:personId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								":personId"
+							],
+							"variable": [
+								{
+									"key": "personId",
+									"value": "",
+									"description": "ID of the person to delete"
+								}
+							]
+						},
+						"description": "Delete (soft delete) a person"
+					},
+					"response": []
+				}
+			],
+			"description": "Person-related endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

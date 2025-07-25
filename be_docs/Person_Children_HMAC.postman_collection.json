@@ -1,0 +1,511 @@
+{
+	"info": {
+		"_postman_id": "person-children-hmac-collection",
+		"name": "Person Children HMAC API",
+		"description": "Complete API collection for Person Children endpoints with HMAC authentication",
+		"version": "1.0.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "Setup Test Person",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"employee_reference\": \"EMP006\",\n  \"status\": \"active\",\n  \"first_name\": \"Jennifer\",\n  \"last_name\": \"Davis\",\n  \"preferred_name\": \"Jen\",\n  \"email\": \"jennifer.davis@example.com\",\n  \"is_user\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/persons",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "persons"]
+				},
+				"description": "Create a test person for children testing"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Person created successfully', function () {",
+							"    pm.response.to.have.status(201);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.data).to.have.property('id');",
+							"    pm.environment.set('personId', response.data.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Create Child",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"Emma\",\n  \"middle_name\": \"Rose\",\n  \"last_name\": \"Davis\",\n  \"date_of_birth\": \"2020-05-15\",\n  \"gender\": \"female\",\n  \"nationality\": \"US\",\n  \"is_dependent\": true,\n  \"dependent_until_age\": 18,\n  \"education_level\": \"preschool\",\n  \"school_name\": \"Sunshine Preschool\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/persons/{{personId}}/children",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "persons", "{{personId}}", "children"]
+				},
+				"description": "Create a new child record for a person"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Child created successfully', function () {",
+							"    pm.response.to.have.status(201);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.data).to.have.property('id');",
+							"    pm.expect(response.data.first_name).to.equal('Emma');",
+							"    pm.expect(response.data.last_name).to.equal('Davis');",
+							"    pm.environment.set('childId', response.data.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Get All Children for Person",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/persons/{{personId}}/children",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "persons", "{{personId}}", "children"]
+				},
+				"description": "Retrieve all children for a specific person"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Children retrieved successfully', function () {",
+							"    pm.response.to.have.status(200);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.data).to.be.an('array');",
+							"    if (response.data.length > 0) {",
+							"        pm.expect(response.data[0]).to.have.property('id');",
+							"        pm.expect(response.data[0]).to.have.property('first_name');",
+							"        pm.expect(response.data[0]).to.have.property('last_name');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Get Child by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/children/{{childId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "children", "{{childId}}"]
+				},
+				"description": "Retrieve a specific child by ID"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Child retrieved successfully', function () {",
+							"    pm.response.to.have.status(200);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.data).to.have.property('id');",
+							"    pm.expect(response.data).to.have.property('first_name');",
+							"    pm.expect(response.data).to.have.property('last_name');",
+							"    pm.expect(response.data.id).to.equal(pm.environment.get('childId'));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Update Child",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"Emily\",\n  \"education_level\": \"elementary\",\n  \"school_name\": \"Oak Elementary School\",\n  \"is_dependent\": false,\n  \"dependent_until_age\": 25\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/children/{{childId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "children", "{{childId}}"]
+				},
+				"description": "Update an existing child record"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Child updated successfully', function () {",
+							"    pm.response.to.have.status(200);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.data.first_name).to.equal('Emily');",
+							"    pm.expect(response.data.education_level).to.equal('elementary');",
+							"    pm.expect(response.data.is_dependent).to.equal(false);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Delete Child",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/children/{{childId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "children", "{{childId}}"]
+				},
+				"description": "Soft delete a child record"
+			},
+			"response": [],
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Child deleted successfully', function () {",
+							"    pm.response.to.have.status(200);",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.success).to.be.true;",
+							"    pm.expect(response.message).to.include('successfully');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Cases",
+			"item": [
+				{
+					"name": "Get Non-existent Child",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/children/00000000-0000-0000-0000-000000000000",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "children", "00000000-0000-0000-0000-000000000000"]
+						},
+						"description": "Test 404 response for non-existent child"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 404 for non-existent child', function () {",
+									"    pm.response.to.have.status(404);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Child with Missing Fields",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}/children",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "persons", "{{personId}}", "children"]
+						},
+						"description": "Test validation with missing required fields"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 400 for missing required fields', function () {",
+									"    pm.response.to.have.status(400);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Children for Non-existent Person",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/00000000-0000-0000-0000-000000000000/children",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "persons", "00000000-0000-0000-0000-000000000000", "children"]
+						},
+						"description": "Test 404 response for non-existent person"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 404 for non-existent person', function () {",
+									"    pm.response.to.have.status(404);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Authentication Tests",
+			"item": [
+				{
+					"name": "Request without HMAC Headers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}/children",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "persons", "{{personId}}", "children"]
+						},
+						"description": "Test authentication failure without HMAC headers"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Skip the global HMAC pre-request script"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 401 without HMAC headers', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Request with Invalid Signature",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "expert-core"
+							},
+							{
+								"key": "x-signature",
+								"value": "invalid-signature"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "{{$timestamp}}"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "{{TENANT_ID}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}/children",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "persons", "{{personId}}", "children"]
+						},
+						"description": "Test authentication failure with invalid signature"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Skip the global HMAC pre-request script"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 401 with invalid signature', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// HMAC Authentication Pre-request Script",
+					"const clientId = pm.environment.get('CLIENT_ID') || 'expert-core';",
+					"const clientSecret = pm.environment.get('CLIENT_SECRET') || 'expert-core-secret-key-dev';",
+					"const tenantId = pm.environment.get('TENANT_ID') || '01958944-0916-78c8-978d-d2707b71e17d';",
+					"",
+					"// Generate timestamp",
+					"const timestamp = Date.now().toString();",
+					"",
+					"// Get request details",
+					"const method = pm.request.method;",
+					"const url = pm.request.url.getPath();",
+					"const body = pm.request.body ? pm.request.body.raw : '';",
+					"",
+					"// Create string to sign",
+					"let stringToSign;",
+					"if (['POST', 'PUT', 'PATCH'].includes(method) && body) {",
+					"    stringToSign = body + timestamp;",
+					"} else {",
+					"    const cleanPath = url.replace(/^\\/api/, '').toLowerCase();",
+					"    stringToSign = cleanPath + timestamp;",
+					"}",
+					"",
+					"// Generate HMAC signature",
+					"const signature = CryptoJS.HmacSHA256(stringToSign, clientSecret).toString(CryptoJS.enc.Base64);",
+					"",
+					"// Set headers",
+					"pm.request.headers.add({key: 'x-client-id', value: clientId});",
+					"pm.request.headers.add({key: 'x-signature', value: signature});",
+					"pm.request.headers.add({key: 'x-timestamp', value: timestamp});",
+					"pm.request.headers.add({key: 'x-tenant-id', value: tenantId});",
+					"pm.request.headers.add({key: 'Content-Type', value: 'application/json'});",
+					"",
+					"console.log('HMAC Auth Headers Generated:', {",
+					"    clientId,",
+					"    signature,",
+					"    timestamp,",
+					"    tenantId,",
+					"    stringToSign",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "personId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "childId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

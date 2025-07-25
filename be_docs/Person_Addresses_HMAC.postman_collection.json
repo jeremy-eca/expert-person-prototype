@@ -1,0 +1,660 @@
+{
+	"info": {
+		"_postman_id": "person-addresses-hmac-collection",
+		"name": "Expert Person Addresses",
+		"description": "Person Addresses endpoints with HMAC authentication for expert-persons microservice. Includes address CRUD operations, bulk operations, and address management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Person Addresses CRUD",
+			"item": [
+				{
+					"name": "Get Person Addresses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get addresses for"
+								}
+							]
+						},
+						"description": "Retrieve all addresses for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Person Addresses with Pagination",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses?person_id={{personId}}&limit=10&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get addresses for"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of records to return (1-500)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of records to skip"
+								}
+							]
+						},
+						"description": "Retrieve person addresses with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person Address",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"line1\": \"123 Main Street\",\n  \"line2\": \"Apt 4B\",\n  \"city\": \"New York\",\n  \"state_province\": \"NY\",\n  \"postal_code\": \"10001\",\n  \"country\": \"US\",\n  \"address_type\": \"Home\",\n  \"is_primary\": true,\n  \"is_mailing\": true,\n  \"effective_from\": \"2024-01-01\",\n  \"effective_to\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses"
+							]
+						},
+						"description": "Create a new address for a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person Address",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"line1\": \"456 Oak Avenue\",\n  \"line2\": \"Suite 200\",\n  \"city\": \"Los Angeles\",\n  \"state_province\": \"CA\",\n  \"postal_code\": \"90210\",\n  \"country\": \"US\",\n  \"address_type\": \"Work\",\n  \"is_primary\": false,\n  \"is_mailing\": false,\n  \"effective_from\": \"2024-06-01\",\n  \"effective_to\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/{{addressId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"{{addressId}}"
+							]
+						},
+						"description": "Update an existing person address"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person Address",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/{{addressId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"{{addressId}}"
+							]
+						},
+						"description": "Soft delete a person address"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bulk Operations",
+			"item": [
+				{
+					"name": "Upsert Person Address",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"line1\": \"789 Pine Street\",\n  \"line2\": null,\n  \"city\": \"Chicago\",\n  \"state_province\": \"IL\",\n  \"postal_code\": \"60601\",\n  \"country\": \"US\",\n  \"address_type\": \"Temporary\",\n  \"is_primary\": false,\n  \"is_mailing\": true,\n  \"effective_from\": \"2024-07-01\",\n  \"effective_to\": \"2024-12-31\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/upsert",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"upsert"
+							]
+						},
+						"description": "Create or update a person address (upsert operation)"
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Create Person Addresses",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"addresses\": [\n    {\n      \"person_id\": \"{{personId}}\",\n      \"line1\": \"100 Business Blvd\",\n      \"city\": \"Miami\",\n      \"state_province\": \"FL\",\n      \"postal_code\": \"33101\",\n      \"country\": \"US\",\n      \"address_type\": \"Work\",\n      \"is_primary\": false,\n      \"is_mailing\": false\n    },\n    {\n      \"person_id\": \"{{personId}}\",\n      \"line1\": \"200 Vacation Lane\",\n      \"city\": \"Orlando\",\n      \"state_province\": \"FL\",\n      \"postal_code\": \"32801\",\n      \"country\": \"US\",\n      \"address_type\": \"Vacation\",\n      \"is_primary\": false,\n      \"is_mailing\": false\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/bulk",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"bulk"
+							]
+						},
+						"description": "Create multiple addresses for a person in a single request"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Address Management",
+			"item": [
+				{
+					"name": "Set Primary Address",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_primary\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/{{addressId}}/primary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"{{addressId}}",
+								"primary"
+							]
+						},
+						"description": "Set an address as the primary address for a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Primary Address",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses/primary?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses",
+								"primary"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get primary address for"
+								}
+							]
+						},
+						"description": "Get the primary address for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Addresses by Type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-addresses?person_id={{personId}}&address_type=Work",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-addresses"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get addresses for"
+								},
+								{
+									"key": "address_type",
+									"value": "Work",
+									"description": "Filter by address type (Home, Work, Temporary, etc.)"
+								}
+							]
+						},
+						"description": "Get addresses filtered by type for a specific person"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// FINAL WORKING HMAC Authentication Pre-request Script for Expert Global API",
+					"const CryptoJS = require('crypto-js');",
+					"",
+					"const timestamp = Date.now().toString();",
+					"pm.environment.set('timestamp', timestamp);",
+					"",
+					"//const clientId = pm.environment.get('clientId');",
+					"//const secretKey = pm.environment.get('clientKey'); // Your environment variable name",
+					"//const tenantId = pm.environment.get('tenantId') || 'global';",
+					"",
+					"const clientId = 'expert-core';",
+					"const secretKey = 'jH3E2kK28sD9vL9kqP1sT5qQ7wA3zX2r';",
+					"const tenantId = '550e8400-e29b-41d4-a716-446655440000';",
+					"",
+					"console.log('Environment variables:');",
+					"console.log('clientId:', clientId);",
+					"console.log('secretKey:', secretKey ? 'SET' : 'MISSING');",
+					"console.log('tenantId:', tenantId);",
+					"",
+					"if (!clientId || !secretKey) {",
+					"    console.error('Missing clientId or secretKey in environment variables');",
+					"    return;",
+					"}",
+					"",
+					"const method = pm.request.method.toLowerCase();",
+					"let stringToSign;",
+					"",
+					"if (['post', 'put', 'patch', 'delete'].includes(method) && ",
+					"    pm.request.body && pm.request.body.raw && pm.request.body.raw.length > 0) {",
+					"    const body = pm.request.body.raw;",
+					"    let bodyObj;",
+					"    try {",
+					"        bodyObj = JSON.parse(body);",
+					"        stringToSign = JSON.stringify(bodyObj) + timestamp;",
+					"    } catch (e) {",
+					"        stringToSign = body + timestamp;",
+					"    }",
+					"    console.log('HMAC check via body');",
+					"} else {",
+					"    // CRITICAL FIX: Server strips /api prefix",
+					"    let path = '/' + pm.request.url.path.join('/');",
+					"    if (path.startsWith('/api/')) {",
+					"        path = path.substring(4); // Remove '/api' prefix",
+					"    }",
+					"    stringToSign = path.toLowerCase() + timestamp;",
+					"    console.log('HMAC check via path (server strips /api):', path);",
+					"}",
+					"",
+					"const signature = CryptoJS.HmacSHA256(stringToSign, secretKey).toString(CryptoJS.enc.Base64);",
+					"",
+					"console.log('String to sign:', stringToSign);",
+					"console.log('Generated signature:', signature);",
+					"",
+					"// Clear and set headers",
+					"pm.request.headers.remove('x-client-id');",
+					"pm.request.headers.remove('x-signature');",
+					"pm.request.headers.remove('x-timestamp');",
+					"pm.request.headers.remove('x-tenant-id');",
+					"pm.request.headers.remove('Content-Type');",
+					"",
+					"pm.request.headers.add({key: 'x-client-id', value: clientId});",
+					"pm.request.headers.add({key: 'x-signature', value: signature});",
+					"pm.request.headers.add({key: 'x-timestamp', value: timestamp});",
+					"pm.request.headers.add({key: 'x-tenant-id', value: tenantId});",
+					"pm.request.headers.add({key: 'Content-Type', value: 'application/json'});",
+					"",
+					"console.log('HMAC headers set:', {",
+					"    'x-client-id': clientId,",
+					"    'x-timestamp': timestamp,",
+					"    'x-tenant-id': tenantId,",
+					"    'method': method,",
+					"    'stringToSign': stringToSign",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://expert-api-persons-dev.onrender.com/api",
+			"type": "string"
+		},
+		{
+			"key": "personId",
+			"value": "f79937cf-5846-42a5-8161-fe167bf59353",
+			"type": "string"
+		},
+		{
+			"key": "addressId",
+			"value": "456e7890-e89b-12d3-a456-426614174001",
+			"type": "string"
+		}
+	]
+}

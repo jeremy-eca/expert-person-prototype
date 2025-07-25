@@ -1,0 +1,666 @@
+{
+  "info": {
+    "name": "Person Partners API - HMAC Auth",
+    "description": "Complete API collection for Person Partners endpoints with HMAC authentication",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// HMAC Authentication Helper",
+          "const CryptoJS = require('crypto-js');",
+          "",
+          "// Configuration",
+          "const clientId = pm.environment.get('CLIENT_ID') || 'expert-core';",
+          "const clientSecret = pm.environment.get('CLIENT_SECRET') || 'test-secret-key-for-hmac-testing';",
+          "const tenantId = pm.environment.get('TENANT_ID') || '01958944-0916-78c8-978d-d2707b71e17d';",
+          "",
+          "// Generate timestamp",
+          "const timestamp = Date.now().toString();",
+          "",
+          "// Get request details",
+          "const method = pm.request.method;",
+          "const url = pm.request.url.toString();",
+          "const pathMatch = url.match(/\\/api(.*)$/);",
+          "const path = pathMatch ? pathMatch[1].split('?')[0].toLowerCase() : '';",
+          "",
+          "let stringToSign;",
+          "",
+          "// Handle different methods",
+          "if (['POST', 'PUT', 'PATCH'].includes(method) && pm.request.body && pm.request.body.raw) {",
+          "  try {",
+          "    const body = JSON.parse(pm.request.body.raw);",
+          "    if (Object.keys(body).length > 0) {",
+          "      stringToSign = JSON.stringify(body) + timestamp;",
+          "    } else {",
+          "      stringToSign = path + timestamp;",
+          "    }",
+          "  } catch (e) {",
+          "    stringToSign = path + timestamp;",
+          "  }",
+          "} else {",
+          "  stringToSign = path + timestamp;",
+          "}",
+          "",
+          "// Generate HMAC signature",
+          "const signature = CryptoJS.HmacSHA256(stringToSign, clientSecret).toString(CryptoJS.enc.Base64);",
+          "",
+          "// Set headers",
+          "pm.request.headers.add({",
+          "  key: 'x-client-id',",
+          "  value: clientId",
+          "});",
+          "",
+          "pm.request.headers.add({",
+          "  key: 'x-signature',",
+          "  value: signature",
+          "});",
+          "",
+          "pm.request.headers.add({",
+          "  key: 'x-timestamp',",
+          "  value: timestamp",
+          "});",
+          "",
+          "pm.request.headers.add({",
+          "  key: 'x-tenant-id',",
+          "  value: tenantId",
+          "});",
+          "",
+          "pm.request.headers.add({",
+          "  key: 'Content-Type',",
+          "  value: 'application/json'",
+          "});",
+          "",
+          "console.log('HMAC Debug:', {",
+          "  method,",
+          "  path,",
+          "  stringToSign,",
+          "  signature: signature.substring(0, 10) + '...'",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://expert-api-persons-dev.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "personId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "partnerId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Prerequisites",
+      "item": [
+        {
+          "name": "Create Test Person",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Response contains person data', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.collectionVariables.set('personId', jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe.partner.test@example.com\",\n  \"status\": \"active\",\n  \"employee_reference\": \"EMP-PARTNER-TEST-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons"]
+            },
+            "description": "Create a test person for partner operations"
+          }
+        }
+      ],
+      "description": "Setup operations needed before testing partners"
+    },
+    {
+      "name": "Partners CRUD Operations",
+      "item": [
+        {
+          "name": "Create Partner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Partner created successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('first_name', 'Jane');",
+                  "    pm.expect(jsonData.data).to.have.property('last_name', 'Smith');",
+                  "    pm.expect(jsonData.data).to.have.property('relationship_type', 'spouse');",
+                  "    pm.expect(jsonData.data).to.have.property('person_id', pm.collectionVariables.get('personId'));",
+                  "    pm.collectionVariables.set('partnerId', jsonData.data.id);",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"relationship_type\": \"spouse\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"since_date\": \"2020-06-20\",\n  \"is_current\": true,\n  \"notes\": \"Married in London, UK. Primary partner for visa applications.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}", "partners"]
+            },
+            "description": "Create a new partner record for the test person"
+          }
+        },
+        {
+          "name": "Get Partners for Person",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Partners retrieved successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    pm.expect(jsonData.data.length).to.be.greaterThan(0);",
+                  "    pm.expect(jsonData.data[0]).to.have.property('first_name', 'Jane');",
+                  "    pm.expect(jsonData.data[0]).to.have.property('person_id', pm.collectionVariables.get('personId'));",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}", "partners"]
+            },
+            "description": "Retrieve all partners for the test person"
+          }
+        },
+        {
+          "name": "Get Partner by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Partner retrieved successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id', pm.collectionVariables.get('partnerId'));",
+                  "    pm.expect(jsonData.data).to.have.property('first_name', 'Jane');",
+                  "    pm.expect(jsonData.data).to.have.property('last_name', 'Smith');",
+                  "    pm.expect(jsonData.data).to.have.property('relationship_type', 'spouse');",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            },
+            "description": "Retrieve a specific partner by ID"
+          }
+        },
+        {
+          "name": "Update Partner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Partner updated successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('relationship_type', 'civil_partner');",
+                  "    pm.expect(jsonData.data).to.have.property('is_current', false);",
+                  "    pm.expect(jsonData.data.notes).to.include('Updated relationship status');",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"relationship_type\": \"civil_partner\",\n  \"until_date\": \"2024-01-15\",\n  \"is_current\": false,\n  \"notes\": \"Updated relationship status - changed to civil partnership. Marriage dissolved and re-registered as civil partnership.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            },
+            "description": "Update partner information with partial data"
+          }
+        },
+        {
+          "name": "Delete Partner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});",
+                  "",
+                  "pm.test('Partner deleted successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('deleted successfully');",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            },
+            "description": "Soft delete the partner record"
+          }
+        }
+      ],
+      "description": "Core CRUD operations for partner management"
+    },
+    {
+      "name": "Validation & Error Handling",
+      "item": [
+        {
+          "name": "Create Partner - Missing Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Response has error message', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', false);",
+                  "    pm.expect(jsonData.message).to.include('required');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Jane\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}", "partners"]
+            },
+            "description": "Test validation by creating partner with missing required fields"
+          }
+        },
+        {
+          "name": "Get Partners - Non-existent Person",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Response has error message', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', false);",
+                  "    pm.expect(jsonData.message).to.include('not found');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/123e4567-e89b-12d3-a456-426614174000/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "123e4567-e89b-12d3-a456-426614174000", "partners"]
+            },
+            "description": "Test error handling for non-existent person"
+          }
+        },
+        {
+          "name": "Get Partner - Non-existent Partner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Response has error message', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', false);",
+                  "    pm.expect(jsonData.message).to.include('not found');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/123e4567-e89b-12d3-a456-426614174000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "123e4567-e89b-12d3-a456-426614174000"]
+            },
+            "description": "Test error handling for non-existent partner"
+          }
+        }
+      ],
+      "description": "Test validation and error handling scenarios"
+    },
+    {
+      "name": "Authentication Tests",
+      "item": [
+        {
+          "name": "Missing Authentication Headers",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Skip HMAC header generation for this request"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Authentication error returned', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', false);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}", "partners"]
+            },
+            "description": "Test authentication failure with missing headers"
+          }
+        },
+        {
+          "name": "Invalid Signature",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Set invalid signature manually",
+                  "const clientId = pm.environment.get('CLIENT_ID') || 'expert-core';",
+                  "const tenantId = pm.environment.get('TENANT_ID') || '01958944-0916-78c8-978d-d2707b71e17d';",
+                  "const timestamp = Date.now().toString();",
+                  "",
+                  "pm.request.headers.add({",
+                  "  key: 'x-client-id',",
+                  "  value: clientId",
+                  "});",
+                  "",
+                  "pm.request.headers.add({",
+                  "  key: 'x-signature',",
+                  "  value: 'invalid-signature-value'",
+                  "});",
+                  "",
+                  "pm.request.headers.add({",
+                  "  key: 'x-timestamp',",
+                  "  value: timestamp",
+                  "});",
+                  "",
+                  "pm.request.headers.add({",
+                  "  key: 'x-tenant-id',",
+                  "  value: tenantId",
+                  "});",
+                  "",
+                  "pm.request.headers.add({",
+                  "  key: 'Content-Type',",
+                  "  value: 'application/json'",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Authentication error returned', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', false);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}", "partners"]
+            },
+            "description": "Test authentication failure with invalid signature"
+          }
+        }
+      ],
+      "description": "Test HMAC authentication scenarios"
+    },
+    {
+      "name": "Cleanup",
+      "item": [
+        {
+          "name": "Delete Test Person",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Person deleted successfully', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/persons/{{personId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "persons", "{{personId}}"]
+            },
+            "description": "Clean up the test person and associated data"
+          }
+        }
+      ],
+      "description": "Cleanup operations after testing"
+    }
+  ]
+} 

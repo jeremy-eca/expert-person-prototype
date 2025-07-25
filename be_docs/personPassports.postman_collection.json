@@ -1,0 +1,715 @@
+{
+  "info": {
+    "name": "Person Passports API",
+    "description": "Complete API collection for passport management within the Global Mobility platform. Includes HMAC authentication, CRUD operations, and error handling scenarios.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{hmac_authorization}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "test_person_id",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "test_passport_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "hmac_authorization",
+      "value": "HMAC-SHA256 Credential={{hmac_access_key}}, SignedHeaders=host;x-tenant-id, Signature={{hmac_signature}}",
+      "type": "string"
+    },
+    {
+      "key": "hmac_access_key",
+      "value": "test-access-key",
+      "type": "string"
+    },
+    {
+      "key": "hmac_signature",
+      "value": "calculated-hmac-signature",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication Setup",
+      "item": [
+        {
+          "name": "Generate HMAC Headers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Test endpoint to verify HMAC authentication setup. Use this to ensure your HMAC signature generation is working correctly."
+          },
+          "response": []
+        }
+      ],
+      "description": "Helper requests for setting up HMAC authentication"
+    },
+    {
+      "name": "Passport CRUD Operations",
+      "item": [
+        {
+          "name": "Create Passport",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('test_passport_id', response.data.id);",
+                  "    pm.test('Passport created successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.id).to.be.a('string');",
+                  "        pm.expect(response.data.passport_number).to.eql('AB123456');",
+                  "        pm.expect(response.data.issuing_country).to.eql('US');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Expected error response', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([400, 401, 404]);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": \"{{test_person_id}}\",\n  \"passport_number\": \"AB123456\",\n  \"issuing_country\": \"US\",\n  \"issue_date\": \"2020-01-15\",\n  \"expiry_date\": \"2030-01-14\",\n  \"is_primary\": true,\n  \"is_active\": true,\n  \"visa_requirements\": \"Visa required for travel to Schengen area\",\n  \"scan_document_url\": \"https://documents.expert.com/passport1.pdf\",\n  \"additional_details\": {\n    \"place_of_issue\": \"New York\",\n    \"emergency_contact\": \"US Embassy contact details\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/passports",
+              "host": ["{{base_url}}"],
+              "path": ["passports"]
+            },
+            "description": "Creates a new passport record with complete information including optional fields."
+          },
+          "response": [
+            {
+              "name": "Success - Passport Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"person_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"passport_number\": \"AB123456\",\n  \"issuing_country\": \"US\",\n  \"issue_date\": \"2020-01-15\",\n  \"expiry_date\": \"2030-01-14\",\n  \"is_primary\": true,\n  \"is_active\": true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/passports",
+                  "host": ["{{base_url}}"],
+                  "path": ["passports"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"passport-uuid-1\",\n    \"person_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"tenant_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"passport_number\": \"AB123456\",\n    \"issuing_country\": \"US\",\n    \"issue_date\": \"2020-01-15\",\n    \"expiry_date\": \"2030-01-14\",\n    \"is_primary\": true,\n    \"is_active\": true,\n    \"visa_requirements\": null,\n    \"scan_document_url\": null,\n    \"additional_details\": null,\n    \"created_at\": \"2024-01-01T00:00:00Z\",\n    \"created_by\": \"system\",\n    \"updated_at\": \"2024-01-01T00:00:00Z\",\n    \"updated_by\": null\n  },\n  \"message\": \"Passport created successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Passport by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Passport retrieved successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.id).to.be.a('string');",
+                  "        pm.expect(response.data.passport_number).to.be.a('string');",
+                  "        pm.expect(response.data.issuing_country).to.be.a('string');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Expected error response', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([401, 404]);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/passports/{{test_passport_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["passports", "{{test_passport_id}}"]
+            },
+            "description": "Retrieves a specific passport record by its ID."
+          },
+          "response": [
+            {
+              "name": "Success - Passport Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/passports/passport-uuid-1",
+                  "host": ["{{base_url}}"],
+                  "path": ["passports", "passport-uuid-1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"passport-uuid-1\",\n    \"person_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"tenant_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"passport_number\": \"AB123456\",\n    \"issuing_country\": \"US\",\n    \"issue_date\": \"2020-01-15\",\n    \"expiry_date\": \"2030-01-14\",\n    \"is_primary\": true,\n    \"is_active\": true,\n    \"visa_requirements\": \"Visa required for travel to...\",\n    \"scan_document_url\": \"https://documents.expert.com/passport1.pdf\",\n    \"additional_details\": null,\n    \"created_at\": \"2024-01-01T00:00:00Z\",\n    \"created_by\": \"system\",\n    \"updated_at\": \"2024-01-01T00:00:00Z\",\n    \"updated_by\": \"user123\"\n  },\n  \"message\": \"Passport retrieved successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Passports for Person",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Passports retrieved successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data).to.be.an('array');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Expected error response', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([401, 404]);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/persons/{{test_person_id}}/passports",
+              "host": ["{{base_url}}"],
+              "path": ["persons", "{{test_person_id}}", "passports"]
+            },
+            "description": "Retrieves all passport records for a specific person."
+          },
+          "response": [
+            {
+              "name": "Success - Passports Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/persons/123e4567-e89b-12d3-a456-426614174000/passports",
+                  "host": ["{{base_url}}"],
+                  "path": ["persons", "123e4567-e89b-12d3-a456-426614174000", "passports"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"passport-uuid-1\",\n      \"person_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"tenant_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"passport_number\": \"AB123456\",\n      \"issuing_country\": \"US\",\n      \"issue_date\": \"2020-01-15\",\n      \"expiry_date\": \"2030-01-14\",\n      \"is_primary\": true,\n      \"is_active\": true,\n      \"visa_requirements\": \"Visa required for travel to...\",\n      \"scan_document_url\": \"https://documents.expert.com/passport1.pdf\",\n      \"additional_details\": {\n        \"place_of_issue\": \"New York\",\n        \"emergency_contact\": \"Embassy details\"\n      },\n      \"created_at\": \"2024-01-01T00:00:00Z\",\n      \"created_by\": \"system\",\n      \"updated_at\": \"2024-01-01T00:00:00Z\",\n      \"updated_by\": \"user123\"\n    }\n  ],\n  \"message\": \"Successfully retrieved 1 passport records\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Passport",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Passport updated successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.issuing_country).to.eql('UK');",
+                  "        pm.expect(response.data.is_active).to.be.false;",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Expected error response', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([400, 401, 404]);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issuing_country\": \"UK\",\n  \"is_active\": false,\n  \"visa_requirements\": \"Updated visa requirements for UK passport\",\n  \"additional_details\": {\n    \"place_of_issue\": \"London\",\n    \"notes\": \"Updated passport information\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/passports/{{test_passport_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["passports", "{{test_passport_id}}"]
+            },
+            "description": "Updates an existing passport record with new information."
+          },
+          "response": [
+            {
+              "name": "Success - Passport Updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"issuing_country\": \"UK\",\n  \"is_active\": false,\n  \"visa_requirements\": \"Updated visa requirements\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/passports/passport-uuid-1",
+                  "host": ["{{base_url}}"],
+                  "path": ["passports", "passport-uuid-1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+                             "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"passport-uuid-1\",\n    \"person_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"tenant_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"passport_number\": \"AB123456\",\n    \"issuing_country\": \"UK\",\n    \"issue_date\": \"2020-01-15\",\n    \"expiry_date\": \"2030-01-14\",\n    \"is_primary\": true,\n    \"is_active\": false,\n    \"visa_requirements\": \"Updated visa requirements\",\n    \"scan_document_url\": null,\n    \"additional_details\": null,\n    \"created_at\": \"2024-01-01T00:00:00Z\",\n    \"created_by\": \"system\",\n    \"updated_at\": \"2024-01-01T12:00:00Z\",\n    \"updated_by\": \"user123\"\n  },\n  \"message\": \"Passport updated successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Passport",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Passport deleted successfully', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.data.id).to.be.a('string');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Expected error response', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([401, 404]);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/passports/{{test_passport_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["passports", "{{test_passport_id}}"]
+            },
+            "description": "Soft deletes a passport record (sets deleted_at timestamp)."
+          },
+          "response": [
+            {
+              "name": "Success - Passport Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/passports/passport-uuid-1",
+                  "host": ["{{base_url}}"],
+                  "path": ["passports", "passport-uuid-1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"passport-uuid-1\"\n  },\n  \"message\": \"Passport deleted successfully\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Complete CRUD operations for passport management"
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Create Passport - Missing Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Validation error returned', function () {",
+                  "    pm.expect(pm.response.code).to.eql(400);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.message).to.include('required');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passport_number\": \"AB123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/passports",
+              "host": ["{{base_url}}"],
+              "path": ["passports"]
+            },
+            "description": "Tests validation by attempting to create a passport without required fields."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Passport - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Not found error returned', function () {",
+                  "    pm.expect(pm.response.code).to.eql(404);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.message).to.include('not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/passports/non-existent-id",
+              "host": ["{{base_url}}"],
+              "path": ["passports", "non-existent-id"]
+            },
+            "description": "Tests error handling when requesting a non-existent passport."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Passports - Person Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Person not found error returned', function () {",
+                  "    pm.expect(pm.response.code).to.eql(404);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.message).to.include('Person not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/persons/non-existent-person-id/passports",
+              "host": ["{{base_url}}"],
+              "path": ["persons", "non-existent-person-id", "passports"]
+            },
+            "description": "Tests error handling when requesting passports for a non-existent person."
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthorized Access - Missing HMAC",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Unauthorized error returned', function () {",
+                  "    pm.expect(pm.response.code).to.eql(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/passports/any-id",
+              "host": ["{{base_url}}"],
+              "path": ["passports", "any-id"]
+            },
+            "description": "Tests authentication by making a request without HMAC headers."
+          },
+          "response": []
+        }
+      ],
+      "description": "Error handling and validation scenarios"
+    },
+    {
+      "name": "Owner-based Endpoints (Deprecated)",
+      "item": [
+        {
+          "name": "Get Passports by Owner - Not Supported",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Owner endpoint not supported', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.false;",
+                  "    pm.expect(response.message).to.include('not supported');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/owners/person/{{test_person_id}}/passports",
+              "host": ["{{base_url}}"],
+              "path": ["owners", "person", "{{test_person_id}}", "passports"]
+            },
+            "description": "Tests the deprecated owner-based endpoint which is not supported in the current schema."
+          },
+          "response": [
+            {
+              "name": "Not Supported Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-tenant-id",
+                    "value": "123e4567-e89b-12d3-a456-426614174000"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/owners/person/123e4567-e89b-12d3-a456-426614174000/passports",
+                  "host": ["{{base_url}}"],
+                  "path": ["owners", "person", "123e4567-e89b-12d3-a456-426614174000", "passports"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"data\": null,\n  \"message\": \"Owner-based passport queries not supported in current schema\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Deprecated endpoints for owner-based passport queries"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// HMAC Authentication Setup",
+          "// Note: In a real implementation, you would need to calculate the HMAC signature",
+          "// based on the request method, path, headers, and body using your secret key.",
+          "",
+          "// For testing purposes, set up basic HMAC structure",
+          "const accessKey = pm.collectionVariables.get('hmac_access_key');",
+          "const tenantId = pm.collectionVariables.get('tenant_id');",
+          "",
+          "// In production, calculate the actual HMAC-SHA256 signature",
+          "const mockSignature = 'mock-signature-for-testing';",
+          "const authorization = `HMAC-SHA256 Credential=${accessKey}, SignedHeaders=host;x-tenant-id, Signature=${mockSignature}`;",
+          "",
+          "pm.collectionVariables.set('hmac_authorization', authorization);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test validations",
+          "pm.test('Response time is reasonable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "pm.test('Response has correct content type', function () {",
+          "    if (pm.response.code !== 401) {",
+          "        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "    }",
+          "});",
+          "",
+          "pm.test('Response follows API structure', function () {",
+          "    if (pm.response.code !== 401) {",
+          "        const response = pm.response.json();",
+          "        pm.expect(response).to.have.property('success');",
+          "        pm.expect(response).to.have.property('data');",
+          "        pm.expect(response).to.have.property('message');",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ]
+} 

@@ -1,0 +1,965 @@
+{
+	"info": {
+		"_postman_id": "person-financial-hmac-collection",
+		"name": "Person Financial HMAC",
+		"description": "Person Financial endpoints with HMAC authentication for expert-persons microservice. Includes salaries, payroll details, tax domiciles, and financial information management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Salaries",
+			"item": [
+				{
+					"name": "Get Person Salaries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get salaries for"
+								}
+							]
+						},
+						"description": "Retrieve all salary records for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person Salary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"salary_amount\": 120000,\n  \"currency\": \"USD\",\n  \"frequency\": \"Annual\",\n  \"effective_from\": \"2024-01-01\",\n  \"effective_to\": null,\n  \"salary_type\": \"Base\",\n  \"is_current\": true,\n  \"company_name\": \"Tech Solutions Inc.\",\n  \"position_title\": \"Senior Software Engineer\",\n  \"bonus_eligible\": true,\n  \"commission_eligible\": false,\n  \"overtime_eligible\": false,\n  \"notes\": \"Annual base salary with performance bonus eligibility\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries"
+							]
+						},
+						"description": "Create a new salary record for a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person Salary",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"salary_amount\": 135000,\n  \"currency\": \"USD\",\n  \"frequency\": \"Annual\",\n  \"effective_from\": \"2024-07-01\",\n  \"effective_to\": null,\n  \"salary_type\": \"Base\",\n  \"is_current\": true,\n  \"company_name\": \"Tech Solutions Inc.\",\n  \"position_title\": \"Lead Software Engineer\",\n  \"bonus_eligible\": true,\n  \"commission_eligible\": false,\n  \"overtime_eligible\": false,\n  \"notes\": \"Salary increase due to promotion to Lead Engineer\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries/{{salaryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries",
+								"{{salaryId}}"
+							]
+						},
+						"description": "Update an existing person salary record"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person Salary",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries/{{salaryId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries",
+								"{{salaryId}}"
+							]
+						},
+						"description": "Soft delete a person salary record"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payroll Details",
+			"item": [
+				{
+					"name": "Get Person Payroll Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-payroll-details?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-payroll-details"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get payroll details for"
+								}
+							]
+						},
+						"description": "Retrieve all payroll details for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person Payroll Detail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"payroll_company\": \"Tech Solutions Inc.\",\n  \"employee_id\": \"EMP001\",\n  \"pay_frequency\": \"Bi-weekly\",\n  \"pay_method\": \"Direct Deposit\",\n  \"bank_name\": \"First National Bank\",\n  \"account_number\": \"****1234\",\n  \"routing_number\": \"021000021\",\n  \"tax_withholding_status\": \"Married Filing Jointly\",\n  \"federal_allowances\": 2,\n  \"state_allowances\": 2,\n  \"additional_withholding\": 0,\n  \"is_active\": true,\n  \"effective_from\": \"2024-01-01\",\n  \"notes\": \"Standard payroll setup with direct deposit\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-payroll-details",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-payroll-details"
+							]
+						},
+						"description": "Create a new payroll detail record for a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person Payroll Detail",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"payroll_company\": \"Tech Solutions Inc.\",\n  \"employee_id\": \"EMP001\",\n  \"pay_frequency\": \"Bi-weekly\",\n  \"pay_method\": \"Direct Deposit\",\n  \"bank_name\": \"Second National Bank\",\n  \"account_number\": \"****5678\",\n  \"routing_number\": \"021000022\",\n  \"tax_withholding_status\": \"Married Filing Jointly\",\n  \"federal_allowances\": 3,\n  \"state_allowances\": 3,\n  \"additional_withholding\": 100,\n  \"is_active\": true,\n  \"effective_from\": \"2024-07-01\",\n  \"notes\": \"Updated bank account and tax withholding information\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-payroll-details/{{payrollDetailId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-payroll-details",
+								"{{payrollDetailId}}"
+							]
+						},
+						"description": "Update an existing person payroll detail record"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person Payroll Detail",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-payroll-details/{{payrollDetailId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-payroll-details",
+								"{{payrollDetailId}}"
+							]
+						},
+						"description": "Soft delete a person payroll detail record"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tax Domiciles",
+			"item": [
+				{
+					"name": "Get Person Tax Domiciles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-tax-domiciles?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-tax-domiciles"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get tax domiciles for"
+								}
+							]
+						},
+						"description": "Retrieve all tax domiciles for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Person Tax Domicile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"country\": \"US\",\n  \"state_province\": \"NY\",\n  \"tax_year\": 2024,\n  \"domicile_type\": \"Tax Resident\",\n  \"is_primary\": true,\n  \"effective_from\": \"2024-01-01\",\n  \"effective_to\": \"2024-12-31\",\n  \"tax_treaty_applicable\": false,\n  \"withholding_rate\": 0,\n  \"filing_status\": \"Married Filing Jointly\",\n  \"notes\": \"Primary tax domicile for 2024 tax year\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-tax-domiciles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-tax-domiciles"
+							]
+						},
+						"description": "Create a new tax domicile record for a person"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Person Tax Domicile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"person_id\": \"{{personId}}\",\n  \"country\": \"US\",\n  \"state_province\": \"CA\",\n  \"tax_year\": 2024,\n  \"domicile_type\": \"Tax Resident\",\n  \"is_primary\": true,\n  \"effective_from\": \"2024-07-01\",\n  \"effective_to\": \"2024-12-31\",\n  \"tax_treaty_applicable\": false,\n  \"withholding_rate\": 0,\n  \"filing_status\": \"Married Filing Jointly\",\n  \"notes\": \"Updated tax domicile due to relocation to California\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-tax-domiciles/{{taxDomicileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-tax-domiciles",
+								"{{taxDomicileId}}"
+							]
+						},
+						"description": "Update an existing person tax domicile record"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Person Tax Domicile",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-tax-domiciles/{{taxDomicileId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-tax-domiciles",
+								"{{taxDomicileId}}"
+							]
+						},
+						"description": "Soft delete a person tax domicile record"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Financial Management",
+			"item": [
+				{
+					"name": "Get Current Salary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries/current?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries",
+								"current"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get current salary for"
+								}
+							]
+						},
+						"description": "Get the current salary record for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Salary History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-salaries/history?person_id={{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-salaries",
+								"history"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to get salary history for"
+								}
+							]
+						},
+						"description": "Get the complete salary history for a specific person"
+					},
+					"response": []
+				},
+				{
+					"name": "Calculate Annual Compensation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/person-financial/compensation?person_id={{personId}}&year=2024",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-financial",
+								"compensation"
+							],
+							"query": [
+								{
+									"key": "person_id",
+									"value": "{{personId}}",
+									"description": "Person ID to calculate compensation for"
+								},
+								{
+									"key": "year",
+									"value": "2024",
+									"description": "Year to calculate compensation for"
+								}
+							]
+						},
+						"description": "Calculate total annual compensation including salary, bonuses, and benefits"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Tax Information",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tax_withholding_status\": \"Single\",\n  \"federal_allowances\": 1,\n  \"state_allowances\": 1,\n  \"additional_withholding\": 200,\n  \"effective_date\": \"2024-07-01\",\n  \"notes\": \"Updated tax withholding due to marital status change\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/person-payroll-details/{{payrollDetailId}}/tax-info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"person-payroll-details",
+								"{{payrollDetailId}}",
+								"tax-info"
+							]
+						},
+						"description": "Update tax withholding information for a person"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// FINAL WORKING HMAC Authentication Pre-request Script for Expert Global API",
+					"const CryptoJS = require('crypto-js');",
+					"",
+					"const timestamp = Date.now().toString();",
+					"pm.environment.set('timestamp', timestamp);",
+					"",
+					"//const clientId = pm.environment.get('clientId');",
+					"//const secretKey = pm.environment.get('clientKey'); // Your environment variable name",
+					"//const tenantId = pm.environment.get('tenantId') || 'global';",
+					"",
+					"const clientId = 'expert-core';",
+					"const secretKey = 'jH3E2kK28sD9vL9kqP1sT5qQ7wA3zX2r';",
+					"const tenantId = '01958944-0916-78c8-978d-d2707b71e17d';",
+					"",
+					"console.log('Environment variables:');",
+					"console.log('clientId:', clientId);",
+					"console.log('secretKey:', secretKey ? 'SET' : 'MISSING');",
+					"console.log('tenantId:', tenantId);",
+					"",
+					"if (!clientId || !secretKey) {",
+					"    console.error('Missing clientId or secretKey in environment variables');",
+					"    return;",
+					"}",
+					"",
+					"const method = pm.request.method.toLowerCase();",
+					"let stringToSign;",
+					"",
+					"if (['post', 'put', 'patch', 'delete'].includes(method) && ",
+					"    pm.request.body && pm.request.body.raw && pm.request.body.raw.length > 0) {",
+					"    const body = pm.request.body.raw;",
+					"    let bodyObj;",
+					"    try {",
+					"        bodyObj = JSON.parse(body);",
+					"        stringToSign = JSON.stringify(bodyObj) + timestamp;",
+					"    } catch (e) {",
+					"        stringToSign = body + timestamp;",
+					"    }",
+					"    console.log('HMAC check via body');",
+					"} else {",
+					"    // CRITICAL FIX: Server strips /api prefix",
+					"    let path = '/' + pm.request.url.path.join('/');",
+					"    if (path.startsWith('/api/')) {",
+					"        path = path.substring(4); // Remove '/api' prefix",
+					"    }",
+					"    stringToSign = path.toLowerCase() + timestamp;",
+					"    console.log('HMAC check via path (server strips /api):', path);",
+					"}",
+					"",
+					"const signature = CryptoJS.HmacSHA256(stringToSign, secretKey).toString(CryptoJS.enc.Base64);",
+					"",
+					"console.log('String to sign:', stringToSign);",
+					"console.log('Generated signature:', signature);",
+					"",
+					"// Clear and set headers",
+					"pm.request.headers.remove('x-client-id');",
+					"pm.request.headers.remove('x-signature');",
+					"pm.request.headers.remove('x-timestamp');",
+					"pm.request.headers.remove('x-tenant-id');",
+					"pm.request.headers.remove('Content-Type');",
+					"",
+					"pm.request.headers.add({key: 'x-client-id', value: clientId});",
+					"pm.request.headers.add({key: 'x-signature', value: signature});",
+					"pm.request.headers.add({key: 'x-timestamp', value: timestamp});",
+					"pm.request.headers.add({key: 'x-tenant-id', value: tenantId});",
+					"pm.request.headers.add({key: 'Content-Type', value: 'application/json'});",
+					"",
+					"console.log('HMAC headers set:', {",
+					"    'x-client-id': clientId,",
+					"    'x-timestamp': timestamp,",
+					"    'x-tenant-id': tenantId,",
+					"    'method': method,",
+					"    'stringToSign': stringToSign",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://expert-api-persons-dev.onrender.com/api",
+			"type": "string"
+		},
+		{
+			"key": "personId",
+			"value": "123e4567-e89b-12d3-a456-426614174000",
+			"type": "string"
+		},
+		{
+			"key": "salaryId",
+			"value": "efg23456-e89b-12d3-a456-426614174013",
+			"type": "string"
+		},
+		{
+			"key": "payrollDetailId",
+			"value": "hij78901-e89b-12d3-a456-426614174014",
+			"type": "string"
+		},
+		{
+			"key": "taxDomicileId",
+			"value": "klm34567-e89b-12d3-a456-426614174015",
+			"type": "string"
+		}
+	]
+}

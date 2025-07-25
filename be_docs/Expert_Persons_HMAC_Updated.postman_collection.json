@@ -1,0 +1,577 @@
+{
+	"info": {
+		"_postman_id": "expert-persons-hmac-updated",
+		"name": "Expert Persons API - HMAC Authentication",
+		"description": "Complete Expert Persons API collection with updated HMAC-SHA256 authentication.\n\n## Authentication\nAll endpoints require HMAC-SHA256 authentication with the following headers:\n- `x-client-id`: Client identifier for AWS Secrets Manager lookup\n- `x-signature`: Base64-encoded HMAC-SHA256 signature\n- `x-timestamp`: Unix timestamp in milliseconds\n- `x-tenant-id`: Tenant identifier (UUID or 'global')\n- `Content-Type`: application/json\n\n## Environment Variables\nSet up the following environment variables:\n- `baseUrl`: API base URL (e.g., http://localhost:3001/api)\n- `clientId`: Your client ID\n- `clientKey`: Your client secret key\n- `tenantId`: Your tenant ID (or 'global')\n\n## Pre-request Script\nThe collection includes a comprehensive pre-request script that automatically generates HMAC signatures for all requests, handling both GET/DELETE (path-based) and POST/PUT/PATCH (body-based) signature generation.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// FINAL WORKING HMAC Authentication Pre-request Script for Expert Global API",
+					"const CryptoJS = require('crypto-js');",
+					"",
+					"const timestamp = Date.now().toString();",
+					"pm.environment.set('timestamp', timestamp);",
+					"",
+					"//const clientId = pm.environment.get('clientId');",
+					"//const secretKey = pm.environment.get('clientKey'); // Your environment variable name",
+					"//const tenantId = pm.environment.get('tenantId') || 'global';",
+					"",
+					"const clientId = 'expert-core';",
+					"const secretKey = 'jH3E2kK28sD9vL9kqP1sT5qQ7wA3zX2r';",
+					"const tenantId = '01958944-0916-78c8-978d-d2707b71e17d';",
+					"",
+					"console.log('Environment variables:');",
+					"console.log('clientId:', clientId);",
+					"console.log('secretKey:', secretKey ? 'SET' : 'MISSING');",
+					"console.log('tenantId:', tenantId);",
+					"",
+					"if (!clientId || !secretKey) {",
+					"    console.error('Missing clientId or secretKey in environment variables');",
+					"    return;",
+					"}",
+					"",
+					"const method = pm.request.method.toLowerCase();",
+					"let stringToSign;",
+					"",
+					"if (['post', 'put', 'patch', 'delete'].includes(method) && ",
+					"    pm.request.body && pm.request.body.raw && pm.request.body.raw.length > 0) {",
+					"    const body = pm.request.body.raw;",
+					"    let bodyObj;",
+					"    try {",
+					"        bodyObj = JSON.parse(body);",
+					"        stringToSign = JSON.stringify(bodyObj) + timestamp;",
+					"    } catch (e) {",
+					"        stringToSign = body + timestamp;",
+					"    }",
+					"    console.log('HMAC check via body');",
+					"} else {",
+					"    // CRITICAL FIX: Server strips /api prefix",
+					"    let path = '/' + pm.request.url.path.join('/');",
+					"    if (path.startsWith('/api/')) {",
+					"        path = path.substring(4); // Remove '/api' prefix",
+					"    }",
+					"    stringToSign = path.toLowerCase() + timestamp;",
+					"    console.log('HMAC check via path (server strips /api):', path);",
+					"}",
+					"",
+					"const signature = CryptoJS.HmacSHA256(stringToSign, secretKey).toString(CryptoJS.enc.Base64);",
+					"",
+					"console.log('String to sign:', stringToSign);",
+					"console.log('Generated signature:', signature);",
+					"",
+					"// Clear and set headers",
+					"pm.request.headers.remove('x-client-id');",
+					"pm.request.headers.remove('x-signature');",
+					"pm.request.headers.remove('x-timestamp');",
+					"pm.request.headers.remove('x-tenant-id');",
+					"pm.request.headers.remove('Content-Type');",
+					"",
+					"pm.request.headers.add({key: 'x-client-id', value: clientId});",
+					"pm.request.headers.add({key: 'x-signature', value: signature});",
+					"pm.request.headers.add({key: 'x-timestamp', value: timestamp});",
+					"pm.request.headers.add({key: 'x-tenant-id', value: tenantId});",
+					"pm.request.headers.add({key: 'Content-Type', value: 'application/json'});",
+					"",
+					"console.log('HMAC headers set:', {",
+					"    'x-client-id': clientId,",
+					"    'x-timestamp': timestamp,",
+					"    'x-tenant-id': tenantId,",
+					"    'method': method,",
+					"    'stringToSign': stringToSign",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://expert-api-persons-dev.onrender.com/api",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// FINAL WORKING HMAC Authentication Pre-request Script for Expert Global API",
+							"const CryptoJS = require('crypto-js');",
+							"",
+							"const timestamp = Date.now().toString();",
+							"pm.environment.set('timestamp', timestamp);",
+							"",
+							"const clientId = pm.environment.get('clientId');",
+							"const secretKey = pm.environment.get('clientKey'); // Your environment variable name",
+							"const tenantId = pm.environment.get('tenantId') || 'global';",
+							"",
+							"console.log('Environment variables:');",
+							"console.log('clientId:', clientId);",
+							"console.log('secretKey:', secretKey ? 'SET' : 'MISSING');",
+							"console.log('tenantId:', tenantId);",
+							"",
+							"if (!clientId || !secretKey) {",
+							"    console.error('Missing clientId or secretKey in environment variables');",
+							"    return;",
+							"}",
+							"",
+							"const method = pm.request.method.toLowerCase();",
+							"let stringToSign;",
+							"",
+							"if (['post', 'put', 'patch'].includes(method) && ",
+							"    pm.request.body && pm.request.body.raw && pm.request.body.raw.length > 0) {",
+							"    const body = pm.request.body.raw;",
+							"    let bodyObj;",
+							"    try {",
+							"        bodyObj = JSON.parse(body);",
+							"        stringToSign = JSON.stringify(bodyObj) + timestamp;",
+							"    } catch (e) {",
+							"        stringToSign = body + timestamp;",
+							"    }",
+							"    console.log('HMAC check via body');",
+							"} else {",
+							"    // CRITICAL FIX: Server strips /api prefix",
+							"    // Use the resolved URL to get the actual path with substituted variables",
+							"    let fullUrl = pm.request.url.toString();",
+							"    let urlObj = new URL(fullUrl);",
+							"    let path = urlObj.pathname;",
+							"    if (path.startsWith('/api/')) {",
+							"        path = path.substring(4); // Remove '/api' prefix",
+							"    }",
+							"    stringToSign = path.toLowerCase() + timestamp;",
+							"    console.log('HMAC check via path (server strips /api):', path);",
+							"    console.log('Full resolved URL:', fullUrl);",
+							"    console.log('URL pathname:', urlObj.pathname);",
+							"}",
+							"",
+							"const signature = CryptoJS.HmacSHA256(stringToSign, secretKey).toString(CryptoJS.enc.Base64);",
+							"",
+							"console.log('String to sign:', stringToSign);",
+							"console.log('Generated signature:', signature);",
+							"",
+							"// Clear and set headers",
+							"pm.request.headers.remove('x-client-id');",
+							"pm.request.headers.remove('x-signature');",
+							"pm.request.headers.remove('x-timestamp');",
+							"pm.request.headers.remove('x-tenant-id');",
+							"pm.request.headers.remove('Content-Type');",
+							"",
+							"pm.request.headers.add({key: 'x-client-id', value: clientId});",
+							"pm.request.headers.add({key: 'x-signature', value: signature});",
+							"pm.request.headers.add({key: 'x-timestamp', value: timestamp});",
+							"pm.request.headers.add({key: 'x-tenant-id', value: tenantId});",
+							"pm.request.headers.add({key: 'Content-Type', value: 'application/json'});",
+							"",
+							"console.log('HMAC headers set:', {",
+							"    'x-client-id': clientId,",
+							"    'x-timestamp': timestamp,",
+							"    'x-tenant-id': tenantId,",
+							"    'method': method,",
+							"    'stringToSign': stringToSign",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-client-id",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "x-signature",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "x-timestamp",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "x-tenant-id",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			}
+		},
+		{
+			"name": "Persons",
+			"item": [
+				{
+					"name": "Get All Persons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Person by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons",
+								"{{personId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Person",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"gender\": \"Male\",\n  \"nationality\": \"US\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Person",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons",
+								"{{personId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Person",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons",
+								"{{personId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Composite Persons",
+			"item": [
+				{
+					"name": "Get Composite Person",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/persons/{{personId}}/composite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons",
+								"{{personId}}",
+								"composite"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Composite Persons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-client-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-signature",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-timestamp",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "x-tenant-id",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/persons/composite?limit=10&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"persons",
+								"composite"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

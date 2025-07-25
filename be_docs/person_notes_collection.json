@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "Person Notes API",
+    "description": "API endpoints for managing person notes in the Expert Case Management system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "01958944-0916-78c8-978d-d2707b71e17d",
+      "type": "string"
+    },
+    {
+      "key": "person_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "note_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Generate JWT Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"expert-core\",\n  \"timestamp\": {{$timestamp}},\n  \"signature\": \"generated_hmac_signature\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/token",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "token"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Person Notes",
+      "item": [
+        {
+          "name": "Create Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_text\": \"This is a test note for the person\",\n  \"case_id\": null,\n  \"created_by\": \"test-user\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/persons/{{person_id}}/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "persons", "{{person_id}}", "notes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Notes for Person",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/persons/{{person_id}}/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "persons", "{{person_id}}", "notes"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Specific Note",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/persons/{{person_id}}/notes/{{note_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "persons", "{{person_id}}", "notes", "{{note_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Note",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_text\": \"Updated note content\",\n  \"case_id\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/persons/{{person_id}}/notes/{{note_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "persons", "{{person_id}}", "notes", "{{note_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Note",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenant_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/persons/{{person_id}}/notes/{{note_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "persons", "{{person_id}}", "notes", "{{note_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
