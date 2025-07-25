@@ -2043,7 +2043,6 @@ export const ProfileSection = ({
                               >
                                 <PlusIcon className="w-4 h-4" />
                               </Button>
-                              </Button>
                           </div>
                         ) : (
                           <div className="flex flex-wrap gap-2">
