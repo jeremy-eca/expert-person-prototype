@@ -1,13 +1,11 @@
 {
   "include": [
-    "app/**/*.ts",
-    "app/**/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "src",
-    "app/routes"
+    "dist"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES6"],
@@ -24,8 +22,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"],
-      "@/*": ["./app/*"]
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"]
     },
     "noEmit": true
   }
