@@ -2172,13 +2172,10 @@ export const ProfileSection = ({
                       />
                       <Button
                         type="button"
-                        size="icon"
-                        variant="outline"
                         onClick={() => setShowLanguageModal(true)}
-                        className="h-[52px] w-[52px] bg-[#2A3440] border-[#40505C] border-2 border-dashed text-white hover:bg-[#40505C] hover:border-white"
-                        title="Add Language"
+                        className="h-[52px] w-[52px] border-2 border-dashed border-gray-300 bg-white hover:bg-gray-50 flex items-center justify-center"
                       >
-                        <PlusIcon className="h-4 w-4" />
+                        <PlusIcon className="w-5 h-5 text-gray-600" />
                       </Button>
                     </div>
                   </div>
