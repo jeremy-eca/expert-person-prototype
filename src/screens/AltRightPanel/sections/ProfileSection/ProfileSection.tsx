@@ -48,6 +48,8 @@ export const ProfileSection = ({
   const [googleSearchTerm, setGoogleSearchTerm] = useState('');
   const [googleSuggestions, setGoogleSuggestions] = useState<any[]>([]);
   const [showGoogleSuggestions, setShowGoogleSuggestions] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [editingEmergencyContact, setEditingEmergencyContact] = useState(false);
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
@@ -56,6 +58,22 @@ export const ProfileSection = ({
   const [editFirstName, setEditFirstName] = useState(profile.name.split(" ")[0] || "");
   const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
   const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
+  
+  // Contact form states
+  const [contactForm, setContactForm] = useState({
+    workEmail: profile?.contact?.workEmail || '',
+    personalEmail: profile?.contact?.personalEmail || '',
+    workPhone: profile?.contact?.workPhone || '',
+    mobilePhone: profile?.contact?.mobilePhone || ''
+  });
+
+  const [emergencyContactForm, setEmergencyContactForm] = useState({
+    name: profile?.emergencyContact?.name || '',
+    relationship: profile?.emergencyContact?.relationship || '',
+    phone: profile?.emergencyContact?.phone || '',
+    alternativePhone: '',
+    email: ''
+  });
   
   // Address edit states
   const [editCurrentAddress, setEditCurrentAddress] = useState({
@@ -267,6 +285,52 @@ export const ProfileSection = ({
     setIsEditingPermanentAddress(false);
   };
 
+  const handleSaveContact = () => {
+    if (onProfileUpdate && profile) {
+      onProfileUpdate({
+        ...profile,
+        contact: {
+          workEmail: contactForm.workEmail,
+          workPhone: contactForm.workPhone,
+          personalEmail: contactForm.personalEmail || undefined,
+          mobilePhone: contactForm.mobilePhone || undefined
+        },
+        contactHistory: [
+          {
+            date: new Date().toLocaleDateString(),
+            type: 'Contact Updated',
+            details: 'Contact information updated'
+          },
+          ...(profile.contactHistory || [])
+        ]
+      });
+    }
+    setEditingContact(false);
+  };
+
+  const handleSaveEmergencyContact = () => {
+    if (onProfileUpdate && profile) {
+      onProfileUpdate({
+        ...profile,
+        emergencyContact: {
+          name: emergencyContactForm.name,
+          relationship: emergencyContactForm.relationship,
+          phone: emergencyContactForm.phone,
+          email: emergencyContactForm.email || undefined
+        },
+        contactHistory: [
+          {
+            date: new Date().toLocaleDateString(),
+            type: 'Emergency Contact Updated',
+            details: `Emergency contact set to ${emergencyContactForm.name}`
+          },
+          ...(profile.contactHistory || [])
+        ]
+      });
+    }
+    setEditingEmergencyContact(false);
+  };
+
   // Mock Google Places API lookup
   const handleGoogleSearch = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
@@ -338,7 +402,7 @@ export const ProfileSection = ({
       state: '',
       postcode: '',
       country: '',
-      isCurrentAddress: false
+      setAsCurrent: false
     });
     setUseGoogleLookup(true);
     setGoogleSearchTerm('');
@@ -356,7 +420,7 @@ export const ProfileSection = ({
       state: '',
       postcode: '',
       country: '',
-      isCurrentAddress: false
+      setAsCurrent: false
     });
     setGoogleSearchTerm('');
     setGoogleSuggestions([]);
@@ -1439,8 +1503,8 @@ export const ProfileSection = ({
                 <label className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    checked={newAddress.isCurrentAddress}
-                    onChange={(e) => setNewAddress(prev => ({ ...prev, isCurrentAddress: e.target.checked }))}
+                    checked={newAddress.setAsCurrent}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, setAsCurrent: e.target.checked }))}
                     className="w-4 h-4 text-[#732cec] bg-[#1D252D] border-[#40505C] rounded focus:ring-[#732cec]"
                   />
                   <span className="text-sm text-gray-300">Set as current address</span>
@@ -1974,21 +2038,6 @@ export const ProfileSection = ({
                     <span className="text-white">She/her/hers</span>
                   </div>
                   <div className="flex justify-between">
-  // Contact form states
-  const [contactForm, setContactForm] = useState({
-    workEmail: profile?.contact?.workEmail || '',
-    personalEmail: profile?.contact?.personalEmail || '',
-    workPhone: profile?.contact?.workPhone || '',
-    mobilePhone: profile?.contact?.mobilePhone || ''
-  });
-
-  const [emergencyContactForm, setEmergencyContactForm] = useState({
-    name: profile?.emergencyContact?.name || '',
-    relationship: profile?.emergencyContact?.relationship || '',
-    phone: profile?.emergencyContact?.phone || '',
-    alternativePhone: '',
-    email: ''
-  });
                     <span className="text-gray-400">Date of birth</span>
                     <span className="text-white">{profile.dateOfBirth || "01 December 1980"}</span>
                   </div>
@@ -2024,19 +2073,6 @@ export const ProfileSection = ({
                       value="Male"
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
                     />
-    setContactForm({
-      workEmail: profile?.contact?.workEmail || '',
-      personalEmail: profile?.contact?.personalEmail || '',
-      workPhone: profile?.contact?.workPhone || '',
-      mobilePhone: profile?.contact?.mobilePhone || ''
-    });
-    setEmergencyContactForm({
-      name: profile?.emergencyContact?.name || '',
-      relationship: profile?.emergencyContact?.relationship || '',
-      phone: profile?.emergencyContact?.phone || '',
-      alternativePhone: '',
-      email: ''
-    });
                   </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Gender identity</label>
@@ -2118,6 +2154,35 @@ export const ProfileSection = ({
           </Card>
 
           {/* Map Placeholder */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026] relative overflow-hidden">
+            <CardContent className="p-0 h-48 relative">
+              {/* Map background with grid pattern */}
+              <div 
+                className="absolute inset-0 bg-gray-700"
+                style={{
+                  backgroundImage: `url("${gridPatternSvg}")`,
+                  backgroundSize: '20px 20px'
+                }}
+              >
+              </div>
+              
+              {/* Location markers */}
+              <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
+              <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-green-600 rounded-full border-2 border-white shadow-lg"></div>
+              <div className="absolute bottom-1/3 right-1/3 w-3 h-3 bg-pink-600 rounded-full border-2 border-white shadow-lg"></div>
+              
+              {/* Expand button */}
+              <Button
+                size="sm"
+                className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white border-0 p-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Quick Contact Details Card */}
           <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
             <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
@@ -2151,23 +2216,13 @@ export const ProfileSection = ({
                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                   </svg>
                 </div>
-              
-              {/* Location markers */}
-              <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
-              <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-green-600 rounded-full border-2 border-white shadow-lg"></div>
-              <div className="absolute bottom-1/3 right-1/3 w-3 h-3 bg-pink-600 rounded-full border-2 border-white shadow-lg"></div>
-              
-              {/* Expand button */}
-              <Button
-                size="sm"
-                className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white border-0 p-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-              </Button>
-            </div>
-          </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Phone</p>
+                  <p className="text-gray-300 text-sm">{profile.contact?.workPhone || 'Not provided'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
@@ -2175,51 +2230,6 @@ export const ProfileSection = ({
 
   // Render different sections based on activeSection
   switch (activeSection) {
-  const handleSaveContact = () => {
-    if (onProfileUpdate && profile) {
-      onProfileUpdate({
-        ...profile,
-        contact: {
-          workEmail: contactForm.workEmail,
-          workPhone: contactForm.workPhone,
-          personalEmail: contactForm.personalEmail || undefined,
-          mobilePhone: contactForm.mobilePhone || undefined
-        },
-        contactHistory: [
-          {
-            date: new Date().toLocaleDateString(),
-            type: 'Contact Updated',
-            details: 'Contact information updated'
-          },
-          ...(profile.contactHistory || [])
-        ]
-      });
-    }
-    setEditingContact(false);
-  };
-
-  const handleSaveEmergencyContact = () => {
-    if (onProfileUpdate && profile) {
-      onProfileUpdate({
-        ...profile,
-        emergencyContact: {
-          name: emergencyContactForm.name,
-          relationship: emergencyContactForm.relationship,
-          phone: emergencyContactForm.phone,
-          email: emergencyContactForm.email || undefined
-        },
-        contactHistory: [
-          {
-            date: new Date().toLocaleDateString(),
-            type: 'Emergency Contact Updated',
-            details: `Emergency contact set to ${emergencyContactForm.name}`
-          },
-          ...(profile.contactHistory || [])
-        ]
-      });
-    }
-    setEditingEmergencyContact(false);
-  };
     case "details":
       return renderDetailsSection();
     case "location":
@@ -2232,12 +2242,6 @@ export const ProfileSection = ({
       return (
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
           <p className="text-white text-lg">Work & Employment section coming soon...</p>
-        </div>
-      );
-    case "contact":
-      return (
-        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
-          <p className="text-white text-lg">Contact section coming soon...</p>
         </div>
       );
     case "family":
@@ -2279,7 +2283,4 @@ export const ProfileSection = ({
     default:
       return renderDetailsSection();
   }
-  const [editingContact, setEditingContact] = useState(false);
-  const [editingEmergencyContact, setEditingEmergencyContact] = useState(false);
-
 };
