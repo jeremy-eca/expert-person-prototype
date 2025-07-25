@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
-import { Button } from "../../../../components/ui/button";
 import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile } from "../../../../types/frontend.types";
@@ -1540,11 +1539,14 @@ export const ProfileSection = ({
           <p className="text-white text-lg">Communication section coming soon...</p>
         </div>
       );
-    default:
+    case "activity":
       return (
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
-          <p className="text-white text-lg">Section not found</p>
+          <p className="text-white text-lg">Activity section coming soon...</p>
         </div>
       );
+    default:
+      return renderDetailsSection();
   }
+
 };
