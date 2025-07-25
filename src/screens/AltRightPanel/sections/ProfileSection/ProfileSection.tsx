@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { MapPinIcon, PlusIcon, Edit2Icon, SaveIcon, XIcon, CheckIcon } from "lucide-react";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
-import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon } from "lucide-react";
+import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile } from "../../../../types/frontend.types";
 
 interface ProfileSectionProps {
