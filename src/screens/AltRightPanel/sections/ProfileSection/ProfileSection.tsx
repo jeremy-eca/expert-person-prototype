@@ -31,9 +31,21 @@ export const ProfileSection = ({
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [isEditingCurrentAddress, setIsEditingCurrentAddress] = useState(false);
   const [isEditingPermanentAddress, setIsEditingPermanentAddress] = useState(false);
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
   const [useGoogleLookup, setUseGoogleLookup] = useState(true);
   const [googleSearchTerm, setGoogleSearchTerm] = useState("");
   const [googleSuggestions, setGoogleSuggestions] = useState<any[]>([]);
+  const [newAddress, setNewAddress] = useState({
+    type: 'other' as 'current' | 'permanent' | 'other',
+    name: '',
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postcode: '',
+    country: '',
+    isCurrentAddress: false
+  });
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
@@ -193,6 +205,96 @@ export const ProfileSection = ({
     
     setGoogleSuggestions([]);
     setGoogleSearchTerm("");
+  };
+
+  const handleAddAddress = () => {
+    setShowAddAddressModal(true);
+    setNewAddress({
+      type: 'other',
+      name: '',
+      line1: '',
+      line2: '',
+      city: '',
+      state: '',
+      postcode: '',
+      country: '',
+      isCurrentAddress: false
+    });
+    setUseGoogleLookup(true);
+    setGoogleSearchTerm('');
+    setGoogleSuggestions([]);
+  };
+
+  const handleSaveNewAddress = () => {
+    if (!profile || !onProfileUpdate) return;
+
+    // Create new address object
+    const addressToAdd = {
+      address: `${newAddress.line1}${newAddress.line2 ? ', ' + newAddress.line2 : ''}, ${newAddress.city}, ${newAddress.state} ${newAddress.postcode}, ${newAddress.country}`,
+      startDate: new Date().toISOString().split('T')[0],
+      duration: 'Just added'
+    };
+
+    // Add to location history
+    const updatedProfile = {
+      ...profile,
+      locationHistory: [
+        {
+          date: new Date().toLocaleDateString(),
+          location: newAddress.city,
+          change: newAddress.type === 'current' ? 'Moved to' : 
+                  newAddress.type === 'permanent' ? 'Permanent home' : 'Added address'
+        },
+        ...(profile.locationHistory || [])
+      ]
+    };
+
+    // If it's set as current address, update current location
+    if (newAddress.type === 'current' || newAddress.isCurrentAddress) {
+      updatedProfile.currentLocation = addressToAdd;
+    }
+
+    // If it's set as permanent address, update permanent home
+    if (newAddress.type === 'permanent') {
+      updatedProfile.permanentHome = {
+        address: addressToAdd.address,
+        propertyType: 'Owned' // Default, could be made selectable
+      };
+    }
+
+    onProfileUpdate(updatedProfile);
+    setShowAddAddressModal(false);
+  };
+
+  const handleCancelAddAddress = () => {
+    setShowAddAddressModal(false);
+    setNewAddress({
+      type: 'other',
+      name: '',
+      line1: '',
+      line2: '',
+      city: '',
+      state: '',
+      postcode: '',
+      country: '',
+      isCurrentAddress: false
+    });
+    setGoogleSearchTerm('');
+    setGoogleSuggestions([]);
+  };
+
+  const handleNewAddressGoogleSelect = (result: any) => {
+    setNewAddress(prev => ({
+      ...prev,
+      line1: result.line1 || '',
+      line2: result.line2 || '',
+      city: result.city || '',
+      state: result.state || '',
+      postcode: result.postcode || '',
+      country: result.country || ''
+    }));
+    setGoogleSearchTerm(result.formatted_address);
+    setGoogleSuggestions([]);
   };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -737,11 +839,258 @@ export const ProfileSection = ({
 
       {/* Add Address Modal/Form would go here */}
       <div className="fixed bottom-8 right-8">
-        <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6 py-3 rounded-full shadow-lg">
-          <PlusIcon className="w-5 h-5 mr-2" />
-          Add New Address
+        <Button
+          onClick={handleAddAddress}
+          className="w-12 h-12 rounded-full bg-[#732cec] hover:bg-[#5a23b8] text-white shadow-lg"
+        >
+          <PlusIcon className="w-5 h-5" />
         </Button>
       </div>
+
+      {/* Add Address Modal */}
+      {showAddAddressModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#252E38] rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-white">Add New Address</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancelAddAddress}
+                className="text-gray-400 hover:text-white"
+              >
+                <XIcon className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Address Type Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Address Type
+              </label>
+              <div className="flex gap-3">
+                <Button
+                  variant={newAddress.type === 'current' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'current' }))}
+                  className="flex-1"
+                >
+                  Current Address
+                </Button>
+                <Button
+                  variant={newAddress.type === 'permanent' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'permanent' }))}
+                  className="flex-1"
+                >
+                  Permanent Home
+                </Button>
+                <Button
+                  variant={newAddress.type === 'other' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'other' }))}
+                  className="flex-1"
+                >
+                  Other Address
+                </Button>
+              </div>
+            </div>
+
+            {/* Address Name */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Address Name (Optional)
+              </label>
+              <Input
+                value={newAddress.name}
+                onChange={(e) => setNewAddress(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Home, Work, Vacation Home"
+                className="bg-[#1D252D] border-[#40505C] text-white"
+              />
+            </div>
+
+            {/* Google Lookup Toggle */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-300">Address Entry Method</span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm ${!useGoogleLookup ? 'text-white' : 'text-gray-400'}`}>
+                    Manual
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setUseGoogleLookup(!useGoogleLookup)}
+                    className={`w-12 h-6 rounded-full p-0 ${
+                      useGoogleLookup ? 'bg-[#732cec]' : 'bg-gray-600'
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        useGoogleLookup ? 'translate-x-3' : 'translate-x-0'
+                      }`}
+                    />
+                  </Button>
+                  <span className={`text-sm ${useGoogleLookup ? 'text-white' : 'text-gray-400'}`}>
+                    Google
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Lookup or Manual Entry */}
+            {useGoogleLookup ? (
+              <div className="mb-6 relative">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Search Address
+                </label>
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    value={googleSearchTerm}
+                    onChange={(e) => {
+                      setGoogleSearchTerm(e.target.value);
+                      handleGoogleSearch(e.target.value);
+                    }}
+                    placeholder="Start typing an address..."
+                    className="pl-10 bg-[#1D252D] border-[#40505C] text-white"
+                  />
+                </div>
+                
+                {/* Search Results */}
+                {googleSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-[#1D252D] border border-[#40505C] rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {googleSuggestions.map((result, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleNewAddressGoogleSelect(result)}
+                        className="px-4 py-3 hover:bg-[#2A3440] cursor-pointer border-b border-[#40505C] last:border-b-0"
+                      >
+                        <div className="text-white font-medium">{result.main_text}</div>
+                        <div className="text-gray-400 text-sm">{result.secondary_text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* Manual Address Fields */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Address Line 1 *
+                </label>
+                <Input
+                  value={newAddress.line1}
+                  onChange={(e) => setNewAddress(prev => ({ ...prev, line1: e.target.value }))}
+                  placeholder="Street number and name"
+                  className="bg-[#1D252D] border-[#40505C] text-white"
+                  disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Address Line 2
+                </label>
+                <Input
+                  value={newAddress.line2}
+                  onChange={(e) => setNewAddress(prev => ({ ...prev, line2: e.target.value }))}
+                  placeholder="Apartment, suite, unit, building, floor, etc."
+                  className="bg-[#1D252D] border-[#40505C] text-white"
+                  disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    City *
+                  </label>
+                  <Input
+                    value={newAddress.city}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, city: e.target.value }))}
+                    placeholder="City"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    State/Province *
+                  </label>
+                  <Input
+                    value={newAddress.state}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, state: e.target.value }))}
+                    placeholder="State or Province"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Postcode *
+                  </label>
+                  <Input
+                    value={newAddress.postcode}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, postcode: e.target.value }))}
+                    placeholder="Postal/ZIP code"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Country *
+                  </label>
+                  <Input
+                    value={newAddress.country}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, country: e.target.value }))}
+                    placeholder="Country"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Set as Current Address Option */}
+            {newAddress.type === 'other' && (
+              <div className="mb-6">
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={newAddress.isCurrentAddress}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, isCurrentAddress: e.target.checked }))}
+                    className="w-4 h-4 text-[#732cec] bg-[#1D252D] border-[#40505C] rounded focus:ring-[#732cec]"
+                  />
+                  <span className="text-sm text-gray-300">Set as current address</span>
+                </label>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex gap-3 pt-4 border-t border-[#40505C]">
+              <Button
+                variant="outline"
+                onClick={handleCancelAddAddress}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveNewAddress}
+                className="flex-1 bg-[#732cec] hover:bg-[#5a23b8]"
+                disabled={!newAddress.line1 || !newAddress.city || !newAddress.state || !newAddress.postcode || !newAddress.country}
+              >
+                Add Address
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
