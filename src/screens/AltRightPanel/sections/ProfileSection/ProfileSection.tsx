@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
-import { Edit2Icon, SaveIcon, XIcon } from "lucide-react";
+import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile } from "../../../../types/frontend.types";
 
@@ -28,10 +28,12 @@ export const ProfileSection = ({
   const [isEditingCurrentLocation, setIsEditingCurrentLocation] = useState(false);
   const [isEditingAssignment, setIsEditingAssignment] = useState(false);
   const [isEditingPermanentHome, setIsEditingPermanentHome] = useState(false);
+  const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
   const [editLanguages, setEditLanguages] = useState(profile.languages?.join(", ") || "");
+  const [editNationalities, setEditNationalities] = useState(profile.nationalities?.join(", ") || "");
   const [editFirstName, setEditFirstName] = useState(profile.name.split(" ")[0] || "");
   const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
   const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
@@ -40,7 +42,8 @@ export const ProfileSection = ({
     onProfileUpdate({
       ...profile,
       bio: editBio,
-      languages: editLanguages.split(",").map(lang => lang.trim()).filter(Boolean)
+      languages: editLanguages.split(",").map(lang => lang.trim()).filter(Boolean),
+      nationalities: editNationalities.split(",").map(nat => nat.trim()).filter(Boolean)
     });
     setIsEditingBio(false);
   };
@@ -54,6 +57,18 @@ export const ProfileSection = ({
     setIsEditingPersonal(false);
   };
 
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Create a URL for the uploaded file
+      const photoUrl = URL.createObjectURL(file);
+      onProfileUpdate({
+        ...profile,
+        avatarUrl: photoUrl
+      });
+      setIsEditingPhoto(false);
+    }
+  };
   const renderDetailsSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
@@ -78,8 +93,41 @@ export const ProfileSection = ({
           </Button>
         </div>
         
-        <h1 className="text-2xl font-semibold text-white mb-2">{profile.name}</h1>
-        <p className="text-gray-400">Job title | Department</p>
+        {/* Photo Section */}
+        <div className="flex items-center gap-6 mb-6">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-[#2A3440] border-2 border-[#40505C] flex items-center justify-center">
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserIcon className="w-8 h-8 text-gray-400" />
+              )}
+            </div>
+            <Button
+              size="sm"
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#732cec] hover:bg-[#5a23b8] p-0"
+              onClick={() => setIsEditingPhoto(true)}
+            >
+              <CameraIcon className="w-4 h-4" />
+            </Button>
+            {isEditingPhoto && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-2">{profile.name}</h1>
+            <p className="text-gray-400">Job title | Department</p>
+          </div>
       </div>
 
       {/* Two Column Layout */}
@@ -140,10 +188,14 @@ export const ProfileSection = ({
                   </div>
 
                   <div>
-                    <h3 className="text-white font-medium mb-3">Open to working</h3>
-                    <Badge variant="secondary" className="bg-[#2A3440] text-white border-0">
-                      Anywhere
-                    </Badge>
+                    <h3 className="text-white font-medium mb-3">Nationalities</h3>
+                    <div className="flex gap-2">
+                      {(profile.nationalities || ["United States", "China"]).map((nationality, index) => (
+                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0">
+                          {nationality}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </>
               ) : (
@@ -164,6 +216,15 @@ export const ProfileSection = ({
                       onChange={(e) => setEditLanguages(e.target.value)}
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
                       placeholder="English, French, Italian"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Nationalities (comma separated)</label>
+                    <Input
+                      value={editNationalities}
+                      onChange={(e) => setEditNationalities(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      placeholder="United States, China"
                     />
                   </div>
                 </div>

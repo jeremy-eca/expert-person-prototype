@@ -13,6 +13,7 @@ export function getMockProfile(id: string): PersonProfile {
     bio: "Experienced software engineer specializing in cloud architecture and distributed systems. Passionate about building scalable solutions and mentoring junior developers.",
     dateOfBirth: "1985-03-15",
     nationality: "United States",
+    nationalities: ["United States", "China"],
     languages: ["English", "Mandarin", "Spanish"],
     
     currentLocation: {

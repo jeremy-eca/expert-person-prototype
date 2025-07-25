@@ -93,6 +93,9 @@ export function mapPersonToProfile(person: PersonComposite): PersonProfile {
     bio: person.bio || undefined,
     dateOfBirth: person.date_of_birth || undefined,
     nationality: person.country_of_birth_id || undefined, // Would need country lookup
+    nationalities: person.nationalities ? 
+      (Array.isArray(person.nationalities) ? person.nationalities : [person.nationalities]) : 
+      undefined,
     languages: (() => {
       if (!person.languages) return [];
       const langs = [];

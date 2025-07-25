@@ -14,6 +14,7 @@ export interface PersonProfile {
   bio?: string;
   dateOfBirth?: string;
   nationality?: string;
+  nationalities?: string[];
   languages?: string[];
   
   // Location Section
