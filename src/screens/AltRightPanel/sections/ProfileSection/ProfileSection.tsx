@@ -2033,7 +2033,6 @@ export const ProfileSection = ({
                               >
                                 <PlusIcon className="w-4 h-4" />
                               </Badge>
-                                </Badge>
                             ) : (
                               <Button
                                 type="button"
