@@ -1471,6 +1471,297 @@ export const ProfileSection = ({
     </div>
   );
 
+  const renderContactSection = () => (
+    <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-white mb-2">Contact Information</h2>
+        <p className="text-gray-400">Phone numbers, email addresses, and emergency contacts</p>
+      </div>
+
+      {/* Contact Details */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">Contact Details</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditingContact(!editingContact)}
+            className="text-blue-400 hover:text-blue-300"
+          >
+            {editingContact ? 'Cancel' : 'Edit'}
+          </Button>
+        </div>
+
+        {editingContact ? (
+          <div className="bg-[#252E38] rounded-lg p-6 border border-[#40505C]">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Work Email *</label>
+                  <Input
+                    type="email"
+                    value={contactForm.workEmail}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, workEmail: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="work@company.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Personal Email</label>
+                  <Input
+                    type="email"
+                    value={contactForm.personalEmail}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, personalEmail: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="personal@email.com"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Work Phone</label>
+                  <Input
+                    type="tel"
+                    value={contactForm.workPhone}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, workPhone: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Mobile Phone</label>
+                  <Input
+                    type="tel"
+                    value={contactForm.mobilePhone}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, mobilePhone: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="+1 (555) 987-6543"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={handleSaveContact}
+                disabled={!contactForm.workEmail.trim()}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Save Changes
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setEditingContact(false)}
+                className="border-[#40505C] text-gray-300 hover:bg-[#2A3440]"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#252E38] rounded-lg p-6 border border-[#40505C]">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-400">Work Email</label>
+                  <p className="text-white font-medium">
+                    {profile?.contact?.workEmail || 'Not provided'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Work Phone</label>
+                  <p className="text-white font-medium">
+                    {profile?.contact?.workPhone || 'Not provided'}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-400">Personal Email</label>
+                  <p className="text-white font-medium">
+                    {profile?.contact?.personalEmail || 'Not provided'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Mobile Phone</label>
+                  <p className="text-white font-medium">
+                    {profile?.contact?.mobilePhone || 'Not provided'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Emergency Contact */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">Emergency Contact</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditingEmergencyContact(!editingEmergencyContact)}
+            className="text-blue-400 hover:text-blue-300"
+          >
+            {editingEmergencyContact ? 'Cancel' : 'Edit'}
+          </Button>
+        </div>
+
+        {editingEmergencyContact ? (
+          <div className="bg-[#252E38] rounded-lg p-6 border border-[#40505C]">
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
+                  <Input
+                    value={emergencyContactForm.name}
+                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="Emergency contact name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Relationship *</label>
+                  <select
+                    value={emergencyContactForm.relationship}
+                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, relationship: e.target.value }))}
+                    className="w-full bg-[#1D252D] border border-[#40505C] text-white rounded-md px-3 py-2"
+                  >
+                    <option value="">Select relationship</option>
+                    <option value="Spouse">Spouse</option>
+                    <option value="Partner">Partner</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Sibling">Sibling</option>
+                    <option value="Child">Child</option>
+                    <option value="Friend">Friend</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Primary Phone *</label>
+                  <Input
+                    type="tel"
+                    value={emergencyContactForm.phone}
+                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Alternative Phone</label>
+                  <Input
+                    type="tel"
+                    value={emergencyContactForm.alternativePhone}
+                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, alternativePhone: e.target.value }))}
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    placeholder="+1 (555) 987-6543"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                <Input
+                  type="email"
+                  value={emergencyContactForm.email}
+                  onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="bg-[#1D252D] border-[#40505C] text-white"
+                  placeholder="emergency@email.com"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={handleSaveEmergencyContact}
+                disabled={!emergencyContactForm.name.trim() || !emergencyContactForm.relationship || !emergencyContactForm.phone.trim()}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Save Changes
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setEditingEmergencyContact(false)}
+                className="border-[#40505C] text-gray-300 hover:bg-[#2A3440]"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#252E38] rounded-lg p-6 border border-[#40505C]">
+            {profile?.emergencyContact ? (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400">Name</label>
+                    <p className="text-white font-medium">{profile.emergencyContact.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">Relationship</label>
+                    <p className="text-white font-medium">{profile.emergencyContact.relationship}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400">Primary Phone</label>
+                    <p className="text-white font-medium">{profile.emergencyContact.phone}</p>
+                  </div>
+                  {profile.emergencyContact.email && (
+                    <div>
+                      <label className="text-sm text-gray-400">Email</label>
+                      <p className="text-white font-medium">{profile.emergencyContact.email}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400 mb-4">No emergency contact information provided</p>
+                <Button
+                  onClick={() => setEditingEmergencyContact(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Add Emergency Contact
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Contact History */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-white mb-4">Contact History</h3>
+        <div className="bg-[#252E38] rounded-lg border border-[#40505C]">
+          {profile?.contactHistory && profile.contactHistory.length > 0 ? (
+            <div className="divide-y divide-[#40505C]">
+              {profile.contactHistory.map((item, index) => (
+                <div key={index} className="p-4 flex items-center gap-4">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium">{item.type}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-300">{item.details}</span>
+                    </div>
+                    <p className="text-gray-400 text-sm">{item.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 text-center text-gray-400">
+              No contact history available
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
   const renderDetailsSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
@@ -1683,6 +1974,21 @@ export const ProfileSection = ({
                     <span className="text-white">She/her/hers</span>
                   </div>
                   <div className="flex justify-between">
+  // Contact form states
+  const [contactForm, setContactForm] = useState({
+    workEmail: profile?.contact?.workEmail || '',
+    personalEmail: profile?.contact?.personalEmail || '',
+    workPhone: profile?.contact?.workPhone || '',
+    mobilePhone: profile?.contact?.mobilePhone || ''
+  });
+
+  const [emergencyContactForm, setEmergencyContactForm] = useState({
+    name: profile?.emergencyContact?.name || '',
+    relationship: profile?.emergencyContact?.relationship || '',
+    phone: profile?.emergencyContact?.phone || '',
+    alternativePhone: '',
+    email: ''
+  });
                     <span className="text-gray-400">Date of birth</span>
                     <span className="text-white">{profile.dateOfBirth || "01 December 1980"}</span>
                   </div>
@@ -1718,6 +2024,19 @@ export const ProfileSection = ({
                       value="Male"
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
                     />
+    setContactForm({
+      workEmail: profile?.contact?.workEmail || '',
+      personalEmail: profile?.contact?.personalEmail || '',
+      workPhone: profile?.contact?.workPhone || '',
+      mobilePhone: profile?.contact?.mobilePhone || ''
+    });
+    setEmergencyContactForm({
+      name: profile?.emergencyContact?.name || '',
+      relationship: profile?.emergencyContact?.relationship || '',
+      phone: profile?.emergencyContact?.phone || '',
+      alternativePhone: '',
+      email: ''
+    });
                   </div>
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Gender identity</label>
@@ -1832,18 +2151,6 @@ export const ProfileSection = ({
                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <p className="text-white text-sm font-medium">Phone</p>
-                  <p className="text-gray-300 text-sm">{profile.contact?.workPhone || 'Not provided'}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Map Placeholder */}
-          <div className="bg-[#252E38] rounded-xl shadow-[0px_6px_18px_0px_#00000026] overflow-hidden">
-            <div className="h-64 bg-gradient-to-br from-blue-400 to-green-400 relative">
-              <div className={`absolute inset-0 bg-[url('${gridPatternSvg}')] opacity-20`}></div>
               
               {/* Location markers */}
               <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
@@ -1868,12 +2175,59 @@ export const ProfileSection = ({
 
   // Render different sections based on activeSection
   switch (activeSection) {
+  const handleSaveContact = () => {
+    if (onProfileUpdate && profile) {
+      onProfileUpdate({
+        ...profile,
+        contact: {
+          workEmail: contactForm.workEmail,
+          workPhone: contactForm.workPhone,
+          personalEmail: contactForm.personalEmail || undefined,
+          mobilePhone: contactForm.mobilePhone || undefined
+        },
+        contactHistory: [
+          {
+            date: new Date().toLocaleDateString(),
+            type: 'Contact Updated',
+            details: 'Contact information updated'
+          },
+          ...(profile.contactHistory || [])
+        ]
+      });
+    }
+    setEditingContact(false);
+  };
+
+  const handleSaveEmergencyContact = () => {
+    if (onProfileUpdate && profile) {
+      onProfileUpdate({
+        ...profile,
+        emergencyContact: {
+          name: emergencyContactForm.name,
+          relationship: emergencyContactForm.relationship,
+          phone: emergencyContactForm.phone,
+          email: emergencyContactForm.email || undefined
+        },
+        contactHistory: [
+          {
+            date: new Date().toLocaleDateString(),
+            type: 'Emergency Contact Updated',
+            details: `Emergency contact set to ${emergencyContactForm.name}`
+          },
+          ...(profile.contactHistory || [])
+        ]
+      });
+    }
+    setEditingEmergencyContact(false);
+  };
     case "details":
       return renderDetailsSection();
     case "location":
       return (
         renderLocationSection()
       );
+    case "contact":
+      return renderContactSection();
     case "work":
       return (
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
@@ -1925,5 +2279,7 @@ export const ProfileSection = ({
     default:
       return renderDetailsSection();
   }
+  const [editingContact, setEditingContact] = useState(false);
+  const [editingEmergencyContact, setEditingEmergencyContact] = useState(false);
 
 };
