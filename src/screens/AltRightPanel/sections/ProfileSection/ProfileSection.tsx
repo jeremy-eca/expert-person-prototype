@@ -38,33 +38,6 @@ export const ProfileSection = ({
   const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
   const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
 
-  // Helper function to get nationality flags
-  const getNationalityFlag = (nationality: string): string => {
-    const flagMap: Record<string, string> = {
-      'United States': '🇺🇸',
-      'China': '🇨🇳',
-      'United Kingdom': '🇬🇧',
-      'Canada': '🇨🇦',
-      'Australia': '🇦🇺',
-      'Germany': '🇩🇪',
-      'France': '🇫🇷',
-      'Spain': '🇪🇸',
-      'Italy': '🇮🇹',
-      'Japan': '🇯🇵',
-      'South Korea': '🇰🇷',
-      'Brazil': '🇧🇷',
-      'Mexico': '🇲🇽',
-      'India': '🇮🇳',
-      'Netherlands': '🇳🇱',
-      'Sweden': '🇸🇪',
-      'Norway': '🇳🇴',
-      'Denmark': '🇩🇰',
-      'Finland': '🇫🇮',
-      'Switzerland': '🇨🇭'
-    };
-    return flagMap[nationality] || '🏳️';
-  };
-
   const handleSaveBio = () => {
     onProfileUpdate({
       ...profile,
@@ -96,6 +69,23 @@ export const ProfileSection = ({
       setIsEditingPhoto(false);
     }
   };
+
+  const getNationalityFlag = (nationality: string): string => {
+    const flags: { [key: string]: string } = {
+      "United States": "🇺🇸",
+      "China": "🇨🇳",
+      "United Kingdom": "🇬🇧",
+      "France": "🇫🇷",
+      "Germany": "🇩🇪",
+      "Spain": "🇪🇸",
+      "Italy": "🇮🇹",
+      "Japan": "🇯🇵",
+      "Canada": "🇨🇦",
+      "Australia": "🇦🇺"
+    };
+    return flags[nationality] || "🏳️";
+  };
+
   const renderDetailsSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
@@ -172,7 +162,7 @@ export const ProfileSection = ({
               {!isEditingBio ? (
                 <>
                   <p className="text-white leading-relaxed">
-                    <p className="text-white leading-relaxed text-sm">
+                    {profile.bio || "No bio available"}
                   </p>
                   
                   <div>
