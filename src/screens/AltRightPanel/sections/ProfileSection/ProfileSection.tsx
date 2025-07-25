@@ -50,6 +50,11 @@ export const ProfileSection = ({
   const [showGoogleSuggestions, setShowGoogleSuggestions] = useState(false);
   const [editingContact, setEditingContact] = useState(false);
   const [editingEmergencyContact, setEditingEmergencyContact] = useState(false);
+  const [isAddLanguageModalOpen, setIsAddLanguageModalOpen] = useState(false);
+  const [languageForm, setLanguageForm] = useState({
+    language: '',
+    proficiency: 'Basic' as 'Basic' | 'Conversational' | 'Professional' | 'Native'
+  });
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
@@ -329,6 +334,28 @@ export const ProfileSection = ({
       });
     }
     setEditingEmergencyContact(false);
+  };
+
+  // Handle add language
+  const handleAddLanguage = () => {
+    if (!languageForm.language.trim()) return;
+
+    const updatedProfile = {
+      ...profile,
+      languages: [
+        ...(profile.languages || []),
+        `${languageForm.language} (${languageForm.proficiency})`
+      ]
+    };
+
+    onProfileUpdate(updatedProfile);
+    
+    // Reset form and close modal
+    setLanguageForm({
+      language: '',
+      proficiency: 'Basic'
+    });
+    setIsAddLanguageModalOpen(false);
   };
 
   // Mock Google Places API lookup
@@ -1914,6 +1941,16 @@ export const ProfileSection = ({
                         </Badge>
                       ))}
                     </div>
+                    
+                    {/* Add Language Button */}
+                    {isEditingBio && (
+                      <Button
+                        onClick={() => setIsAddLanguageModalOpen(true)}
+                        className="mt-3 w-full bg-[#732cec] hover:bg-[#5a23b8] text-white"
+                      >
+                        Add Language
+                      </Button>
+                    )}
                   </div>
 
                   <div>
@@ -2281,6 +2318,105 @@ export const ProfileSection = ({
         </div>
       );
     default:
-      return renderDetailsSection();
+      return (
+        <div className="flex flex-col flex-1 bg-[#1D252D] overflow-y-auto">
+          {renderDetailsSection()}
+          
+          {/* Add Language Modal */}
+          {isAddLanguageModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#252E38] rounded-lg border border-[#40505C] w-full max-w-md">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-6 border-b border-[#40505C]">
+                  <h3 className="text-lg font-semibold text-white">Add Language</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsAddLanguageModalOpen(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ×
+                  </Button>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6 space-y-4">
+                  {/* Language Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Language *
+                    </label>
+                    <Input
+                      value={languageForm.language}
+                      onChange={(e) => setLanguageForm(prev => ({ ...prev, language: e.target.value }))}
+                      placeholder="e.g., Spanish, French, German"
+                      className="bg-[#1D252D] border-[#40505C] text-white placeholder:text-gray-500"
+                    />
+                  </div>
+
+                  {/* Proficiency Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Proficiency Level *
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['Basic', 'Conversational', 'Professional', 'Native'] as const).map((level) => (
+                        <Button
+                          key={level}
+                          variant={languageForm.proficiency === level ? "default" : "outline"}
+                          onClick={() => setLanguageForm(prev => ({ ...prev, proficiency: level }))}
+                          className={`h-12 ${
+                            languageForm.proficiency === level
+                              ? 'bg-[#732cec] hover:bg-[#5a23b8] text-white border-[#732cec]'
+                              : 'bg-[#1D252D] border-[#40505C] text-gray-300 hover:bg-[#2A3440] hover:text-white'
+                          }`}
+                        >
+                          {level}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Proficiency Descriptions */}
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="font-medium">Basic:</span> Simple phrases
+                      </div>
+                      <div>
+                        <span className="font-medium">Conversational:</span> Daily communication
+                      </div>
+                      <div>
+                        <span className="font-medium">Professional:</span> Work environment
+                      </div>
+                      <div>
+                        <span className="font-medium">Native:</span> Mother tongue
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex justify-end gap-3 p-6 border-t border-[#40505C]">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddLanguageModalOpen(false)}
+                    className="bg-[#1D252D] border-[#40505C] text-gray-300 hover:bg-[#2A3440] hover:text-white"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddLanguage}
+                    disabled={!languageForm.language.trim()}
+                    className="bg-[#732cec] hover:bg-[#5a23b8] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add Language
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
   }
 };
