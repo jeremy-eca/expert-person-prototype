@@ -325,6 +325,48 @@ export const ProfileSection = ({
           </Card>
 
           {/* Map Placeholder */}
+          {/* Quick Contact Details Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <CardTitle className="text-white text-lg font-medium">Quick Contact</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-[#2A3440] p-2"
+              >
+                <Edit2Icon className="w-4 h-4" />
+                Edit
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 pt-0 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Email</p>
+                  <p className="text-gray-300 text-sm">{profile.contact?.workEmail || 'Not provided'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Phone</p>
+                  <p className="text-gray-300 text-sm">{profile.contact?.workPhone || 'Not provided'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Map Placeholder */}
           <div className="bg-[#252E38] rounded-xl shadow-[0px_6px_18px_0px_#00000026] overflow-hidden">
             <div className="h-64 bg-gradient-to-br from-blue-400 to-green-400 relative">
               <div className={`absolute inset-0 bg-[url('${gridPatternSvg}')] opacity-20`}></div>
