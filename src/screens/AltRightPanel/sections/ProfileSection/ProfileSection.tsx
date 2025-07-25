@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../../components
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
-import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon } from "lucide-react";
+import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, CheckIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile } from "../../../../types/frontend.types";
 
@@ -57,6 +57,7 @@ export const ProfileSection = ({
   });
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('');
 
   // Temporary edit values
   const [editBio, setEditBio] = useState(profile.bio || "");
@@ -100,6 +101,33 @@ export const ProfileSection = ({
     postcode: "94102", 
     country: "United States"
   });
+
+  const availableLanguages = [
+    'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 
+    'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic',
+    'Hindi', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Polish'
+  ];
+
+  const handleAddLanguage = () => {
+    if (selectedLanguage && profile && onProfileUpdate) {
+      const currentLanguages = profile.languages || [];
+      if (!currentLanguages.includes(selectedLanguage)) {
+        onProfileUpdate({
+          ...profile,
+          languages: [...currentLanguages, selectedLanguage]
+        });
+      }
+      setSelectedLanguage('');
+      setShowLanguageModal(false);
+    }
+  };
+
+  const handleRemoveLanguage = (languageToRemove: string) => {
+    if (profile && onProfileUpdate) {
+      const updatedLanguages = (profile.languages || []).filter(lang => lang !== languageToRemove);
+      onProfileUpdate({ ...profile, languages: updatedLanguages });
+    }
+  };
 
   // Handle saving new address
   const handleSaveNewAddress = () => {
@@ -336,28 +364,6 @@ export const ProfileSection = ({
       });
     }
     setEditingEmergencyContact(false);
-  };
-
-  // Handle add language
-  const handleAddLanguage = () => {
-    if (!languageForm.language.trim()) return;
-
-    const updatedProfile = {
-      ...profile,
-      languages: [
-        ...(profile.languages || []),
-        `${languageForm.language} (${languageForm.proficiency})`
-      ]
-    };
-
-    onProfileUpdate(updatedProfile);
-    
-    // Reset form and close modal
-    setLanguageForm({
-      language: '',
-      proficiency: 'Basic'
-    });
-    setIsAddLanguageModalOpen(false);
   };
 
   // Mock Google Places API lookup
@@ -2002,22 +2008,44 @@ export const ProfileSection = ({
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Languages with proficiency (e.g., English (Native), Spanish (Conversational))</label>
                     <div className="flex gap-2">
-                      <Input
-                        value={editLanguages}
-                        onChange={(e) => setEditLanguages(e.target.value)}
-                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 flex-1"
-                        placeholder="English (Native), Spanish (Conversational), French (Basic)"
-                      />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="outline"
-                        onClick={() => setShowLanguageModal(true)}
-                        className="h-[52px] w-[52px] bg-[#2A3440] border-[#40505C] border-2 border-dashed text-white hover:bg-[#40505C] hover:border-white"
-                        title="Add Language"
-                      >
-                        <PlusIcon className="h-4 w-4" />
-                      </Button>
+                      <div className="flex-1">
+                        {isEditingDetails ? (
+                          <div className="flex flex-wrap gap-2 min-h-[52px] p-3 bg-[#2A3440] border border-[#40505C] rounded-md">
+                            {(profile.languages || []).map((language, index) => (
+                              <Badge 
+                                key={index}
+                                variant="secondary"
+                                className="bg-[#40505C] text-white hover:bg-[#4A5560] flex items-center gap-1"
+                              >
+                                {language}
+                                <button
+                                  onClick={() => handleRemoveLanguage(language)}
+                                  className="ml-1 hover:text-red-400"
+                                >
+                                  <XIcon className="w-3 h-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <Input
+                            value={profile.languages?.join(', ') || ''}
+                            placeholder="English (Native), Spanish (Conversational), French (Basic)"
+                            className="h-[52px] bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                            readOnly
+                          />
+                        )}
+                      </div>
+                      {isEditingDetails && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-[52px] w-[52px] bg-[#2A3440] border-[#40505C] border-2 border-dashed text-white hover:bg-[#40505C] hover:border-white"
+                          onClick={() => setShowLanguageModal(true)}
+                        >
+                          <PlusIcon className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -2335,6 +2363,54 @@ export const ProfileSection = ({
           </Card>
         </div>
       </div>
+
+      {/* Language Modal */}
+      {showLanguageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#252E38] border border-[#40505C] rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">Add Language</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowLanguageModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <XIcon className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {availableLanguages
+                .filter(lang => !(profile?.languages || []).includes(lang))
+                .map((language) => (
+                  <button
+                    key={language}
+                    onClick={() => setSelectedLanguage(language)}
+                    className={`w-full text-left p-3 rounded-md transition-colors ${
+                      selectedLanguage === language
+                        ? 'bg-[#40505C] text-white'
+                        : 'bg-[#2A3440] text-gray-300 hover:bg-[#40505C] hover:text-white'
+                    }`}
+                  >
+                    {language}
+                  </button>
+                ))}
+            </div>
+            
+            <div className="flex gap-2 mt-6">
+              <Button
+                onClick={handleAddLanguage}
+                disabled={!selectedLanguage}
+                className="flex-1"
+              >
+                <CheckIcon className="w-4 h-4 mr-2" />
+                Add Language
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -2479,7 +2555,26 @@ export const ProfileSection = ({
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleAddLanguage}
+                    onClick={() => {
+                      if (!languageForm.language.trim()) return;
+
+                      const updatedProfile = {
+                        ...profile,
+                        languages: [
+                          ...(profile.languages || []),
+                          `${languageForm.language} (${languageForm.proficiency})`
+                        ]
+                      };
+
+                      onProfileUpdate(updatedProfile);
+                      
+                      // Reset form and close modal
+                      setLanguageForm({
+                        language: '',
+                        proficiency: 'Basic'
+                      });
+                      setIsAddLanguageModalOpen(false);
+                    }}
                     disabled={!languageForm.language.trim()}
                     className="bg-[#732cec] hover:bg-[#5a23b8] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -2563,7 +2658,26 @@ export const ProfileSection = ({
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleAddLanguage}
+                    onClick={() => {
+                      if (!languageForm.language.trim()) return;
+
+                      const updatedProfile = {
+                        ...profile,
+                        languages: [
+                          ...(profile.languages || []),
+                          `${languageForm.language} (${languageForm.proficiency})`
+                        ]
+                      };
+
+                      onProfileUpdate(updatedProfile);
+                      
+                      // Reset form and close modal
+                      setLanguageForm({
+                        language: '',
+                        proficiency: 'Basic'
+                      });
+                      setShowLanguageModal(false);
+                    }}
                     disabled={!languageForm.language || !languageForm.proficiency}
                     className="bg-[#732cec] hover:bg-[#5a23b8] text-white disabled:opacity-50"
                   >
