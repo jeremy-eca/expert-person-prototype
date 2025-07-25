@@ -1,1 +1,0 @@
-export { AltRightPanel } from "./AltRightPanel";
