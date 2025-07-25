@@ -8,6 +8,7 @@ import {
 } from "../../../../components/ui/avatar";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
+import { CameraIcon } from "lucide-react";
 
 import { PersonProfile } from "../../../../types/frontend.types";
 
@@ -15,13 +16,29 @@ interface NavigationSectionProps {
   activeSection: ProfileSectionType;
   onSectionChange: (section: ProfileSectionType) => void;
   profile?: PersonProfile | null;
+  onProfileUpdate?: (profile: PersonProfile) => void;
 }
 
 export const NavigationSection = ({ 
   activeSection, 
   onSectionChange,
-  profile
+  profile,
+  onProfileUpdate
 }: NavigationSectionProps): JSX.Element => {
+  const [isEditingPhoto, setIsEditingPhoto] = React.useState(false);
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && profile && onProfileUpdate) {
+      const photoUrl = URL.createObjectURL(file);
+      onProfileUpdate({
+        ...profile,
+        avatarUrl: photoUrl
+      });
+      setIsEditingPhoto(false);
+    }
+  };
+
   // Navigation menu items data
   const navigationItems = [
     {
@@ -107,10 +124,31 @@ export const NavigationSection = ({
       <div className="flex flex-col items-start gap-6 px-4 py-0 flex-1 w-full">
         {/* Profile Card */}
         <div className="flex flex-col items-center gap-3 w-full rounded-lg overflow-hidden">
-          <Avatar className="w-[108px] h-[108px]">
-            <AvatarImage src="/ellipse-12.svg" alt={profile?.name || "Profile"} />
-            <AvatarFallback>{profile?.initials || "??"}</AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="w-[108px] h-[108px]">
+              {profile?.avatarUrl ? (
+                <AvatarImage src={profile.avatarUrl} alt={profile?.name || "Profile"} />
+              ) : (
+                <AvatarFallback className="text-2xl font-bold">{profile?.initials || "??"}</AvatarFallback>
+              )}
+            </Avatar>
+            <Button
+              size="sm"
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#732cec] hover:bg-[#5a23b8] p-0"
+              onClick={() => setIsEditingPhoto(true)}
+            >
+              <CameraIcon className="w-4 h-4" />
+            </Button>
+            {isEditingPhoto && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </div>
 
           <div className="flex flex-col items-center gap-3 w-full">
             <h3 className="w-full mt-[-1.00px] font-label-md-heavier font-[number:var(--label-md-heavier-font-weight)] text-white text-[length:var(--label-md-heavier-font-size)] text-center tracking-[var(--label-md-heavier-letter-spacing)] leading-[var(--label-md-heavier-line-height)]">

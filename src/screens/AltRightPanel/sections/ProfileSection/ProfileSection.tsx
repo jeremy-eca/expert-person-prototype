@@ -38,6 +38,33 @@ export const ProfileSection = ({
   const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
   const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
 
+  // Helper function to get nationality flags
+  const getNationalityFlag = (nationality: string): string => {
+    const flagMap: Record<string, string> = {
+      'United States': '🇺🇸',
+      'China': '🇨🇳',
+      'United Kingdom': '🇬🇧',
+      'Canada': '🇨🇦',
+      'Australia': '🇦🇺',
+      'Germany': '🇩🇪',
+      'France': '🇫🇷',
+      'Spain': '🇪🇸',
+      'Italy': '🇮🇹',
+      'Japan': '🇯🇵',
+      'South Korea': '🇰🇷',
+      'Brazil': '🇧🇷',
+      'Mexico': '🇲🇽',
+      'India': '🇮🇳',
+      'Netherlands': '🇳🇱',
+      'Sweden': '🇸🇪',
+      'Norway': '🇳🇴',
+      'Denmark': '🇩🇰',
+      'Finland': '🇫🇮',
+      'Switzerland': '🇨🇭'
+    };
+    return flagMap[nationality] || '🏳️';
+  };
+
   const handleSaveBio = () => {
     onProfileUpdate({
       ...profile,
@@ -95,35 +122,6 @@ export const ProfileSection = ({
         
         {/* Photo Section */}
         <div className="flex items-center gap-6 mb-6">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-[#2A3440] border-2 border-[#40505C] flex items-center justify-center">
-              {profile.avatarUrl ? (
-                <img
-                  src={profile.avatarUrl}
-                  alt={profile.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <UserIcon className="w-8 h-8 text-gray-400" />
-              )}
-            </div>
-            <Button
-              size="sm"
-              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-[#732cec] hover:bg-[#5a23b8] p-0"
-              onClick={() => setIsEditingPhoto(true)}
-            >
-              <CameraIcon className="w-4 h-4" />
-            </Button>
-            {isEditingPhoto && (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-              />
-            )}
-          </div>
           <div>
             <h1 className="text-2xl font-semibold text-white mb-2">{profile.name}</h1>
             <p className="text-gray-400">Job title | Department</p>
@@ -174,15 +172,15 @@ export const ProfileSection = ({
               {!isEditingBio ? (
                 <>
                   <p className="text-white leading-relaxed">
-                    {profile.bio || "Donec ut molestie leo, in dictum quam. Nulla non dolor et enim ullamcorper condimentum a non nisl. Praesent efficitur lectus ac lorem cursus, quis pretium mi pretium. Sed consectetur, diam eget condimentum tempus, enim nisl interdum nulla, ac dapibus magna tortor quis arcu. Cras semper non nisl in luctus. In mi nunc, elementum ac dolor fringilla, accumsan bibendum turpis."}
+                    <p className="text-white leading-relaxed text-sm">
                   </p>
                   
                   <div>
-                    <h3 className="text-white font-medium mb-3">Fluent in</h3>
+                    <h3 className="text-white font-medium mb-3">Languages</h3>
                     <div className="flex gap-2">
-                      {(profile.languages || ["English", "French", "Italian"]).map((language, index) => (
-                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0">
-                          {language}
+                      {(profile.languages || ["English (Native)", "Mandarin (Professional)", "Spanish (Conversational)"]).map((language, index) => (
+                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0 text-xs">
+                          {language.includes('(') ? language : `${language} (Fluent)`}
                         </Badge>
                       ))}
                     </div>
@@ -190,11 +188,17 @@ export const ProfileSection = ({
 
                   <div>
                     <h3 className="text-white font-medium mb-3">Nationalities</h3>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {(profile.nationalities || ["United States", "China"]).map((nationality, index) => (
-                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0">
-                          {nationality}
-                        </Badge>
+                        <div key={index} className="relative group">
+                          <Badge variant="secondary" className="bg-[#2A3440] text-white border-0 text-xs flex items-center gap-1">
+                            <span className="text-lg">{getNationalityFlag(nationality)}</span>
+                            <span>{nationality}</span>
+                          </Badge>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            {nationality}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -211,12 +215,12 @@ export const ProfileSection = ({
                     />
                   </div>
                   <div>
-                    <label className="text-white text-sm font-medium mb-2 block">Languages (comma separated)</label>
+                    <label className="text-white text-sm font-medium mb-2 block">Languages with proficiency (e.g., English (Native), Spanish (Conversational))</label>
                     <Input
                       value={editLanguages}
                       onChange={(e) => setEditLanguages(e.target.value)}
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
-                      placeholder="English, French, Italian"
+                      placeholder="English (Native), Spanish (Conversational), French (Basic)"
                     />
                   </div>
                   <div>

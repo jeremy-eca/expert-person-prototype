@@ -235,6 +235,7 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
           activeSection={activeProfileSection}
           onSectionChange={setActiveProfileSection}
           profile={profile}
+          onProfileUpdate={setProfile}
         />
         <ProfileSection 
           activeSection={activeProfileSection} 
