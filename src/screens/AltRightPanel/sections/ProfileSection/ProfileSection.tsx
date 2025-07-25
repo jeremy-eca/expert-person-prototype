@@ -1261,8 +1261,7 @@ export const ProfileSection = ({
                     value={newAddress.country}
                     onChange={(e) => setNewAddress(prev => ({ ...prev, country: e.target.value }))}
                     placeholder="Country"
-                    className="w-full px-3 py-2 bg-[#1D252D] border border-[#40505C] rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#732cec] focus:border-transparent"
-                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                    className="w-full px-3 py-2 bg-[#1D252D] border border-[#40505C] text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1993,7 +1992,6 @@ export const ProfileSection = ({
                       ))}
                     </div>
                   </div>
-                            >
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -2001,7 +1999,6 @@ export const ProfileSection = ({
                     <label className="text-white text-sm font-medium mb-2 block">Bio</label>
                     <Textarea
                       value={editBio}
-                            </Badge>
                       onChange={(e) => setEditBio(e.target.value)}
                       className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 min-h-[120px]"
                       placeholder="Enter bio..."
@@ -2032,7 +2029,6 @@ export const ProfileSection = ({
                       >
                         <PlusIcon className="h-5 w-5" />
                       </Button>
-                              >
                                 {language}
                                 <button
                                   onClick={() => handleRemoveLanguage(language)}
