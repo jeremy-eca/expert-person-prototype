@@ -97,6 +97,255 @@ export const ProfileSection = ({
     }
   };
   const renderDetailsSection = () => (
+  const renderLocationSection = () => (
+    <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search addresses"
+                className="w-80 bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6">
+            Add Address
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-6 mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-2">Addresses & Location History</h1>
+            <p className="text-gray-400">Manage current and previous addresses</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Addresses Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-medium text-white mb-6">Current Addresses</h2>
+        
+        <div className="grid gap-6">
+          {/* Primary Address Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle className="text-white text-lg font-medium">Current Address</CardTitle>
+                  <p className="text-gray-400 text-sm">Primary residence</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-green-500/20 text-green-400 border-0">Current</Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  Edit
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-gray-400 text-sm">Address Line 1</label>
+                    <p className="text-white font-medium">Carrer de Mallorca, 123</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Address Line 2</label>
+                    <p className="text-white font-medium">Apt 4B</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-gray-400 text-sm">City</label>
+                    <p className="text-white font-medium">Barcelona</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">State/Region</label>
+                    <p className="text-white font-medium">Catalonia</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Postcode</label>
+                    <p className="text-white font-medium">08013</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-gray-400 text-sm">Country</label>
+                  <p className="text-white font-medium">Spain 🇪🇸</p>
+                </div>
+                <div className="pt-4 border-t border-[#40505C]">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Duration at this address</span>
+                    <span className="text-white">2 years, 3 months</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Permanent Home Address Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle className="text-white text-lg font-medium">Permanent Home</CardTitle>
+                  <p className="text-gray-400 text-sm">Home country address</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-blue-500/20 text-blue-400 border-0">Permanent</Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-[#2A3440] p-2"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  Edit
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-gray-400 text-sm">Address Line 1</label>
+                    <p className="text-white font-medium">1234 Market Street</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Address Line 2</label>
+                    <p className="text-white font-medium">Unit 567</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-gray-400 text-sm">City</label>
+                    <p className="text-white font-medium">San Francisco</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">State/Region</label>
+                    <p className="text-white font-medium">California</p>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Postcode</label>
+                    <p className="text-white font-medium">94102</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-gray-400 text-sm">Country</label>
+                  <p className="text-white font-medium">United States 🇺🇸</p>
+                </div>
+                <div className="pt-4 border-t border-[#40505C]">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Property Type</span>
+                    <span className="text-white">Owned</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Address History Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-medium text-white mb-6">Address History</h2>
+        
+        <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Timeline Item 1 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Moved to Barcelona, Spain</h3>
+                    <span className="text-gray-400 text-sm">January 15, 2022</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">Carrer de Mallorca, 123, Apt 4B, Barcelona, Catalonia 08013</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Current</Badge>
+                    <Badge className="bg-purple-500/20 text-purple-400 border-0 text-xs">Work Assignment</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Item 2 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Moved to London, UK</h3>
+                    <span className="text-gray-400 text-sm">June 1, 2019</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">45 Kensington Gardens, London, England SW7 2AP</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-0 text-xs">Work Assignment</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Item 3 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Started at San Francisco, CA</h3>
+                    <span className="text-gray-400 text-sm">September 1, 2015</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">1234 Market Street, Unit 567, San Francisco, CA 94102</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
+                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Permanent Home</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Add Address Modal/Form would go here */}
+      <div className="fixed bottom-8 right-8">
+        <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6 py-3 rounded-full shadow-lg">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Add New Address
+        </Button>
+      </div>
+    </div>
+  );
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
       <div className="mb-8">
@@ -551,253 +800,4 @@ export const ProfileSection = ({
       return renderDetailsSection();
   }
 
-  const renderLocationSection = () => (
-    <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search addresses"
-                className="w-80 bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
-              />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6">
-            Add Address
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-6 mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-white mb-2">Addresses & Location History</h1>
-            <p className="text-gray-400">Manage current and previous addresses</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Current Addresses Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-medium text-white mb-6">Current Addresses</h2>
-        
-        <div className="grid gap-6">
-          {/* Primary Address Card */}
-          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
-            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <CardTitle className="text-white text-lg font-medium">Current Address</CardTitle>
-                  <p className="text-gray-400 text-sm">Primary residence</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-green-500/20 text-green-400 border-0">Current</Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-[#2A3440] p-2"
-                >
-                  <Edit2Icon className="w-4 h-4" />
-                  Edit
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 1</label>
-                    <p className="text-white font-medium">Carrer de Mallorca, 123</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 2</label>
-                    <p className="text-white font-medium">Apt 4B</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">City</label>
-                    <p className="text-white font-medium">Barcelona</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">State/Region</label>
-                    <p className="text-white font-medium">Catalonia</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Postcode</label>
-                    <p className="text-white font-medium">08013</p>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-gray-400 text-sm">Country</label>
-                  <p className="text-white font-medium">Spain 🇪🇸</p>
-                </div>
-                <div className="pt-4 border-t border-[#40505C]">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">Duration at this address</span>
-                    <span className="text-white">2 years, 3 months</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Permanent Home Address Card */}
-          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
-            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <CardTitle className="text-white text-lg font-medium">Permanent Home</CardTitle>
-                  <p className="text-gray-400 text-sm">Home country address</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-blue-500/20 text-blue-400 border-0">Permanent</Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-[#2A3440] p-2"
-                >
-                  <Edit2Icon className="w-4 h-4" />
-                  Edit
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 1</label>
-                    <p className="text-white font-medium">1234 Market Street</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Address Line 2</label>
-                    <p className="text-white font-medium">Unit 567</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-gray-400 text-sm">City</label>
-                    <p className="text-white font-medium">San Francisco</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">State/Region</label>
-                    <p className="text-white font-medium">California</p>
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-sm">Postcode</label>
-                    <p className="text-white font-medium">94102</p>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-gray-400 text-sm">Country</label>
-                  <p className="text-white font-medium">United States 🇺🇸</p>
-                </div>
-                <div className="pt-4 border-t border-[#40505C]">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">Property Type</span>
-                    <span className="text-white">Owned</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Address History Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-medium text-white mb-6">Address History</h2>
-        
-        <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {/* Timeline Item 1 */}
-              <div className="flex items-start gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
-                </div>
-                <div className="flex-1 pb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white font-medium">Moved to Barcelona, Spain</h3>
-                    <span className="text-gray-400 text-sm">January 15, 2022</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">Carrer de Mallorca, 123, Apt 4B, Barcelona, Catalonia 08013</p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Current</Badge>
-                    <Badge className="bg-purple-500/20 text-purple-400 border-0 text-xs">Work Assignment</Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline Item 2 */}
-              <div className="flex items-start gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
-                </div>
-                <div className="flex-1 pb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white font-medium">Moved to London, UK</h3>
-                    <span className="text-gray-400 text-sm">June 1, 2019</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">45 Kensington Gardens, London, England SW7 2AP</p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
-                    <Badge className="bg-blue-500/20 text-blue-400 border-0 text-xs">Work Assignment</Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline Item 3 */}
-              <div className="flex items-start gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white font-medium">Started at San Francisco, CA</h3>
-                    <span className="text-gray-400 text-sm">September 1, 2015</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-2">1234 Market Street, Unit 567, San Francisco, CA 94102</p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
-                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Permanent Home</Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Add Address Modal/Form would go here */}
-      <div className="fixed bottom-8 right-8">
-        <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6 py-3 rounded-full shadow-lg">
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Add New Address
-        </Button>
-      </div>
-    </div>
-  );
 };
