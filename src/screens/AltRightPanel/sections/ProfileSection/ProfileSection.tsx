@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MapPinIcon, HomeIcon, Edit2Icon, SaveIcon, XIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
@@ -10,8 +11,8 @@ import { PersonProfile } from "../../../../types/frontend.types";
 
 interface ProfileSectionProps {
   activeSection: ProfileSectionType;
-  profile?: PersonProfile | null;
-  onProfileUpdate?: (profile: PersonProfile) => void;
+  profile: PersonProfile;
+  onProfileUpdate: (profile: PersonProfile) => void;
 }
 
 export const ProfileSection = ({ 
@@ -19,33 +20,24 @@ export const ProfileSection = ({
   profile,
   onProfileUpdate 
 }: ProfileSectionProps): JSX.Element => {
-  // Edit states for different sections
-  const [editingCurrentAddress, setEditingCurrentAddress] = useState(false);
-  const [editingPermanentAddress, setEditingPermanentAddress] = useState(false);
-  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
-  
-  // Form states for address editing
-  const [currentAddressForm, setCurrentAddressForm] = useState({
-    line1: '',
-    line2: '',
-    city: '',
-    state: '',
-    postcode: '',
-    country: ''
-  });
-  
-  const [permanentAddressForm, setPermanentAddressForm] = useState({
-    line1: '',
-    line2: '',
-    city: '',
-    state: '',
-    postcode: '',
-    country: ''
-  });
+  // SVG data URI for map grid pattern
+  const gridPatternSvg = "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 10 0 L 0 0 0 10' fill='none' stroke='white' stroke-width='0.5' opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grid)' /%3E%3C/svg%3E";
 
-  // Add address form state
-  const [addAddressForm, setAddAddressForm] = useState({
-    type: 'current' as 'current' | 'permanent' | 'other',
+  // Edit states for different cards
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [isEditingPersonal, setIsEditingPersonal] = useState(false);
+  const [isEditingCurrentLocation, setIsEditingCurrentLocation] = useState(false);
+  const [isEditingAssignment, setIsEditingAssignment] = useState(false);
+  const [isEditingPermanentHome, setIsEditingPermanentHome] = useState(false);
+  const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+  const [isEditingCurrentAddress, setIsEditingCurrentAddress] = useState(false);
+  const [isEditingPermanentAddress, setIsEditingPermanentAddress] = useState(false);
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
+  const [useGoogleLookup, setUseGoogleLookup] = useState(true);
+  const [googleSearchTerm, setGoogleSearchTerm] = useState("");
+  const [googleSuggestions, setGoogleSuggestions] = useState<any[]>([]);
+  const [newAddress, setNewAddress] = useState({
+    type: 'other' as 'current' | 'permanent' | 'other',
     name: '',
     line1: '',
     line2: '',
@@ -53,265 +45,232 @@ export const ProfileSection = ({
     state: '',
     postcode: '',
     country: '',
-    setAsCurrent: false
+    isCurrentAddress: false
   });
 
-  // Google lookup states
-  const [useGoogleLookup, setUseGoogleLookup] = useState(true);
-  const [googleSearchTerm, setGoogleSearchTerm] = useState('');
-  const [googleSuggestions, setGoogleSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  // Temporary edit values
+  const [editBio, setEditBio] = useState(profile.bio || "");
+  const [editLanguages, setEditLanguages] = useState(profile.languages?.join(", ") || "");
+  const [editNationalities, setEditNationalities] = useState(profile.nationalities?.join(", ") || "");
+  const [editFirstName, setEditFirstName] = useState(profile.name.split(" ")[0] || "");
+  const [editLastName, setEditLastName] = useState(profile.name.split(" ").slice(1).join(" ") || "");
+  const [editDateOfBirth, setEditDateOfBirth] = useState(profile.dateOfBirth || "");
+  
+  // Address edit states
+  const [editCurrentAddress, setEditCurrentAddress] = useState({
+    line1: profile.currentLocation?.address.split(", ")[0] || "",
+    line2: "",
+    city: "Barcelona",
+    state: "Catalonia", 
+    postcode: "08013",
+    country: "Spain"
+  });
+  
+  const [editPermanentAddress, setEditPermanentAddress] = useState({
+    line1: "1234 Market Street",
+    line2: "Unit 567",
+    city: "San Francisco",
+    state: "California",
+    postcode: "94102", 
+    country: "United States"
+  });
 
-  // Mock Google Places API suggestions
-  const mockGoogleSuggestions = [
-    {
-      place_id: '1',
-      description: '123 Main Street, Barcelona, Spain',
-      structured_formatting: {
-        main_text: '123 Main Street',
-        secondary_text: 'Barcelona, Spain'
-      },
-      address_components: {
-        line1: '123 Main Street',
-        city: 'Barcelona',
-        state: 'Catalonia',
-        postcode: '08013',
-        country: 'Spain'
-      }
-    },
-    {
-      place_id: '2',
-      description: '456 Oak Avenue, Madrid, Spain',
-      structured_formatting: {
-        main_text: '456 Oak Avenue',
-        secondary_text: 'Madrid, Spain'
-      },
-      address_components: {
-        line1: '456 Oak Avenue',
-        city: 'Madrid',
-        state: 'Madrid',
-        postcode: '28001',
-        country: 'Spain'
-      }
-    },
-    {
-      place_id: '3',
-      description: '789 Pine Road, Valencia, Spain',
-      structured_formatting: {
-        main_text: '789 Pine Road',
-        secondary_text: 'Valencia, Spain'
-      },
-      address_components: {
-        line1: '789 Pine Road',
-        city: 'Valencia',
-        state: 'Valencia',
-        postcode: '46001',
-        country: 'Spain'
-      }
-    }
-  ];
-
-  // Handle Google search
-  const handleGoogleSearch = (searchTerm: string) => {
-    setGoogleSearchTerm(searchTerm);
-    if (searchTerm.length > 2) {
-      // Filter mock suggestions based on search term
-      const filtered = mockGoogleSuggestions.filter(suggestion =>
-        suggestion.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setGoogleSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
-
-  // Handle Google suggestion selection
-  const handleGoogleSuggestionSelect = (suggestion: any, formType: 'current' | 'permanent' | 'add') => {
-    const addressData = {
-      line1: suggestion.address_components.line1,
-      line2: '',
-      city: suggestion.address_components.city,
-      state: suggestion.address_components.state,
-      postcode: suggestion.address_components.postcode,
-      country: suggestion.address_components.country
+  // Helper function to get nationality flags
+  const getNationalityFlag = (nationality: string): string => {
+    const flagMap: Record<string, string> = {
+      'United States': '🇺🇸',
+      'China': '🇨🇳',
+      'United Kingdom': '🇬🇧',
+      'Canada': '🇨🇦',
+      'Australia': '🇦🇺',
+      'Germany': '🇩🇪',
+      'France': '🇫🇷',
+      'Spain': '🇪🇸',
+      'Italy': '🇮🇹',
+      'Japan': '🇯🇵',
+      'South Korea': '🇰🇷',
+      'Brazil': '🇧🇷',
+      'Mexico': '🇲🇽',
+      'India': '🇮🇳',
+      'Netherlands': '🇳🇱',
+      'Sweden': '🇸🇪',
+      'Norway': '🇳🇴',
+      'Denmark': '🇩🇰',
+      'Finland': '🇫🇮',
+      'Switzerland': '🇨🇭'
     };
-
-    if (formType === 'current') {
-      setCurrentAddressForm(addressData);
-    } else if (formType === 'permanent') {
-      setPermanentAddressForm(addressData);
-    } else if (formType === 'add') {
-      setAddAddressForm(prev => ({ ...prev, ...addressData }));
-    }
-
-    setGoogleSearchTerm(suggestion.description);
-    setShowSuggestions(false);
+    return flagMap[nationality] || '🏳️';
   };
 
-  // Initialize form data when editing starts
-  const startEditingCurrentAddress = () => {
-    if (profile?.currentLocation) {
-      const addressParts = profile.currentLocation.address.split(', ');
-      setCurrentAddressForm({
-        line1: addressParts[0] || '',
-        line2: addressParts[1] || '',
-        city: addressParts[2] || '',
-        state: addressParts[3] || '',
-        postcode: addressParts[4] || '',
-        country: addressParts[5] || ''
-      });
-    }
-    setEditingCurrentAddress(true);
+  const handleSaveBio = () => {
+    onProfileUpdate({
+      ...profile,
+      bio: editBio,
+      languages: editLanguages.split(",").map(lang => lang.trim()).filter(Boolean),
+      nationalities: editNationalities.split(",").map(nat => nat.trim()).filter(Boolean)
+    });
+    setIsEditingBio(false);
   };
 
-  const startEditingPermanentAddress = () => {
-    if (profile?.permanentHome) {
-      const addressParts = profile.permanentHome.address.split(', ');
-      setPermanentAddressForm({
-        line1: addressParts[0] || '',
-        line2: addressParts[1] || '',
-        city: addressParts[2] || '',
-        state: addressParts[3] || '',
-        postcode: addressParts[4] || '',
-        country: addressParts[5] || ''
-      });
-    }
-    setEditingPermanentAddress(true);
+  const handleSavePersonal = () => {
+    onProfileUpdate({
+      ...profile,
+      name: `${editFirstName} ${editLastName}`,
+      dateOfBirth: editDateOfBirth
+    });
+    setIsEditingPersonal(false);
   };
 
-  // Save address changes
-  const saveCurrentAddress = () => {
-    if (!profile || !onProfileUpdate) return;
-    
-    const addressString = [
-      currentAddressForm.line1,
-      currentAddressForm.line2,
-      currentAddressForm.city,
-      currentAddressForm.state,
-      currentAddressForm.postcode,
-      currentAddressForm.country
-    ].filter(Boolean).join(', ');
-
-    const updatedProfile = {
+  const handleSaveCurrentAddress = () => {
+    // Update profile with new current address
+    const newAddress = `${editCurrentAddress.line1}${editCurrentAddress.line2 ? ', ' + editCurrentAddress.line2 : ''}, ${editCurrentAddress.city}, ${editCurrentAddress.state} ${editCurrentAddress.postcode}, ${editCurrentAddress.country}`;
+    onProfileUpdate({
       ...profile,
       currentLocation: {
         ...profile.currentLocation,
-        address: addressString
+        address: newAddress
       }
-    };
-
-    onProfileUpdate(updatedProfile);
-    setEditingCurrentAddress(false);
+    });
+    setIsEditingCurrentAddress(false);
   };
 
-  const savePermanentAddress = () => {
-    if (!profile || !onProfileUpdate) return;
-    
-    const addressString = [
-      permanentAddressForm.line1,
-      permanentAddressForm.line2,
-      permanentAddressForm.city,
-      permanentAddressForm.state,
-      permanentAddressForm.postcode,
-      permanentAddressForm.country
-    ].filter(Boolean).join(', ');
-
-    const updatedProfile = {
+  const handleSavePermanentAddress = () => {
+    // Update profile with new permanent address
+    const newAddress = `${editPermanentAddress.line1}${editPermanentAddress.line2 ? ', ' + editPermanentAddress.line2 : ''}, ${editPermanentAddress.city}, ${editPermanentAddress.state} ${editPermanentAddress.postcode}, ${editPermanentAddress.country}`;
+    onProfileUpdate({
       ...profile,
       permanentHome: {
         ...profile.permanentHome,
-        address: addressString,
+        address: newAddress,
         propertyType: profile.permanentHome?.propertyType || 'Owned'
       }
+    });
+    setIsEditingPermanentAddress(false);
+  };
+
+  // Mock Google Places API lookup
+  const handleGoogleSearch = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setGoogleSuggestions([]);
+      return;
+    }
+    
+    // Mock Google Places API response
+    const mockSuggestions = [
+      {
+        place_id: "1",
+        description: `${searchTerm}, Barcelona, Spain`,
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Barcelona, Spain"
+        }
+      },
+      {
+        place_id: "2", 
+        description: `${searchTerm}, Madrid, Spain`,
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Madrid, Spain"
+        }
+      },
+      {
+        place_id: "3",
+        description: `${searchTerm}, Valencia, Spain`, 
+        structured_formatting: {
+          main_text: searchTerm,
+          secondary_text: "Valencia, Spain"
+        }
+      }
+    ];
+    
+    setGoogleSuggestions(mockSuggestions);
+  };
+
+  const handleSelectGoogleSuggestion = (suggestion: any, isCurrentAddress: boolean) => {
+    // Parse the suggestion and populate address fields
+    const parts = suggestion.description.split(", ");
+    const addressData = {
+      line1: parts[0] || "",
+      line2: "",
+      city: parts[1] || "",
+      state: parts[2] || "",
+      postcode: "",
+      country: parts[parts.length - 1] || ""
+    };
+    
+    if (isCurrentAddress) {
+      setEditCurrentAddress(addressData);
+    } else {
+      setEditPermanentAddress(addressData);
+    }
+    
+    setGoogleSuggestions([]);
+    setGoogleSearchTerm("");
+  };
+
+  const handleAddAddress = () => {
+    setShowAddAddressModal(true);
+    setNewAddress({
+      type: 'other',
+      name: '',
+      line1: '',
+      line2: '',
+      city: '',
+      state: '',
+      postcode: '',
+      country: '',
+      isCurrentAddress: false
+    });
+    setUseGoogleLookup(true);
+    setGoogleSearchTerm('');
+    setGoogleSuggestions([]);
+  };
+
+  const handleSaveNewAddress = () => {
+    if (!profile || !onProfileUpdate) return;
+
+    // Create new address object
+    const addressToAdd = {
+      address: `${newAddress.line1}${newAddress.line2 ? ', ' + newAddress.line2 : ''}, ${newAddress.city}, ${newAddress.state} ${newAddress.postcode}, ${newAddress.country}`,
+      startDate: new Date().toISOString().split('T')[0],
+      duration: 'Just added'
     };
 
-    onProfileUpdate(updatedProfile);
-    setEditingPermanentAddress(false);
-  };
+    // Add to location history
+    const updatedProfile = {
+      ...profile,
+      locationHistory: [
+        {
+          date: new Date().toLocaleDateString(),
+          location: newAddress.city,
+          change: newAddress.type === 'current' ? 'Moved to' : 
+                  newAddress.type === 'permanent' ? 'Permanent home' : 'Added address'
+        },
+        ...(profile.locationHistory || [])
+      ]
+    };
 
-  // Add new address
-  const saveNewAddress = () => {
-    if (!profile || !onProfileUpdate) return;
-    
-    const addressString = [
-      addAddressForm.line1,
-      addAddressForm.line2,
-      addAddressForm.city,
-      addAddressForm.state,
-      addAddressForm.postcode,
-      addAddressForm.country
-    ].filter(Boolean).join(', ');
-
-    let updatedProfile = { ...profile };
-
-    if (addAddressForm.type === 'current' || addAddressForm.setAsCurrent) {
-      updatedProfile.currentLocation = {
-        address: addressString,
-        startDate: new Date().toISOString().split('T')[0],
-        duration: '0 months'
-      };
-      
-      // Add to location history
-      const newHistoryItem = {
-        date: new Date().toLocaleDateString(),
-        location: addAddressForm.city,
-        change: 'Moved to'
-      };
-      updatedProfile.locationHistory = [newHistoryItem, ...(profile.locationHistory || [])];
+    // If it's set as current address, update current location
+    if (newAddress.type === 'current' || newAddress.isCurrentAddress) {
+      updatedProfile.currentLocation = addressToAdd;
     }
 
-    if (addAddressForm.type === 'permanent') {
+    // If it's set as permanent address, update permanent home
+    if (newAddress.type === 'permanent') {
       updatedProfile.permanentHome = {
-        address: addressString,
-        propertyType: 'Owned'
+        address: addressToAdd.address,
+        propertyType: 'Owned' // Default, could be made selectable
       };
     }
 
     onProfileUpdate(updatedProfile);
     setShowAddAddressModal(false);
-    setAddAddressForm({
-      type: 'current',
-      name: '',
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      postcode: '',
-      country: '',
-      setAsCurrent: false
-    });
   };
 
-  // Cancel editing
-  const cancelCurrentAddressEdit = () => {
-    setEditingCurrentAddress(false);
-    setCurrentAddressForm({
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      postcode: '',
-      country: ''
-    });
-  };
-
-  const cancelPermanentAddressEdit = () => {
-    setEditingPermanentAddress(false);
-    setPermanentAddressForm({
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      postcode: '',
-      country: ''
-    });
-  };
-
-  const cancelAddAddress = () => {
+  const handleCancelAddAddress = () => {
     setShowAddAddressModal(false);
-    setAddAddressForm({
-      type: 'current',
+    setNewAddress({
+      type: 'other',
       name: '',
       line1: '',
       line2: '',
@@ -319,641 +278,816 @@ export const ProfileSection = ({
       state: '',
       postcode: '',
       country: '',
-      setAsCurrent: false
+      isCurrentAddress: false
     });
+    setGoogleSearchTerm('');
+    setGoogleSuggestions([]);
   };
 
-  // Check if form is valid
-  const isCurrentAddressFormValid = currentAddressForm.line1 && currentAddressForm.city && currentAddressForm.state && currentAddressForm.postcode && currentAddressForm.country;
-  const isPermanentAddressFormValid = permanentAddressForm.line1 && permanentAddressForm.city && permanentAddressForm.state && permanentAddressForm.postcode && permanentAddressForm.country;
-  const isAddAddressFormValid = addAddressForm.line1 && addAddressForm.city && addAddressForm.state && addAddressForm.postcode && addAddressForm.country;
+  const handleNewAddressGoogleSelect = (result: any) => {
+    setNewAddress(prev => ({
+      ...prev,
+      line1: result.line1 || '',
+      line2: result.line2 || '',
+      city: result.city || '',
+      state: result.state || '',
+      postcode: result.postcode || '',
+      country: result.country || ''
+    }));
+    setGoogleSearchTerm(result.formatted_address);
+    setGoogleSuggestions([]);
+  };
 
-  const renderDetailsSection = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Bio</label>
-          <Textarea
-            value={profile?.bio || ''}
-            className="bg-[#1D252D] border-[#40505C] text-white min-h-[100px]"
-            placeholder="Enter bio..."
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Date of Birth</label>
-          <Input
-            type="date"
-            value={profile?.dateOfBirth || ''}
-            className="bg-[#1D252D] border-[#40505C] text-white"
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Nationality</label>
-          <Input
-            value={profile?.nationality || ''}
-            className="bg-[#1D252D] border-[#40505C] text-white"
-            placeholder="Enter nationality..."
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Languages</label>
-          <div className="flex flex-wrap gap-2">
-            {profile?.languages?.map((lang, index) => (
-              <Badge key={index} variant="secondary" className="bg-[#1D252D] text-gray-300">
-                {lang}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Create a URL for the uploaded file
+      const photoUrl = URL.createObjectURL(file);
+      onProfileUpdate({
+        ...profile,
+        avatarUrl: photoUrl
+      });
+      setIsEditingPhoto(false);
+    }
+  };
   const renderLocationSection = () => (
-    <div className="space-y-6">
-      {/* Current Location */}
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2">
-            <MapPinIcon className="w-5 h-5" />
-            Current Location
-          </CardTitle>
-          {!editingCurrentAddress && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={startEditingCurrentAddress}
-              className="text-gray-300 hover:text-white"
-            >
-              <Edit2Icon className="w-4 h-4" />
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {editingCurrentAddress ? (
-            <div className="space-y-4">
-              {/* Google/Manual Toggle */}
-              <div className="flex items-center gap-4 mb-4">
-                <Button
-                  variant={useGoogleLookup ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setUseGoogleLookup(true)}
-                  className="text-xs"
-                >
-                  Google Lookup
-                </Button>
-                <Button
-                  variant={!useGoogleLookup ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setUseGoogleLookup(false)}
-                  className="text-xs"
-                >
-                  Manual Entry
-                </Button>
-              </div>
-
-              {useGoogleLookup && (
-                <div className="relative">
-                  <div className="relative">
-                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      value={googleSearchTerm}
-                      onChange={(e) => handleGoogleSearch(e.target.value)}
-                      placeholder="Search for an address..."
-                      className="bg-[#2A3440] border-[#40505C] text-white pl-10"
-                    />
-                  </div>
-                  
-                  {showSuggestions && googleSuggestions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-60 overflow-y-auto">
-                      {googleSuggestions.map((suggestion) => (
-                        <div
-                          key={suggestion.place_id}
-                          className="px-4 py-3 hover:bg-[#1D252D] cursor-pointer border-b border-[#40505C] last:border-b-0"
-                          onClick={() => handleGoogleSuggestionSelect(suggestion, 'current')}
-                        >
-                          <div className="text-white font-medium">
-                            {suggestion.structured_formatting.main_text}
-                          </div>
-                          <div className="text-gray-400 text-sm">
-                            {suggestion.structured_formatting.secondary_text}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 1</label>
-                  <Input
-                    value={currentAddressForm.line1}
-                    onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, line1: e.target.value }))}
-                    className="bg-[#2A3440] border-[#40505C] text-white"
-                    placeholder="Street address"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 2</label>
-                  <Input
-                    value={currentAddressForm.line2}
-                    onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, line2: e.target.value }))}
-                    className="bg-[#2A3440] border-[#40505C] text-white"
-                    placeholder="Apartment, suite, etc. (optional)"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">City</label>
-                    <Input
-                      value={currentAddressForm.city}
-                      onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, city: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="City"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">State</label>
-                    <Input
-                      value={currentAddressForm.state}
-                      onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, state: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="State/Province"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Postcode</label>
-                    <Input
-                      value={currentAddressForm.postcode}
-                      onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, postcode: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Postcode"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Country</label>
-                    <Input
-                      value={currentAddressForm.country}
-                      onChange={(e) => setCurrentAddressForm(prev => ({ ...prev, country: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Country"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={saveCurrentAddress}
-                  disabled={!isCurrentAddressFormValid}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <SaveIcon className="w-4 h-4 mr-2" />
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={cancelCurrentAddressEdit}
-                  className="border-[#40505C] text-gray-300 hover:text-white"
-                >
-                  <XIcon className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
+    <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search addresses"
+                className="w-80 bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
             </div>
-          ) : (
-            <div className="text-gray-300">
-              <p>{profile?.currentLocation?.address || 'No current location set'}</p>
-              {profile?.currentLocation?.duration && (
-                <p className="text-sm text-gray-400 mt-1">
-                  Duration: {profile.currentLocation.duration}
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Permanent Home */}
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2">
-            <UserIcon className="w-5 h-5" />
-            Permanent Home
-          </CardTitle>
-          {!editingPermanentAddress && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={startEditingPermanentAddress}
-              className="text-gray-300 hover:text-white"
-            >
-              <Edit2Icon className="w-4 h-4" />
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          {editingPermanentAddress ? (
-            <div className="space-y-4">
-              {/* Google/Manual Toggle */}
-              <div className="flex items-center gap-4 mb-4">
-                <Button
-                  variant={useGoogleLookup ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setUseGoogleLookup(true)}
-                  className="text-xs"
-                >
-                  Google Lookup
-                </Button>
-                <Button
-                  variant={!useGoogleLookup ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setUseGoogleLookup(false)}
-                  className="text-xs"
-                >
-                  Manual Entry
-                </Button>
-              </div>
-
-              {useGoogleLookup && (
-                <div className="relative">
-                  <div className="relative">
-                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      value={googleSearchTerm}
-                      onChange={(e) => handleGoogleSearch(e.target.value)}
-                      placeholder="Search for an address..."
-                      className="bg-[#2A3440] border-[#40505C] text-white pl-10"
-                    />
-                  </div>
-                  
-                  {showSuggestions && googleSuggestions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-60 overflow-y-auto">
-                      {googleSuggestions.map((suggestion) => (
-                        <div
-                          key={suggestion.place_id}
-                          className="px-4 py-3 hover:bg-[#1D252D] cursor-pointer border-b border-[#40505C] last:border-b-0"
-                          onClick={() => handleGoogleSuggestionSelect(suggestion, 'permanent')}
-                        >
-                          <div className="text-white font-medium">
-                            {suggestion.structured_formatting.main_text}
-                          </div>
-                          <div className="text-gray-400 text-sm">
-                            {suggestion.structured_formatting.secondary_text}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 1</label>
-                  <Input
-                    value={permanentAddressForm.line1}
-                    onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, line1: e.target.value }))}
-                    className="bg-[#2A3440] border-[#40505C] text-white"
-                    placeholder="Street address"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 2</label>
-                  <Input
-                    value={permanentAddressForm.line2}
-                    onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, line2: e.target.value }))}
-                    className="bg-[#2A3440] border-[#40505C] text-white"
-                    placeholder="Apartment, suite, etc. (optional)"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">City</label>
-                    <Input
-                      value={permanentAddressForm.city}
-                      onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, city: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="City"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">State</label>
-                    <Input
-                      value={permanentAddressForm.state}
-                      onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, state: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="State/Province"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Postcode</label>
-                    <Input
-                      value={permanentAddressForm.postcode}
-                      onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, postcode: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Postcode"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Country</label>
-                    <Input
-                      value={permanentAddressForm.country}
-                      onChange={(e) => setPermanentAddressForm(prev => ({ ...prev, country: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Country"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={savePermanentAddress}
-                  disabled={!isPermanentAddressFormValid}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <SaveIcon className="w-4 h-4 mr-2" />
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={cancelPermanentAddressEdit}
-                  className="border-[#40505C] text-gray-300 hover:text-white"
-                >
-                  <XIcon className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-gray-300">
-              <p>{profile?.permanentHome?.address || 'No permanent home set'}</p>
-              {profile?.permanentHome?.propertyType && (
-                <p className="text-sm text-gray-400 mt-1">
-                  Property Type: {profile.permanentHome.propertyType}
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Location History */}
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Location History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {profile?.locationHistory?.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-2 border-b border-[#40505C] last:border-b-0">
-                <div>
-                  <p className="text-white font-medium">{item.location}</p>
-                  <p className="text-gray-400 text-sm">{item.change}</p>
-                </div>
-                <p className="text-gray-400 text-sm">{item.date}</p>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
+          <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6">
+            Add Address
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-6 mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-2">Addresses & Location History</h1>
+            <p className="text-gray-400">Manage current and previous addresses</p>
+          </div>
+        </div>
+      </div>
 
-      {/* Floating Add Button */}
-      <Button
-        onClick={() => setShowAddAddressModal(true)}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-[#732cec] hover:bg-[#5a23b8] shadow-lg z-50"
-        size="icon"
-      >
-        <PlusIcon className="w-6 h-6" />
-      </Button>
+      {/* Current Addresses Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-medium text-white mb-6">Current Addresses</h2>
+        
+        <div className="grid gap-6">
+          {/* Primary Address Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle className="text-white text-lg font-medium">Current Address</CardTitle>
+                  <p className="text-gray-400 text-sm">Primary residence</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-green-500/20 text-green-400 border-0">Current</Badge>
+                {!isEditingCurrentAddress ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingCurrentAddress(true)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <Edit2Icon className="w-4 h-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingCurrentAddress(false)}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <XIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSaveCurrentAddress}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <SaveIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              {!isEditingCurrentAddress ? (
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 1</label>
+                      <p className="text-white font-medium">Carrer de Mallorca, 123</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 2</label>
+                      <p className="text-white font-medium">Apt 4B</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">City</label>
+                      <p className="text-white font-medium">Barcelona</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">State/Region</label>
+                      <p className="text-white font-medium">Catalonia</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Postcode</label>
+                      <p className="text-white font-medium">08013</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Country</label>
+                    <p className="text-white font-medium">Spain 🇪🇸</p>
+                  </div>
+                  <div className="pt-4 border-t border-[#40505C]">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Duration at this address</span>
+                      <span className="text-white">2 years, 3 months</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Google Lookup Toggle */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white text-sm font-medium">Address Lookup</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(true)}
+                        className="text-xs"
+                      >
+                        <SearchIcon className="w-3 h-3 mr-1" />
+                        Google
+                      </Button>
+                      <Button
+                        variant={!useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(false)}
+                        className="text-xs"
+                      >
+                        Manual
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Google Search */}
+                  {useGoogleLookup && (
+                    <div className="relative">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          value={googleSearchTerm}
+                          onChange={(e) => {
+                            setGoogleSearchTerm(e.target.value);
+                            handleGoogleSearch(e.target.value);
+                          }}
+                          placeholder="Search for address..."
+                          className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+                        />
+                      </div>
+                      
+                      {/* Google Suggestions */}
+                      {googleSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {googleSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.place_id}
+                              onClick={() => handleSelectGoogleSuggestion(suggestion, true)}
+                              className="w-full px-3 py-2 text-left hover:bg-[#1D252D] text-white text-sm flex items-center gap-2"
+                            >
+                              <MapPinIcon className="w-4 h-4 text-gray-400" />
+                              <div>
+                                <div className="font-medium">{suggestion.structured_formatting.main_text}</div>
+                                <div className="text-gray-400 text-xs">{suggestion.structured_formatting.secondary_text}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Manual Address Fields */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 1</label>
+                      <Input
+                        value={editCurrentAddress.line1}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, line1: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 2</label>
+                      <Input
+                        value={editCurrentAddress.line2}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, line2: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Apartment, suite, etc. (optional)"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">City</label>
+                      <Input
+                        value={editCurrentAddress.city}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, city: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">State/Region</label>
+                      <Input
+                        value={editCurrentAddress.state}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, state: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Postcode</label>
+                      <Input
+                        value={editCurrentAddress.postcode}
+                        onChange={(e) => setEditCurrentAddress({...editCurrentAddress, postcode: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Country</label>
+                    <Input
+                      value={editCurrentAddress.country}
+                      onChange={(e) => setEditCurrentAddress({...editCurrentAddress, country: e.target.value})}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Permanent Home Address Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle className="text-white text-lg font-medium">Permanent Home</CardTitle>
+                  <p className="text-gray-400 text-sm">Home country address</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-blue-500/20 text-blue-400 border-0">Permanent</Badge>
+                {!isEditingPermanentAddress ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingPermanentAddress(true)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <Edit2Icon className="w-4 h-4" />
+                    Edit
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingPermanentAddress(false)}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <XIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSavePermanentAddress}
+                      className="text-white hover:bg-[#2A3440] p-2"
+                    >
+                      <SaveIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              {!isEditingPermanentAddress ? (
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 1</label>
+                      <p className="text-white font-medium">1234 Market Street</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Address Line 2</label>
+                      <p className="text-white font-medium">Unit 567</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">City</label>
+                      <p className="text-white font-medium">San Francisco</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">State/Region</label>
+                      <p className="text-white font-medium">California</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Postcode</label>
+                      <p className="text-white font-medium">94102</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm">Country</label>
+                    <p className="text-white font-medium">United States 🇺🇸</p>
+                  </div>
+                  <div className="pt-4 border-t border-[#40505C]">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Property Type</span>
+                      <span className="text-white">Owned</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Google Lookup Toggle */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white text-sm font-medium">Address Lookup</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(true)}
+                        className="text-xs"
+                      >
+                        <SearchIcon className="w-3 h-3 mr-1" />
+                        Google
+                      </Button>
+                      <Button
+                        variant={!useGoogleLookup ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setUseGoogleLookup(false)}
+                        className="text-xs"
+                      >
+                        Manual
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Google Search */}
+                  {useGoogleLookup && (
+                    <div className="relative">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          value={googleSearchTerm}
+                          onChange={(e) => {
+                            setGoogleSearchTerm(e.target.value);
+                            handleGoogleSearch(e.target.value);
+                          }}
+                          placeholder="Search for address..."
+                          className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
+                        />
+                      </div>
+                      
+                      {/* Google Suggestions */}
+                      {googleSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {googleSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.place_id}
+                              onClick={() => handleSelectGoogleSuggestion(suggestion, false)}
+                              className="w-full px-3 py-2 text-left hover:bg-[#1D252D] text-white text-sm flex items-center gap-2"
+                            >
+                              <MapPinIcon className="w-4 h-4 text-gray-400" />
+                              <div>
+                                <div className="font-medium">{suggestion.structured_formatting.main_text}</div>
+                                <div className="text-gray-400 text-xs">{suggestion.structured_formatting.secondary_text}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Manual Address Fields */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 1</label>
+                      <Input
+                        value={editPermanentAddress.line1}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, line1: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Street address"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Address Line 2</label>
+                      <Input
+                        value={editPermanentAddress.line2}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, line2: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                        placeholder="Apartment, suite, etc. (optional)"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">City</label>
+                      <Input
+                        value={editPermanentAddress.city}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, city: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">State/Region</label>
+                      <Input
+                        value={editPermanentAddress.state}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, state: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white text-sm font-medium mb-2 block">Postcode</label>
+                      <Input
+                        value={editPermanentAddress.postcode}
+                        onChange={(e) => setEditPermanentAddress({...editPermanentAddress, postcode: e.target.value})}
+                        className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Country</label>
+                    <Input
+                      value={editPermanentAddress.country}
+                      onChange={(e) => setEditPermanentAddress({...editPermanentAddress, country: e.target.value})}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Address History Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-medium text-white mb-6">Address History</h2>
+        
+        <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Timeline Item 1 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Moved to Barcelona, Spain</h3>
+                    <span className="text-gray-400 text-sm">January 15, 2022</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">Carrer de Mallorca, 123, Apt 4B, Barcelona, Catalonia 08013</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Current</Badge>
+                    <Badge className="bg-purple-500/20 text-purple-400 border-0 text-xs">Work Assignment</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Item 2 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <div className="w-px h-16 bg-[#40505C] mt-2"></div>
+                </div>
+                <div className="flex-1 pb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Moved to London, UK</h3>
+                    <span className="text-gray-400 text-sm">June 1, 2019</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">45 Kensington Gardens, London, England SW7 2AP</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-0 text-xs">Work Assignment</Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Item 3 */}
+              <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-medium">Started at San Francisco, CA</h3>
+                    <span className="text-gray-400 text-sm">September 1, 2015</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">1234 Market Street, Unit 567, San Francisco, CA 94102</p>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-gray-500/20 text-gray-400 border-0 text-xs">Previous</Badge>
+                    <Badge className="bg-green-500/20 text-green-400 border-0 text-xs">Permanent Home</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Add Address Modal/Form would go here */}
+      <div className="fixed bottom-8 right-8">
+        <Button
+          onClick={handleAddAddress}
+          className="w-12 h-12 rounded-full bg-[#732cec] hover:bg-[#5a23b8] text-white shadow-lg"
+        >
+          <PlusIcon className="w-5 h-5" />
+        </Button>
+      </div>
 
       {/* Add Address Modal */}
       {showAddAddressModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1D252D] border border-[#40505C] rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">Add New Address</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#252E38] rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-white">Add New Address</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancelAddAddress}
+                className="text-gray-400 hover:text-white"
+              >
+                <XIcon className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Address Type Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Address Type
+              </label>
+              <div className="flex gap-3">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={cancelAddAddress}
-                  className="text-gray-400 hover:text-white"
+                  variant={newAddress.type === 'current' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'current' }))}
+                  className="flex-1"
                 >
-                  <XIcon className="w-5 h-5" />
+                  Current Address
+                </Button>
+                <Button
+                  variant={newAddress.type === 'permanent' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'permanent' }))}
+                  className="flex-1"
+                >
+                  Permanent Home
+                </Button>
+                <Button
+                  variant={newAddress.type === 'other' ? 'default' : 'outline'}
+                  onClick={() => setNewAddress(prev => ({ ...prev, type: 'other' }))}
+                  className="flex-1"
+                >
+                  Other Address
                 </Button>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                {/* Address Type Selection */}
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-2 block">Address Type</label>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={addAddressForm.type === 'current' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAddAddressForm(prev => ({ ...prev, type: 'current' }))}
-                      className="text-xs"
-                    >
-                      Current Address
-                    </Button>
-                    <Button
-                      variant={addAddressForm.type === 'permanent' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAddAddressForm(prev => ({ ...prev, type: 'permanent' }))}
-                      className="text-xs"
-                    >
-                      Permanent Home
-                    </Button>
-                    <Button
-                      variant={addAddressForm.type === 'other' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setAddAddressForm(prev => ({ ...prev, type: 'other' }))}
-                      className="text-xs"
-                    >
-                      Other Address
-                    </Button>
-                  </div>
-                </div>
+            {/* Address Name */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Address Name (Optional)
+              </label>
+              <Input
+                value={newAddress.name}
+                onChange={(e) => setNewAddress(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Home, Work, Vacation Home"
+                className="bg-[#1D252D] border-[#40505C] text-white"
+              />
+            </div>
 
-                {/* Address Name (Optional) */}
-                <div>
-                  <label className="text-sm font-medium text-gray-300 mb-1 block">Address Name (Optional)</label>
-                  <Input
-                    value={addAddressForm.name}
-                    onChange={(e) => setAddAddressForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-[#2A3440] border-[#40505C] text-white"
-                    placeholder="e.g., Home, Work, Vacation Home"
-                  />
-                </div>
-
-                {/* Google/Manual Toggle */}
-                <div className="flex items-center gap-4">
+            {/* Google Lookup Toggle */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-300">Address Entry Method</span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm ${!useGoogleLookup ? 'text-white' : 'text-gray-400'}`}>
+                    Manual
+                  </span>
                   <Button
-                    variant={useGoogleLookup ? "default" : "outline"}
+                    variant="ghost"
                     size="sm"
-                    onClick={() => setUseGoogleLookup(true)}
-                    className="text-xs"
+                    onClick={() => setUseGoogleLookup(!useGoogleLookup)}
+                    className={`w-12 h-6 rounded-full p-0 ${
+                      useGoogleLookup ? 'bg-[#732cec]' : 'bg-gray-600'
+                    }`}
                   >
-                    Google Lookup
-                  </Button>
-                  <Button
-                    variant={!useGoogleLookup ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setUseGoogleLookup(false)}
-                    className="text-xs"
-                  >
-                    Manual Entry
-                  </Button>
-                </div>
-
-                {/* Google Search */}
-                {useGoogleLookup && (
-                  <div className="relative">
-                    <div className="relative">
-                      <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        value={googleSearchTerm}
-                        onChange={(e) => handleGoogleSearch(e.target.value)}
-                        placeholder="Search for an address..."
-                        className="bg-[#2A3440] border-[#40505C] text-white pl-10"
-                      />
-                    </div>
-                    
-                    {showSuggestions && googleSuggestions.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-[#2A3440] border border-[#40505C] rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {googleSuggestions.map((suggestion) => (
-                          <div
-                            key={suggestion.place_id}
-                            className="px-4 py-3 hover:bg-[#1D252D] cursor-pointer border-b border-[#40505C] last:border-b-0"
-                            onClick={() => handleGoogleSuggestionSelect(suggestion, 'add')}
-                          >
-                            <div className="text-white font-medium">
-                              {suggestion.structured_formatting.main_text}
-                            </div>
-                            <div className="text-gray-400 text-sm">
-                              {suggestion.structured_formatting.secondary_text}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Address Form Fields */}
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 1 *</label>
-                    <Input
-                      value={addAddressForm.line1}
-                      onChange={(e) => setAddAddressForm(prev => ({ ...prev, line1: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Street address"
-                      required
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        useGoogleLookup ? 'translate-x-3' : 'translate-x-0'
+                      }`}
                     />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-1 block">Address Line 2</label>
-                    <Input
-                      value={addAddressForm.line2}
-                      onChange={(e) => setAddAddressForm(prev => ({ ...prev, line2: e.target.value }))}
-                      className="bg-[#2A3440] border-[#40505C] text-white"
-                      placeholder="Apartment, suite, etc. (optional)"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">City *</label>
-                      <Input
-                        value={addAddressForm.city}
-                        onChange={(e) => setAddAddressForm(prev => ({ ...prev, city: e.target.value }))}
-                        className="bg-[#2A3440] border-[#40505C] text-white"
-                        placeholder="City"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">State *</label>
-                      <Input
-                        value={addAddressForm.state}
-                        onChange={(e) => setAddAddressForm(prev => ({ ...prev, state: e.target.value }))}
-                        className="bg-[#2A3440] border-[#40505C] text-white"
-                        placeholder="State/Province"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Postcode *</label>
-                      <Input
-                        value={addAddressForm.postcode}
-                        onChange={(e) => setAddAddressForm(prev => ({ ...prev, postcode: e.target.value }))}
-                        className="bg-[#2A3440] border-[#40505C] text-white"
-                        placeholder="Postcode"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Country *</label>
-                      <Input
-                        value={addAddressForm.country}
-                        onChange={(e) => setAddAddressForm(prev => ({ ...prev, country: e.target.value }))}
-                        className="bg-[#2A3440] border-[#40505C] text-white"
-                        placeholder="Country"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Set as Current Address (for Other type) */}
-                {addAddressForm.type === 'other' && (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="setAsCurrent"
-                      checked={addAddressForm.setAsCurrent}
-                      onChange={(e) => setAddAddressForm(prev => ({ ...prev, setAsCurrent: e.target.checked }))}
-                      className="rounded border-[#40505C] bg-[#2A3440]"
-                    />
-                    <label htmlFor="setAsCurrent" className="text-sm text-gray-300">
-                      Set as current address
-                    </label>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={saveNewAddress}
-                    disabled={!isAddAddressFormValid}
-                    className="bg-green-600 hover:bg-green-700 flex-1"
-                  >
-                    <SaveIcon className="w-4 h-4 mr-2" />
-                    Save Address
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={cancelAddAddress}
-                    className="border-[#40505C] text-gray-300 hover:text-white flex-1"
-                  >
-                    <XIcon className="w-4 h-4 mr-2" />
-                    Cancel
-                  </Button>
+                  <span className={`text-sm ${useGoogleLookup ? 'text-white' : 'text-gray-400'}`}>
+                    Google
+                  </span>
                 </div>
               </div>
+            </div>
+
+            {/* Google Lookup or Manual Entry */}
+            {useGoogleLookup ? (
+              <div className="mb-6 relative">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Search Address
+                </label>
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    value={googleSearchTerm}
+                    onChange={(e) => {
+                      setGoogleSearchTerm(e.target.value);
+                      handleGoogleSearch(e.target.value);
+                    }}
+                    placeholder="Start typing an address..."
+                    className="pl-10 bg-[#1D252D] border-[#40505C] text-white"
+                  />
+                </div>
+                
+                {/* Search Results */}
+                {googleSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-[#1D252D] border border-[#40505C] rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {googleSuggestions.map((result, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleNewAddressGoogleSelect(result)}
+                        className="px-4 py-3 hover:bg-[#2A3440] cursor-pointer border-b border-[#40505C] last:border-b-0"
+                      >
+                        <div className="text-white font-medium">{result.main_text}</div>
+                        <div className="text-gray-400 text-sm">{result.secondary_text}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* Manual Address Fields */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Address Line 1 *
+                </label>
+                <Input
+                  value={newAddress.line1}
+                  onChange={(e) => setNewAddress(prev => ({ ...prev, line1: e.target.value }))}
+                  placeholder="Street number and name"
+                  className="bg-[#1D252D] border-[#40505C] text-white"
+                  disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Address Line 2
+                </label>
+                <Input
+                  value={newAddress.line2}
+                  onChange={(e) => setNewAddress(prev => ({ ...prev, line2: e.target.value }))}
+                  placeholder="Apartment, suite, unit, building, floor, etc."
+                  className="bg-[#1D252D] border-[#40505C] text-white"
+                  disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    City *
+                  </label>
+                  <Input
+                    value={newAddress.city}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, city: e.target.value }))}
+                    placeholder="City"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    State/Province *
+                  </label>
+                  <Input
+                    value={newAddress.state}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, state: e.target.value }))}
+                    placeholder="State or Province"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Postcode *
+                  </label>
+                  <Input
+                    value={newAddress.postcode}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, postcode: e.target.value }))}
+                    placeholder="Postal/ZIP code"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Country *
+                  </label>
+                  <Input
+                    value={newAddress.country}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, country: e.target.value }))}
+                    placeholder="Country"
+                    className="bg-[#1D252D] border-[#40505C] text-white"
+                    disabled={useGoogleLookup && googleSuggestions.length === 0 && !googleSearchTerm}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Set as Current Address Option */}
+            {newAddress.type === 'other' && (
+              <div className="mb-6">
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={newAddress.isCurrentAddress}
+                    onChange={(e) => setNewAddress(prev => ({ ...prev, isCurrentAddress: e.target.checked }))}
+                    className="w-4 h-4 text-[#732cec] bg-[#1D252D] border-[#40505C] rounded focus:ring-[#732cec]"
+                  />
+                  <span className="text-sm text-gray-300">Set as current address</span>
+                </label>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex gap-3 pt-4 border-t border-[#40505C]">
+              <Button
+                variant="outline"
+                onClick={handleCancelAddAddress}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveNewAddress}
+                className="flex-1 bg-[#732cec] hover:bg-[#5a23b8]"
+                disabled={!newAddress.line1 || !newAddress.city || !newAddress.state || !newAddress.postcode || !newAddress.country}
+              >
+                Add Address
+              </Button>
             </div>
           </div>
         </div>
@@ -961,313 +1095,456 @@ export const ProfileSection = ({
     </div>
   );
 
-  const renderWorkSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Current Position</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Job Title</label>
+  const renderDetailsSection = () => (
+    <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
               <Input
-                value={profile?.currentPosition?.jobTitle || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter job title..."
+                type="text"
+                placeholder="Search employee details"
+                className="w-80 bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 pl-10"
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Department</label>
-              <Input
-                value={profile?.currentPosition?.department || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter department..."
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Start Date</label>
-              <Input
-                type="date"
-                value={profile?.currentPosition?.startDate || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Manager</label>
-              <Input
-                value={profile?.currentPosition?.manager || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter manager name..."
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderContactSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Work Email</label>
-              <Input
-                type="email"
-                value={profile?.contact?.workEmail || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter work email..."
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Work Phone</label>
-              <Input
-                type="tel"
-                value={profile?.contact?.workPhone || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter work phone..."
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Personal Email</label>
-              <Input
-                type="email"
-                value={profile?.contact?.personalEmail || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter personal email..."
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Mobile Phone</label>
-              <Input
-                type="tel"
-                value={profile?.contact?.mobilePhone || ''}
-                className="bg-[#2A3440] border-[#40505C] text-white"
-                placeholder="Enter mobile phone..."
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderFamilySection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Family Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-white">{profile?.familySummary?.totalDependents || 0}</p>
-              <p className="text-sm text-gray-400">Dependents</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{profile?.familySummary?.passportsHeld || 0}</p>
-              <p className="text-sm text-gray-400">Passports</p>
-            </div>
-            <div>
-              <p className="text-sm text-white">{profile?.familySummary?.maritalStatus || 'Unknown'}</p>
-              <p className="text-sm text-gray-400">Status</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Family Members</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {profile?.familyMembers?.map((member, index) => (
-              <div key={member.id} className="flex justify-between items-center p-3 bg-[#2A3440] rounded-lg">
-                <div>
-                  <p className="text-white font-medium">{member.name}</p>
-                  <p className="text-gray-400 text-sm">{member.relationship}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-white">{member.age ? `${member.age} years` : 'Age unknown'}</p>
-                  {member.visaRequired && (
-                    <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">
-                      Visa Required
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderLegalSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Work Authorization</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {profile?.workAuthorization ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-2 block">Visa Type</label>
-                <p className="text-white">{profile.workAuthorization.visaType}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-2 block">Status</label>
-                <Badge className="bg-green-600 text-white">
-                  {profile.workAuthorization.status}
-                </Badge>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-2 block">Expiry Date</label>
-                <p className="text-white">{profile.workAuthorization.expiryDate}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-300 mb-2 block">Work Countries</label>
-                <div className="flex flex-wrap gap-2">
-                  {profile.workAuthorization.workCountries.map((country, index) => (
-                    <Badge key={index} variant="secondary" className="bg-[#2A3440] text-gray-300">
-                      {country}
-                    </Badge>
-                  ))}
-                </div>
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
             </div>
-          ) : (
-            <p className="text-gray-400">No work authorization information available</p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderMovesSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Moves & Assignments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-400">No moves or assignments recorded</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderDocumentsSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-400">No documents uploaded</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderCommunicationSection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Communication History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {profile?.communications?.map((comm, index) => (
-              <div key={comm.id} className="p-3 bg-[#2A3440] rounded-lg">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="text-white font-medium">{comm.subject}</h4>
-                  <Badge variant="secondary" className="bg-[#1D252D] text-gray-300">
-                    {comm.type}
-                  </Badge>
-                </div>
-                <p className="text-gray-400 text-sm mb-2">
-                  {comm.date} at {comm.time}
-                </p>
-                <p className="text-gray-300 text-sm">
-                  Participants: {comm.participants.join(', ')}
-                </p>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderActivitySection = () => (
-    <div className="space-y-6">
-      <Card className="bg-[#1D252D] border-[#40505C]">
-        <CardHeader>
-          <CardTitle className="text-white">Activity Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {profile?.activities?.map((activity, index) => (
-              <div key={activity.id} className="flex items-start gap-3 p-3 bg-[#2A3440] rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-white font-medium">{activity.description}</p>
-                  <p className="text-gray-400 text-sm">
-                    {activity.type} • {new Date(activity.timestamp).toLocaleDateString()} • {activity.user}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <Button className="bg-[#732cec] hover:bg-[#5a23b8] text-white px-6">
+            Onboard
+          </Button>
+        </div>
+        
+        {/* Photo Section */}
+        <div className="flex items-center gap-6 mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-2">{profile.name}</h1>
+            <p className="text-gray-400">Job title | Department</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderSection = () => {
-    switch (activeSection) {
-      case "details":
-        return renderDetailsSection();
-      case "location":
-        return renderLocationSection();
-      case "work":
-        return renderWorkSection();
-      case "contact":
-        return renderContactSection();
-      case "family":
-        return renderFamilySection();
-      case "legal":
-        return renderLegalSection();
-      case "moves":
-        return renderMovesSection();
-      case "documents":
-        return renderDocumentsSection();
-      case "communication":
-        return renderCommunicationSection();
-      case "activity":
-        return renderActivitySection();
-      default:
-        return renderDetailsSection();
-    }
-  };
-
-  return (
-    <main className="flex-1 bg-[#252E38] p-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
-        {renderSection()}
+        </div>
       </div>
-    </main>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left Column - Wider */}
+        <div className="col-span-7 space-y-6">
+          {/* Bio Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <CardTitle className="text-white text-lg font-medium">Bio</CardTitle>
+              {!isEditingBio ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingBio(true)}
+                  className="text-white hover:bg-[#2A3440] p-2"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingBio(false)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <XIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSaveBio}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <SaveIcon className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="p-6 pt-0 space-y-6">
+              {!isEditingBio ? (
+                <div>
+                  <p className="text-white leading-relaxed text-sm">
+                    {profile.bio || "No bio available"}
+                  </p>
+                  
+                  <div>
+                    <h3 className="text-white font-medium mb-3">Languages</h3>
+                    <div className="flex gap-2">
+                      {(profile.languages || ["English (Native)", "Mandarin (Professional)", "Spanish (Conversational)"]).map((language, index) => (
+                        <Badge key={index} variant="secondary" className="bg-[#2A3440] text-white border-0 text-xs">
+                          {language.includes('(') ? language : `${language} (Fluent)`}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-white font-medium mb-3">Nationalities</h3>
+                    <div className="flex gap-2 flex-wrap">
+                      {(profile.nationalities || ["United States", "China"]).map((nationality, index) => (
+                        <div key={index} className="relative group">
+                          <Badge variant="secondary" className="bg-[#2A3440] text-white border-0 text-xs flex items-center gap-1">
+                            <span className="text-lg">{getNationalityFlag(nationality)}</span>
+                            <span>{nationality}</span>
+                          </Badge>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            {nationality}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Bio</label>
+                    <Textarea
+                      value={editBio}
+                      onChange={(e) => setEditBio(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400 min-h-[120px]"
+                      placeholder="Enter bio..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Languages with proficiency (e.g., English (Native), Spanish (Conversational))</label>
+                    <Input
+                      value={editLanguages}
+                      onChange={(e) => setEditLanguages(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      placeholder="English (Native), Spanish (Conversational), French (Basic)"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Nationalities (comma separated)</label>
+                    <Input
+                      value={editNationalities}
+                      onChange={(e) => setEditNationalities(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                      placeholder="United States, China"
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Personal Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <CardTitle className="text-white text-lg font-medium">Personal</CardTitle>
+              {!isEditingPersonal ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingPersonal(true)}
+                  className="text-white hover:bg-[#2A3440] p-2"
+                >
+                  <Edit2Icon className="w-4 h-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingPersonal(false)}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <XIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSavePersonal}
+                    className="text-white hover:bg-[#2A3440] p-2"
+                  >
+                    <SaveIcon className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              {!isEditingPersonal ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Title</span>
+                    <span className="text-white">Mr.</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">First name</span>
+                    <span className="text-white">{profile.name.split(" ")[0] || "Hannah"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Middle name</span>
+                    <span className="text-white">Naomi</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Last name</span>
+                    <span className="text-white">{profile.name.split(" ").slice(1).join(" ") || "Williams"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Preferred name</span>
+                    <span className="text-white">{profile.name.split(" ")[0] || "Hannah"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Gender at birth</span>
+                    <span className="text-white">Male</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Gender identity</span>
+                    <span className="text-white">Male</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Pronouns</span>
+                    <span className="text-white">She/her/hers</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Date of birth</span>
+                    <span className="text-white">{profile.dateOfBirth || "01 December 1980"}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Title</label>
+                    <Input
+                      value="Mr."
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">First name</label>
+                    <Input
+                      value={editFirstName}
+                      onChange={(e) => setEditFirstName(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Last name</label>
+                    <Input
+                      value={editLastName}
+                      onChange={(e) => setEditLastName(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Gender at birth</label>
+                    <Input
+                      value="Male"
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Gender identity</label>
+                    <Input
+                      value="Male"
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Date of birth</label>
+                    <Input
+                      type="date"
+                      value={editDateOfBirth}
+                      onChange={(e) => setEditDateOfBirth(e.target.value)}
+                      className="bg-[#2A3440] border-[#40505C] text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Narrower */}
+        <div className="col-span-5 space-y-6">
+          {/* Current Location Card */}
+          <Card className="bg-[#732cec] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white text-sm">Current location</p>
+                  <p className="text-white font-semibold text-lg">Paris</p>
+                </div>
+              </div>
+              <Badge className="bg-white/20 text-white border-0 text-xs">
+                Business trip
+              </Badge>
+            </CardContent>
+          </Card>
+
+          {/* On Assignment Card */}
+          <Card className="bg-[#00ceba] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white text-sm">On assignment</p>
+                  <p className="text-white font-semibold text-lg">Dublin</p>
+                </div>
+              </div>
+              <p className="text-white/80 text-sm">Until May 2026</p>
+            </CardContent>
+          </Card>
+
+          {/* Permanent Home Card */}
+          <Card className="bg-[#f04e98] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white text-sm">Permanent home</p>
+                  <p className="text-white font-semibold text-lg">Manchester</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Map Placeholder */}
+          {/* Quick Contact Details Card */}
+          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
+            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
+              <CardTitle className="text-white text-lg font-medium">Quick Contact</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-[#2A3440] p-2"
+              >
+                <Edit2Icon className="w-4 h-4" />
+                Edit
+              </Button>
+            </CardHeader>
+            <CardContent className="p-6 pt-0 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Email</p>
+                  <p className="text-gray-300 text-sm">{profile.contact?.workEmail || 'Not provided'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Phone</p>
+                  <p className="text-gray-300 text-sm">{profile.contact?.workPhone || 'Not provided'}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Map Placeholder */}
+          <div className="bg-[#252E38] rounded-xl shadow-[0px_6px_18px_0px_#00000026] overflow-hidden">
+            <div className="h-64 bg-gradient-to-br from-blue-400 to-green-400 relative">
+              <div className={`absolute inset-0 bg-[url('${gridPatternSvg}')] opacity-20`}></div>
+              
+              {/* Location markers */}
+              <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
+              <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-green-600 rounded-full border-2 border-white shadow-lg"></div>
+              <div className="absolute bottom-1/3 right-1/3 w-3 h-3 bg-pink-600 rounded-full border-2 border-white shadow-lg"></div>
+              
+              {/* Expand button */}
+              <Button
+                size="sm"
+                className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white border-0 p-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
+
+  // Render different sections based on activeSection
+  switch (activeSection) {
+    case "details":
+      return renderDetailsSection();
+    case "location":
+      return (
+        renderLocationSection()
+      );
+    case "work":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Work & Employment section coming soon...</p>
+        </div>
+      );
+    case "contact":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Contact section coming soon...</p>
+        </div>
+      );
+    case "family":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Family section coming soon...</p>
+        </div>
+      );
+    case "legal":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Legal & Compliance section coming soon...</p>
+        </div>
+      );
+    case "moves":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Moves section coming soon...</p>
+        </div>
+      );
+    case "documents":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Documents section coming soon...</p>
+        </div>
+      );
+    case "communication":
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Communication section coming soon...</p>
+        </div>
+      );
+    default:
+      return (
+        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
+          <p className="text-white text-lg">Section not found</p>
+        </div>
+      );
+  }
 };
