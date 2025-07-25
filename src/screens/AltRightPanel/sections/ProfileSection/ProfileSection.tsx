@@ -96,7 +96,6 @@ export const ProfileSection = ({
       setIsEditingPhoto(false);
     }
   };
-  const renderDetailsSection = () => (
   const renderLocationSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
@@ -346,6 +345,8 @@ export const ProfileSection = ({
       </div>
     </div>
   );
+
+  const renderDetailsSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
       <div className="mb-8">
