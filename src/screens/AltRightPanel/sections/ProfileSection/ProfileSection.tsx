@@ -1537,131 +1537,263 @@ export const ProfileSection = ({
     </>
   );
 
-  // Work & Employment Section Renderer
   const renderWorkSection = () => {
+    const employmentRecords = profile?.employmentRecords || [];
+    
+    // Sort employment records: active first, then by start date (most recent first)
+    const sortedRecords = [...employmentRecords].sort((a, b) => {
+      // Active records first
+      if (a.isActive && !b.isActive) return -1;
+      if (!a.isActive && b.isActive) return 1;
+      
+      // Then by start date (most recent first)
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
+
+    const formatEmploymentPeriod = (startDate: string, endDate?: string) => {
+      const start = new Date(startDate).toLocaleDateString('en-US', { 
+        month: 'short', 
+        year: 'numeric' 
+      });
+      const end = endDate 
+        ? new Date(endDate).toLocaleDateString('en-US', { 
+            month: 'short', 
+            year: 'numeric' 
+          })
+        : 'Present';
+      return `${start} - ${end}`;
+    };
+
+    const getContractBadgeColor = (record: EmploymentRecord) => {
+      if (record.isActive && record.isSecondaryContract) {
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      } else if (record.isActive) {
+        return 'bg-green-100 text-green-800 border-green-200';
+      } else {
+        return 'bg-gray-100 text-gray-600 border-gray-200';
+      }
+    };
+
+    const getContractBadgeText = (record: EmploymentRecord) => {
+      if (record.isActive && record.isSecondaryContract) {
+        return 'Secondary Active';
+      } else if (record.isActive) {
+        return 'Active';
+      } else {
+        return 'Inactive';
+      }
+    };
+
     return (
-      <>
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-white">Current Position</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowEditModal(true)}
-              className="text-gray-300 hover:text-white"
-            >
-              <Edit2Icon className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          </div>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-white">Work & Employment</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            onClick={() => setShowAddModal(true)}
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Add Employment
+          </Button>
+        </div>
 
-          {profile?.currentPosition ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Job Title</label>
-                  <p className="text-white mt-1">{profile.currentPosition.jobTitle}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Department</label>
-                  <p className="text-white mt-1">{profile.currentPosition.department}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Employment Type</label>
-                  <p className="text-white mt-1">{profile.currentPosition.employmentType}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Work Location</label>
-                  <p className="text-white mt-1">{profile.currentPosition.workLocation}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Start Date</label>
-                  <p className="text-white mt-1">{new Date(profile.currentPosition.startDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-300">Manager</label>
-                  <p className="text-white mt-1">{profile.currentPosition.manager}</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-400 mb-4">No current position information available</p>
-              <Button
-                onClick={() => setShowEditModal(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Add Current Position
-              </Button>
-            </div>
-          )}
-        </Card>
-
-        <Card className="p-6 mt-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-white">Employment History</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAddModal(true)}
-              className="text-gray-300 hover:text-white"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              Add Record
-            </Button>
-          </div>
-
-          {profile?.employmentHistory && profile.employmentHistory.length > 0 ? (
-            <div className="space-y-4">
-              {profile.employmentHistory.map((employment, index) => (
-                <div key={index} className="border border-gray-600 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
+        {/* Employment Records */}
+        {sortedRecords.length > 0 ? (
+          <div className="space-y-4">
+            {sortedRecords.map((record) => (
+              <Card key={record.id} className="bg-gray-800 border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h4 className="font-medium text-white">{employment.position}</h4>
-                      <p className="text-gray-300 text-sm">{employment.department}</p>
-                      <p className="text-gray-400 text-sm mt-1">{employment.period}</p>
-                      {employment.description && (
-                        <p className="text-gray-300 text-sm mt-2">{employment.description}</p>
-                      )}
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="text-lg font-semibold text-white">
+                          {record.jobTitle || 'Untitled Position'}
+                        </h4>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs font-medium ${getContractBadgeColor(record)}`}
+                        >
+                          {getContractBadgeText(record)}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-gray-300 mb-3">
+                        <span className="font-medium">{record.employerName || 'Unknown Company'}</span>
+                        {record.department && (
+                          <>
+                            <span className="text-gray-500">•</span>
+                            <span>{record.department}</span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="text-sm text-gray-400 mb-3">
+                        {formatEmploymentPeriod(record.startDate, record.endDate)}
+                      </div>
                     </div>
+
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-400 hover:text-white"
+                        className="text-gray-400 hover:text-white hover:bg-gray-700"
+                        onClick={() => {
+                          setEditingItem(record);
+                          setShowEditModal(true);
+                        }}
                       >
                         <Edit2Icon className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-400 hover:text-red-400"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                        onClick={() => handleDeleteEmployment(record.id)}
                       >
                         <Trash2Icon className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-400 mb-4">No employment history available</p>
+
+                  {/* Employment Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {record.employmentType && (
+                      <div>
+                        <span className="text-xs text-gray-500 uppercase tracking-wide">Type</span>
+                        <p className="text-sm text-gray-300 mt-1">{record.employmentType}</p>
+                      </div>
+                    )}
+                    {record.jobGrade && (
+                      <div>
+                        <span className="text-xs text-gray-500 uppercase tracking-wide">Grade</span>
+                        <p className="text-sm text-gray-300 mt-1">{record.jobGrade}</p>
+                      </div>
+                    )}
+                    {record.employerLocation && (
+                      <div>
+                        <span className="text-xs text-gray-500 uppercase tracking-wide">Location</span>
+                        <p className="text-sm text-gray-300 mt-1">{record.employerLocation}</p>
+                      </div>
+                    )}
+                    {record.jobFunction && (
+                      <div>
+                        <span className="text-xs text-gray-500 uppercase tracking-wide">Function</span>
+                        <p className="text-sm text-gray-300 mt-1">{record.jobFunction}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Managers */}
+                  {record.managers && record.managers.length > 0 && (
+                    <div className="mb-4">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Managers</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {record.managers.map((manager, index) => (
+                          <Badge 
+                            key={index}
+                            variant="secondary" 
+                            className="bg-blue-900/30 text-blue-300 border-blue-700"
+                          >
+                            {manager.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Role Description */}
+                  {record.roleDescription && (
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Role Description</span>
+                      <p className="text-sm text-gray-300 mt-1 leading-relaxed">
+                        {record.roleDescription}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          /* Empty State */
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                <BriefcaseIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <h4 className="text-lg font-medium text-white mb-2">No Employment Records</h4>
+              <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+                Add employment information to track work history, current positions, and career progression.
+              </p>
               <Button
+                variant="outline"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
                 onClick={() => setShowAddModal(true)}
-                className="bg-blue-600 hover:bg-blue-700"
               >
-                Add Employment Record
+                <PlusIcon className="w-4 h-4 mr-2" />
+                Add First Employment Record
               </Button>
-            </div>
-          )}
-        </Card>
-      </>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Employment Change History */}
+        {profile?.activities && profile.activities.some(a => a.type.includes('Employment')) && (
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-6">
+              <h4 className="text-sm font-medium text-white mb-4">Employment History</h4>
+              <div className="space-y-3">
+                {profile.activities
+                  .filter(activity => activity.type.includes('Employment'))
+                  .slice(0, 5)
+                  .map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-3">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-300">{activity.description}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-500">
+                            {new Date(activity.timestamp).toLocaleDateString()}
+                          </span>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-xs text-gray-500">{activity.user}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     );
+  };
+
+  // Handler functions for employment management
+  const handleDeleteEmployment = async (employmentId: string) => {
+    if (!confirm('Are you sure you want to delete this employment record?')) {
+      return;
+    }
+    
+    try {
+      // Here you would call the API to delete the employment record
+      // await personService.deletePersonEmployment(profile.id, employmentId);
+      
+      // For now, just remove from local state
+      if (profile && onProfileUpdate) {
+        const updatedRecords = profile.employmentRecords?.filter(r => r.id !== employmentId) || [];
+        onProfileUpdate({
+          ...profile,
+          employmentRecords: updatedRecords
+        });
+      }
+    } catch (error) {
+      console.error('Failed to delete employment record:', error);
+      // Show error message to user
+    }
   };
 
   const renderContactSection = () => (
