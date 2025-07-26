@@ -998,6 +998,7 @@ export const ProfileSection = ({
           <PlusIcon className="w-5 h-5" />
         </Button>
       </div>
+    </div>
     </>
 
       {/* Add Address Modal */}
