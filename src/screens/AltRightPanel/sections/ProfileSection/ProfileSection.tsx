@@ -454,6 +454,7 @@ export const ProfileSection = ({
     }
   };
   const renderLocationSection = () => (
+    <>
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
       <div className="mb-8">
@@ -999,7 +1000,6 @@ export const ProfileSection = ({
         </Button>
       </div>
     </div>
-    </>
 
       {/* Add Address Modal */}
       {showAddModal && (
@@ -1533,7 +1533,7 @@ export const ProfileSection = ({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 
   const renderContactSection = () => (
@@ -1730,8 +1730,6 @@ export const ProfileSection = ({
                 />
               </div>
             </div>
-          </div>
-          </Card>
 
             <div className="flex gap-3 mt-6">
               <Button
