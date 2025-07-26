@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Button } from "../../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
 import { LanguageEditor } from "../../../../components/ui/language-editor";
-import { Edit2Icon, SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, CheckIcon, BriefcaseIcon, Trash2Icon } from "lucide-react";
+import { SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, CheckIcon, Edit2Icon, Trash2Icon, BriefcaseIcon, CalendarIcon, BuildingIcon, MapIcon, UsersIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile, LanguageSkill } from "../../../../types/frontend.types";
 
@@ -1730,6 +1729,7 @@ export const ProfileSection = ({
                 />
               </div>
             </div>
+          </Card>
 
             <div className="flex gap-3 mt-6">
               <Button
