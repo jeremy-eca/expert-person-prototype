@@ -1,8 +1,128 @@
 import { PersonProfile, LanguageSkill } from '../../types/frontend.types';
 import { PersonComposite } from '../../types/api.types';
+import { EmploymentRecord } from '../../types/frontend.types';
 
 // Mock profile data for development fallback
 export function getMockProfile(id: string): PersonProfile {
+  // Generate comprehensive mock employment records
+  const mockEmploymentRecords: EmploymentRecord[] = [
+    // Current Primary Position
+    {
+      id: "emp_001",
+      personId: id,
+      jobTitle: "Senior Software Engineer",
+      jobFunction: "Software Development",
+      department: "Engineering",
+      employerName: "TechCorp International",
+      employmentType: "Full-time",
+      jobGrade: "Senior Level",
+      roleDescription: "Lead development of cloud-native applications using React, Node.js, and AWS. Mentor junior developers and collaborate with product teams to deliver scalable solutions. Responsible for architecture decisions and code reviews.",
+      employerLocation: "Barcelona, Spain",
+      startDate: "2022-01-15",
+      endDate: undefined,
+      isActive: true,
+      isSecondaryContract: false,
+      managers: [
+        { id: "mgr_001", name: "Sarah Johnson", email: "sarah.johnson@techcorp.com" },
+        { id: "mgr_002", name: "David Chen", email: "david.chen@techcorp.com" }
+      ],
+      employeeReferences: ["EMP-2022-001", "TECH-SEN-001"],
+      createdAt: "2022-01-15T09:00:00Z",
+      updatedAt: "2024-01-10T14:30:00Z"
+    },
+    // Secondary Active Contract (Consulting)
+    {
+      id: "emp_002",
+      personId: id,
+      jobTitle: "Technical Consultant",
+      jobFunction: "Consulting",
+      department: "Professional Services",
+      employerName: "Innovation Labs Ltd",
+      employmentType: "Part-time",
+      jobGrade: "Consultant",
+      roleDescription: "Provide technical expertise for digital transformation projects. Conduct architecture reviews and technology assessments for enterprise clients.",
+      employerLocation: "Remote",
+      startDate: "2023-06-01",
+      endDate: undefined,
+      isActive: true,
+      isSecondaryContract: true,
+      managers: [
+        { id: "mgr_003", name: "Maria Rodriguez", email: "maria.rodriguez@innovationlabs.com" }
+      ],
+      employeeReferences: ["CONS-2023-001"],
+      createdAt: "2023-06-01T10:00:00Z",
+      updatedAt: "2023-06-01T10:00:00Z"
+    },
+    // Previous Position - London
+    {
+      id: "emp_003",
+      personId: id,
+      jobTitle: "Software Engineer",
+      jobFunction: "Software Development",
+      department: "Product Development",
+      employerName: "TechCorp International",
+      employmentType: "Full-time",
+      jobGrade: "Mid Level",
+      roleDescription: "Developed microservices architecture for e-commerce platform. Implemented CI/CD pipelines and automated testing frameworks. Collaborated with cross-functional teams to deliver high-quality software solutions.",
+      employerLocation: "London, United Kingdom",
+      startDate: "2019-06-01",
+      endDate: "2021-12-31",
+      isActive: false,
+      isSecondaryContract: false,
+      managers: [
+        { id: "mgr_004", name: "James Wilson", email: "james.wilson@techcorp.com" }
+      ],
+      employeeReferences: ["EMP-2019-003", "PROD-DEV-001"],
+      createdAt: "2019-06-01T09:00:00Z",
+      updatedAt: "2021-12-31T17:00:00Z"
+    },
+    // Early Career Position - San Francisco
+    {
+      id: "emp_004",
+      personId: id,
+      jobTitle: "Junior Developer",
+      jobFunction: "Software Development",
+      department: "Engineering",
+      employerName: "StartupTech Inc",
+      employmentType: "Full-time",
+      jobGrade: "Junior Level",
+      roleDescription: "Built responsive web applications using React and Express.js. Participated in agile development processes and learned modern software development practices. Contributed to open-source projects and internal tools.",
+      employerLocation: "San Francisco, CA, USA",
+      startDate: "2017-09-01",
+      endDate: "2019-05-15",
+      isActive: false,
+      isSecondaryContract: false,
+      managers: [
+        { id: "mgr_005", name: "Alex Thompson", email: "alex.thompson@startuptech.com" }
+      ],
+      employeeReferences: ["STARTUP-2017-001"],
+      createdAt: "2017-09-01T09:00:00Z",
+      updatedAt: "2019-05-15T17:00:00Z"
+    },
+    // Internship
+    {
+      id: "emp_005",
+      personId: id,
+      jobTitle: "Software Engineering Intern",
+      jobFunction: "Software Development",
+      department: "Engineering",
+      employerName: "BigTech Corp",
+      employmentType: "Internship",
+      jobGrade: "Intern",
+      roleDescription: "Developed internal tools and automation scripts. Learned software engineering best practices and worked on real-world projects under mentorship of senior engineers.",
+      employerLocation: "Mountain View, CA, USA",
+      startDate: "2017-06-01",
+      endDate: "2017-08-31",
+      isActive: false,
+      isSecondaryContract: false,
+      managers: [
+        { id: "mgr_006", name: "Jennifer Lee", email: "jennifer.lee@bigtech.com" }
+      ],
+      employeeReferences: ["INTERN-2017-001"],
+      createdAt: "2017-06-01T09:00:00Z",
+      updatedAt: "2017-08-31T17:00:00Z"
+    }
+  ];
   return {
     id,
     name: "Michael Chen",
@@ -53,28 +173,8 @@ export function getMockProfile(id: string): PersonProfile {
       { date: "2015-09-01", location: "San Francisco", change: "Previous location" }
     ],
     
-    currentPosition: {
-      jobTitle: "Senior Software Engineer",
-      department: "Engineering",
-      startDate: "2022-01-15",
-      manager: "Sarah Johnson",
-      employmentType: "Full-time",
-      workLocation: "Hybrid"
-    },
-    employmentHistory: [
-      {
-        period: "2019-2021",
-        position: "Software Engineer",
-        department: "Product Development",
-        description: "Led development of microservices architecture"
-      },
-      {
-        period: "2015-2019",
-        position: "Junior Developer",
-        department: "Engineering",
-        description: "Full-stack development using React and Node.js"
-      }
-    ],
+    // Work & Employment Section - using new structure
+    employmentRecords: mockEmploymentRecords,
     
     contact: {
       workEmail: "michael.chen@company.com",
@@ -158,10 +258,38 @@ export function getMockProfile(id: string): PersonProfile {
     activities: [
       {
         id: "1",
-        type: "Profile Updated",
-        timestamp: "2024-01-10T10:00:00Z",
+        type: "Employment Record Updated",
+        timestamp: "2024-01-10T14:30:00Z",
         user: "System",
-        description: "Emergency contact information updated"
+        description: "Updated role description for Senior Software Engineer position"
+      },
+      {
+        id: "2",
+        type: "Employment Record Created",
+        timestamp: "2023-06-01T10:00:00Z",
+        user: "HR Manager",
+        description: "Added secondary contract: Technical Consultant at Innovation Labs Ltd"
+      },
+      {
+        id: "3",
+        type: "Employment Record Updated",
+        timestamp: "2022-01-15T09:00:00Z",
+        user: "HR Manager",
+        description: "Promoted to Senior Software Engineer with salary adjustment"
+      },
+      {
+        id: "4",
+        type: "Employment Record Ended",
+        timestamp: "2021-12-31T17:00:00Z",
+        user: "HR Manager",
+        description: "Ended employment at London office - Software Engineer position"
+      },
+      {
+        id: "5",
+        type: "Employment Record Created",
+        timestamp: "2019-06-01T09:00:00Z",
+        user: "HR Manager",
+        description: "Started as Software Engineer in Product Development, London"
       }
     ]
   };
@@ -292,7 +420,7 @@ export function getMockPersonComposite(id: string): PersonComposite {
     // Employment array
     employment: [
       {
-        id: "emp_current",
+        id: "emp_001",
         person_id: id,
         tenant_id: "tenant_123",
         employment_start_date: "2022-01-15",
@@ -303,21 +431,51 @@ export function getMockPersonComposite(id: string): PersonComposite {
         employment_type: "Full-time",
         job_grade: "Senior",
         job_function: "Software Development",
-        role_description: "Lead development of microservices architecture and mentor junior developers",
+        role_description: "Lead development of cloud-native applications using React, Node.js, and AWS. Mentor junior developers and collaborate with product teams to deliver scalable solutions.",
         employer_location: "Barcelona, Spain",
         managers: [
           {
             id: "mgr_1",
             name: "Sarah Johnson",
             email: "sarah.johnson@company.com"
+          },
+          {
+            id: "mgr_2",
+            name: "David Chen",
+            email: "david.chen@company.com"
           }
         ],
         is_active: true,
         created_at: "2022-01-15T10:00:00Z",
-        updated_at: "2022-01-15T10:00:00Z"
+        updated_at: "2024-01-10T14:30:00Z"
       },
       {
-        id: "emp_previous",
+        id: "emp_002",
+        person_id: id,
+        tenant_id: "tenant_123",
+        employment_start_date: "2023-06-01",
+        employment_end_date: null,
+        job_title: "Technical Consultant",
+        department: "Professional Services",
+        employer_name: "Innovation Labs Ltd",
+        employment_type: "Part-time",
+        job_grade: "Consultant",
+        job_function: "Consulting",
+        role_description: "Provide technical expertise for digital transformation projects. Conduct architecture reviews and technology assessments.",
+        employer_location: "Remote",
+        managers: [
+          {
+            id: "mgr_3",
+            name: "Maria Rodriguez",
+            email: "maria.rodriguez@innovationlabs.com"
+          }
+        ],
+        is_active: true,
+        created_at: "2023-06-01T10:00:00Z",
+        updated_at: "2023-06-01T10:00:00Z"
+      },
+      {
+        id: "emp_003",
         person_id: id,
         tenant_id: "tenant_123",
         employment_start_date: "2019-06-01",
@@ -326,20 +484,45 @@ export function getMockPersonComposite(id: string): PersonComposite {
         department: "Product Development",
         employer_name: "TechCorp International",
         employment_type: "Full-time",
-        job_grade: "Mid-level",
+        job_grade: "Mid Level",
         job_function: "Software Development",
-        role_description: "Full-stack development using React and Node.js",
+        role_description: "Developed microservices architecture for e-commerce platform. Implemented CI/CD pipelines and automated testing frameworks.",
         employer_location: "London, UK",
         managers: [
           {
-            id: "mgr_2",
-            name: "David Wilson",
-            email: "david.wilson@company.com"
+            id: "mgr_4",
+            name: "James Wilson",
+            email: "james.wilson@company.com"
           }
         ],
         is_active: false,
         created_at: "2019-06-01T10:00:00Z",
         updated_at: "2021-12-31T10:00:00Z"
+      },
+      {
+        id: "emp_004",
+        person_id: id,
+        tenant_id: "tenant_123",
+        employment_start_date: "2017-09-01",
+        employment_end_date: "2019-05-15",
+        job_title: "Junior Developer",
+        department: "Engineering",
+        employer_name: "StartupTech Inc",
+        employment_type: "Full-time",
+        job_grade: "Junior Level",
+        job_function: "Software Development",
+        role_description: "Built responsive web applications using React and Express.js. Participated in agile development processes.",
+        employer_location: "San Francisco, CA, USA",
+        managers: [
+          {
+            id: "mgr_5",
+            name: "Alex Thompson",
+            email: "alex.thompson@startuptech.com"
+          }
+        ],
+        is_active: false,
+        created_at: "2017-09-01T10:00:00Z",
+        updated_at: "2019-05-15T10:00:00Z"
       }
     ],
 
