@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "../../../../components/ui/button";
+import { Edit2Icon, PlusIcon, Trash2Icon, XIcon, BriefcaseIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
@@ -1650,60 +1650,175 @@ export const ProfileSection = ({
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Mobile Phone</label>
+              <Button
+                type="button"
+                size="sm"
+                className="gap-2"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Add Employment
+              </Button>
                   <p className="text-white font-medium">
                     {profile?.contact?.mobilePhone || 'Not provided'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Emergency Contact */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">Emergency Contact</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setEditingEmergencyContact(!editingEmergencyContact)}
-            className="text-blue-400 hover:text-blue-300"
-          >
-            {editingEmergencyContact ? 'Cancel' : 'Edit'}
-          </Button>
-        </div>
-
-        {editingEmergencyContact ? (
-          <div className="bg-[#252E38] rounded-lg p-6 border border-[#40505C]">
+            {/* Employment Records */}
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
-                  <Input
-                    value={emergencyContactForm.name}
-                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="bg-[#1D252D] border-[#40505C] text-white"
-                    placeholder="Emergency contact name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Relationship *</label>
-                  <select
-                    value={emergencyContactForm.relationship}
-                    onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, relationship: e.target.value }))}
-                    className="w-full bg-[#1D252D] border border-[#40505C] text-white rounded-md px-3 py-2"
-                  >
-                    <option value="">Select relationship</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Partner">Partner</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Sibling">Sibling</option>
-                    <option value="Child">Child</option>
-                    <option value="Friend">Friend</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+              {profile?.employmentRecords && profile.employmentRecords.length > 0 ? (
+                profile.employmentRecords
+                  .sort((a, b) => {
+                    // Sort by active status first, then by start date
+                    if (a.isActive && !b.isActive) return -1;
+                    if (!a.isActive && b.isActive) return 1;
+                    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+                  })
+                  .map((record) => (
+                    <Card key={record.id} className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <h3 className="text-lg font-medium">
+                              {record.jobTitle || 'Untitled Position'}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {record.employerName || 'Unknown Company'}
+                              {record.department && ` • ${record.department}`}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            {record.isActive && (
+                              <Badge className="bg-green-100 text-green-800 border-green-200">
+                                Active
+                              </Badge>
+                            )}
+                            {record.isSecondaryContract && (
+                              <Badge variant="outline" className="border-blue-200 text-blue-800">
+                                Secondary Contract
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                          >
+                            <Edit2Icon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2Icon className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-muted-foreground">Employment Period:</span>
+                          <p>
+                            {new Date(record.startDate).toLocaleDateString()} - {' '}
+                            {record.endDate 
+                              ? new Date(record.endDate).toLocaleDateString() 
+                              : 'Present'
+                            }
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-muted-foreground">Employment Type:</span>
+                          <p>{record.employmentType || 'Not specified'}</p>
+                        </div>
+                        {record.jobGrade && (
+                          <div>
+                            <span className="font-medium text-muted-foreground">Job Grade:</span>
+                            <p>{record.jobGrade}</p>
+                          </div>
+                        )}
+                        {record.employerLocation && (
+                          <div>
+                            <span className="font-medium text-muted-foreground">Location:</span>
+                            <p>{record.employerLocation}</p>
+                          </div>
+                        )}
+                        {record.managers && record.managers.length > 0 && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-muted-foreground">Managers:</span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {record.managers.map((manager, index) => (
+                                <Badge key={index} variant="outline" className="text-xs">
+                                  {manager.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {record.roleDescription && (
+                          <div className="col-span-2">
+                            <span className="font-medium text-muted-foreground">Role Description:</span>
+                            <p className="mt-1 text-sm">{record.roleDescription}</p>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+              ) : (
+                <Card className="p-8 text-center">
+                  <div className="text-muted-foreground">
+                    <BriefcaseIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-2">No Employment Records</h3>
+                    <p className="text-sm mb-4">
+                      Add employment records to track job history and current positions.
+                    </p>
+                    <Button
+                      type="button"
+                      className="gap-2"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      Add First Employment Record
+                    </Button>
+                  </div>
+                </Card>
+              )}
+            </div>
+            
+            {/* Employment Change History */}
+            <Card className="p-6">
+              <h3 className="text-lg font-medium mb-4">Employment Change History</h3>
+              <div className="space-y-3">
+                {profile?.activities
+                  ?.filter(activity => 
+                    activity.type.includes('Employment') || 
+                    activity.description.toLowerCase().includes('employment')
+                  )
+                  .slice(0, 10)
+                  .map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">{activity.description}</p>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(activity.timestamp).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          by {activity.user} • {activity.type}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                {(!profile?.activities || 
+                  profile.activities.filter(activity => 
+                    activity.type.includes('Employment') || 
+                    activity.description.toLowerCase().includes('employment')
+                  ).length === 0
+                ) && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No employment history available
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -1769,31 +1884,6 @@ export const ProfileSection = ({
                     <label className="text-sm text-gray-400">Relationship</label>
                     <p className="text-white font-medium">{profile.emergencyContact.relationship}</p>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-gray-400">Primary Phone</label>
-                    <p className="text-white font-medium">{profile.emergencyContact.phone}</p>
-                  </div>
-                  {profile.emergencyContact.email && (
-                    <div>
-                      <label className="text-sm text-gray-400">Email</label>
-                      <p className="text-white font-medium">{profile.emergencyContact.email}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-400 mb-4">No emergency contact information provided</p>
-                <Button
-                  onClick={() => setEditingEmergencyContact(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Add Emergency Contact
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </div>

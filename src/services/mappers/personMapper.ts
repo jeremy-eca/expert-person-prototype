@@ -17,14 +17,38 @@ import {
 import { 
   PersonProfile, 
   PersonListItem,
+  EmploymentRecord,
   FamilyMember,
   LanguageSkill,
-  EmploymentHistoryItem,
   LocationHistoryItem,
   ContactHistoryItem,
   Communication,
   Activity
 } from '@/types/frontend.types';
+
+// Map API PersonEmployment to Frontend EmploymentRecord
+export function mapEmploymentToFrontend(employment: PersonEmployment): EmploymentRecord {
+  return {
+    id: employment.id,
+    personId: employment.person_id,
+    jobTitle: employment.job_title,
+    jobFunction: employment.job_function,
+    department: employment.department,
+    employerName: employment.employer_name,
+    employmentType: employment.employment_type,
+    jobGrade: employment.job_grade,
+    roleDescription: employment.role_description,
+    employerLocation: employment.employer_location,
+    startDate: employment.employment_start_date || '',
+    endDate: employment.employment_end_date,
+    isActive: employment.is_active || false,
+    isSecondaryContract: false, // Default value, would come from API
+    managers: employment.managers || [],
+    employeeReferences: [], // Would need to parse from JSONB
+    createdAt: employment.created_at,
+    updatedAt: employment.updated_at
+  };
+}
 
 // Map API Person to List View Item (for backward compatibility)
 export function mapPersonToListItem(person: Person): PersonListItem {
@@ -79,7 +103,6 @@ export function mapPersonListItemFromApi(item: {
 export function mapPersonToProfile(person: PersonComposite): PersonProfile {
   const currentAddress = person.addresses?.find(a => a.is_current_address);
   const permanentAddress = person.addresses?.find(a => !a.is_current_address);
-  const currentEmployment = person.employment?.find(e => e.is_active);
   const currentPartner = person.partners?.find(p => p.is_current);
   
   return {
@@ -145,15 +168,7 @@ export function mapPersonToProfile(person: PersonComposite): PersonProfile {
     locationHistory: mapLocationHistory(person.addresses || []),
     
     // Work & Employment Section
-    currentPosition: currentEmployment ? {
-      jobTitle: currentEmployment.job_title || '',
-      department: currentEmployment.department || '',
-      startDate: currentEmployment.employment_start_date || '',
-      manager: currentEmployment.managers?.[0]?.name || '',
-      employmentType: currentEmployment.employment_type || 'Full-time',
-      workLocation: mapWorkLocation(currentEmployment.employer_location)
-    } : undefined,
-    employmentHistory: mapEmploymentHistory(person.employment || []),
+    employmentRecords: person.employment?.map(mapEmploymentToFrontend) || [],
     
     // Contact Section
     contact: person.contact_details ? {
@@ -263,18 +278,6 @@ function mapLocationHistory(addresses: PersonAddress[]): LocationHistoryItem[] {
       date: new Date(addr.created_at).toLocaleDateString(),
       location: addr.city || 'Unknown',
       change: addr.is_current_address ? 'Moved to' : 'Previous location'
-    }));
-}
-
-function mapEmploymentHistory(employment: PersonEmployment[]): EmploymentHistoryItem[] {
-  return employment
-    .filter(e => !e.is_active)
-    .sort((a, b) => new Date(b.employment_start_date || 0).getTime() - new Date(a.employment_start_date || 0).getTime())
-    .map(emp => ({
-      period: `${emp.employment_start_date} - ${emp.employment_end_date || 'Present'}`,
-      position: emp.job_title || 'Unknown Position',
-      department: emp.department || '',
-      description: emp.role_description || ''
     }));
 }
 
@@ -389,6 +392,27 @@ function mapActivities(person: PersonComposite): Activity[] {
       description: 'Profile information updated'
     });
   }
+  
+  // Add employment-related activities
+  person.employment?.forEach((emp, index) => {
+    activities.push({
+      id: `employment-created-${emp.id}`,
+      type: 'Employment Record Created',
+      timestamp: emp.created_at,
+      user: emp.created_by || 'System',
+      description: `Employment record created: ${emp.job_title || 'Unknown Position'} at ${emp.employer_name || 'Unknown Company'}`
+    });
+    
+    if (emp.updated_at !== emp.created_at) {
+      activities.push({
+        id: `employment-updated-${emp.id}`,
+        type: 'Employment Record Updated',
+        timestamp: emp.updated_at,
+        user: emp.updated_by || 'System',
+        description: `Employment record updated: ${emp.job_title || 'Unknown Position'}`
+      });
+    }
+  });
   
   return activities.sort((a, b) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()

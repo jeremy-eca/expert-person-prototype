@@ -39,15 +39,7 @@ export interface PersonProfile {
   locationHistory?: LocationHistoryItem[];
   
   // Work & Employment Section
-  currentPosition?: {
-    jobTitle: string;
-    department: string;
-    startDate: string;
-    manager: string;
-    employmentType: string;
-    workLocation: 'Hybrid' | 'Remote' | 'Office';
-  };
-  employmentHistory?: EmploymentHistoryItem[];
+  employmentRecords?: EmploymentRecord[];
   
   // Contact Section
   contact?: {
@@ -94,18 +86,37 @@ export interface PersonProfile {
 }
 
 // Supporting Types
+export interface EmploymentRecord {
+  id: string;
+  personId: string;
+  jobTitle?: string;
+  jobFunction?: string;
+  department?: string;
+  employerName?: string;
+  employmentType?: string;
+  jobGrade?: string;
+  roleDescription?: string;
+  employerLocation?: string;
+  startDate: string;
+  endDate?: string;
+  isActive: boolean;
+  isSecondaryContract: boolean;
+  managers?: Array<{
+    id: string;
+    name: string;
+    email?: string;
+  }>;
+  employeeReferences?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface LocationHistoryItem {
   date: string;
   location: string;
   change: string;
 }
 
-export interface EmploymentHistoryItem {
-  period: string;
-  position: string;
-  department: string;
-  description: string;
-}
 
 export interface ContactHistoryItem {
   date: string;
