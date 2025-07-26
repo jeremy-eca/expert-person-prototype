@@ -989,9 +989,9 @@ export const ProfileSection = ({
           </CardContent>
         </Card>
       </div>
-
-      {/* Add Address Modal/Form would go here */}
-      <div className="fixed bottom-8 right-8">
+      </Card>
+      
+      <div className="flex gap-3 mt-6">
         <Button
           onClick={handleAddAddress}
           className="w-12 h-12 rounded-full bg-[#732cec] hover:bg-[#5a23b8] text-white shadow-lg"
@@ -999,6 +999,7 @@ export const ProfileSection = ({
           <PlusIcon className="w-5 h-5" />
         </Button>
       </div>
+    </>
 
       {/* Add Address Modal */}
       {showAddModal && (
