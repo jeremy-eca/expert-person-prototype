@@ -989,7 +989,6 @@ export const ProfileSection = ({
           </CardContent>
         </Card>
       </div>
-      </Card>
       
       <div className="flex gap-3 mt-6">
         <Button
