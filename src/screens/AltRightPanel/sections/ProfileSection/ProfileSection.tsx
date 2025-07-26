@@ -100,7 +100,191 @@ export const ProfileSection = ({
     country: "United States"
   });
 
+  const renderWorkSection = () => {
+    const employmentRecords = profile?.employmentRecords || [];
+    
+    // Get current active employment
+    const currentEmployment = employmentRecords.find(record => record.isActive && record.isPrimaryEmployment);
+    const secondaryEmployment = employmentRecords.filter(record => record.isActive && record.isSecondaryContract);
+    const employmentHistory = employmentRecords
+      .filter(record => !record.isActive)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
 
+    const formatDuration = (startDate: string, endDate?: string) => {
+      const start = new Date(startDate);
+      const end = endDate ? new Date(endDate) : new Date();
+      const months = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+      
+      if (months < 1) return 'Less than a month';
+      if (months === 1) return '1 month';
+      if (months < 12) return `${months} months`;
+      
+      const years = Math.floor(months / 12);
+      const remainingMonths = months % 12;
+      
+      if (remainingMonths === 0) {
+        return years === 1 ? '1 year' : `${years} years`;
+      } else {
+        return `${years} year${years > 1 ? 's' : ''}, ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Current Employment */}
+        {currentEmployment ? (
+          <div className="bg-[#1D252D] rounded-lg p-6 border border-[#40505C]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-medium">Current Position</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+                onClick={() => {
+                  setEditingItem(currentEmployment);
+                  setShowEditModal(true);
+                }}
+              >
+                <Edit2Icon className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-1">
+                  {currentEmployment.jobTitle}
+                </h4>
+                <p className="text-gray-300">
+                  {currentEmployment.employerName}
+                  {currentEmployment.department && ` • ${currentEmployment.department}`}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>{formatDuration(currentEmployment.startDate)}</span>
+                <span>•</span>
+                <span>{currentEmployment.employmentType}</span>
+                {currentEmployment.employerLocation && (
+                  <>
+                    <span>•</span>
+                    <span>{currentEmployment.employerLocation}</span>
+                  </>
+                )}
+              </div>
+              
+              {currentEmployment.managers && currentEmployment.managers.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400">Manager:</span>
+                  <span className="text-sm text-gray-300">
+                    {currentEmployment.managers[0].name}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-[#1D252D] rounded-lg p-6 border border-[#40505C] text-center">
+            <BriefcaseIcon className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+            <h4 className="text-white font-medium mb-2">No Current Employment</h4>
+            <p className="text-gray-400 text-sm mb-4">Add current employment information</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              onClick={() => setShowAddModal(true)}
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Current Position
+            </Button>
+          </div>
+        )}
+
+        {/* Secondary Employment */}
+        {secondaryEmployment.length > 0 && (
+          <div className="bg-[#1D252D] rounded-lg p-6 border border-[#40505C]">
+            <h3 className="text-white font-medium mb-4">Additional Positions</h3>
+            <div className="space-y-4">
+              {secondaryEmployment.map((employment) => (
+                <div key={employment.id} className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-white font-medium">{employment.jobTitle}</h4>
+                    <p className="text-gray-300 text-sm">{employment.employerName}</p>
+                    <p className="text-gray-400 text-xs">
+                      {formatDuration(employment.startDate)} • {employment.employmentType}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary" className="bg-purple-900/30 text-purple-300 border-purple-700">
+                      Secondary
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => {
+                        setEditingItem(employment);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <Edit2Icon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Employment History */}
+        {employmentHistory.length > 0 && (
+          <div className="bg-[#1D252D] rounded-lg p-6 border border-[#40505C]">
+            <h3 className="text-white font-medium mb-4">Employment History</h3>
+            <div className="space-y-4">
+              {employmentHistory.map((employment) => (
+                <div key={employment.id} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                  <div>
+                    <h4 className="text-white font-medium">{employment.jobTitle}</h4>
+                    <p className="text-gray-300 text-sm">{employment.employerName}</p>
+                    <p className="text-gray-400 text-xs">
+                      {new Date(employment.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - {' '}
+                      {employment.endDate 
+                        ? new Date(employment.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                        : 'Present'
+                      }
+                      {employment.employerLocation && ` • ${employment.employerLocation}`}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => {
+                      setEditingItem(employment);
+                      setShowEditModal(true);
+                    }}
+                  >
+                    <Edit2Icon className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add Employment Button */}
+        {(currentEmployment || secondaryEmployment.length > 0 || employmentHistory.length > 0) && (
+          <Button
+            variant="outline"
+            className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
+            onClick={() => setShowAddModal(true)}
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Add Employment Record
+          </Button>
+        )}
+      </div>
+    );
+  };
 
   // Handle saving new address
   const handleSaveNewAddress = () => {
