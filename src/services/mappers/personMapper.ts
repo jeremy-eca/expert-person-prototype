@@ -83,7 +83,9 @@ export function mapPersonListItemFromApi(item: {
     source: string;
   } | null;
 }): PersonListItem {
-  return {
+  console.log('🔄 [MAPPER] Input item:', item);
+  
+  const mapped = {
     id: item.person_id,
     name: `${item.first_name} ${item.last_name}`,
     jobTitle: item.employment_type?.name || 'Not specified',
@@ -97,19 +99,31 @@ export function mapPersonListItemFromApi(item: {
     avatarInitials: getInitials(item.first_name, item.last_name),
     avatarBg: generateAvatarColor(item.person_id)
   };
+  
+  console.log('✅ [MAPPER] Mapped output:', mapped);
+  return mapped;
 }
 
 // Map API PersonComposite to Frontend PersonProfile
 export function mapPersonToProfile(person: PersonComposite): PersonProfile {
+  console.log('🔄 [MAPPER] Mapping person to profile:', {
+    person_id: person.person_id,
+    first_name: person.first_name,
+    last_name: person.last_name,
+    hasFirstName: !!person.first_name,
+    hasLastName: !!person.last_name,
+    fullPersonObject: person
+  });
+  
   const currentAddress = person.addresses?.find(a => a.is_current_address);
   const permanentAddress = person.addresses?.find(a => !a.is_current_address);
   const currentPartner = person.partners?.find(p => p.is_current);
   
-  return {
+  const profile = {
     // Header info
     id: person.person_id,
-    name: `${person.first_name} ${person.last_name}`,
-    initials: getInitials(person.first_name, person.last_name),
+    name: `${person.first_name || 'Unknown'} ${person.last_name || 'Person'}`,
+    initials: getInitials(person.first_name || 'U', person.last_name || 'P'),
     isVIP: false, // This would come from flags or custom field
     hasOutstandingTasks: false, // This would come from tasks/cases API
     
@@ -198,6 +212,16 @@ export function mapPersonToProfile(person: PersonComposite): PersonProfile {
     communications: mapCommunications(person.notes || []),
     activities: mapActivities(person)
   };
+  
+  console.log('✅ [MAPPER] Final mapped profile:', {
+    id: profile.id,
+    name: profile.name,
+    initials: profile.initials,
+    hasContact: !!profile.contact,
+    hasEmployment: profile.employmentRecords.length > 0
+  });
+  
+  return profile;
 }
 
 // Helper Functions
@@ -417,4 +441,79 @@ function mapActivities(person: PersonComposite): Activity[] {
   return activities.sort((a, b) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
+}
+
+/**
+ * Maps PersonEmployment from API to frontend EmploymentRecord format
+ */
+export function mapPersonEmploymentToRecord(employment: PersonEmployment): EmploymentRecord {
+  return {
+    id: employment.id,
+    personId: employment.person_id,
+    jobTitle: employment.job_title,
+    jobFunction: employment.job_function,
+    jobFunctionId: employment.job_function_id,
+    department: employment.department,
+    employerName: employment.employer_name,
+    employmentType: employment.employment_type,
+    employmentTypeId: employment.employment_type_id,
+    jobGrade: employment.job_grade,
+    jobGradeId: employment.job_grade_id,
+    roleDescription: employment.role_description,
+    employerLocation: employment.employer_location,
+    employerLocationId: employment.employer_location_id,
+    workLocation: employment.work_location as 'Office' | 'Remote' | 'Hybrid',
+    workArrangement: employment.work_arrangement,
+    startDate: employment.employment_start_date || '',
+    endDate: employment.employment_end_date,
+    isActive: employment.is_active,
+    plannedEndDate: employment.planned_end_date,
+    isSecondaryContract: employment.is_secondary_contract || false,
+    isPrimaryEmployment: employment.is_primary_employment ?? true,
+    isFutureAssignment: employment.is_future_assignment || false,
+    managers: employment.managers?.map(manager => ({
+      id: manager.id || `temp-${Date.now()}`,
+      name: manager.name,
+      email: manager.email,
+      role: manager.role,
+      isPrimary: manager.isPrimary || false
+    })) || [],
+    employeeReferences: employment.employee_references || [],
+    reportingStructure: employment.reporting_structure,
+    workingHours: {
+      hoursPerWeek: employment.working_hours_per_week,
+      schedule: employment.work_schedule,
+      timeZone: employment.time_zone
+    },
+    compensation: {
+      salaryBand: employment.salary_band,
+      currency: employment.currency,
+      reviewDate: employment.review_date
+    },
+    benefits: {
+      healthInsurance: employment.health_insurance,
+      retirement: employment.retirement_benefits,
+      vacation: employment.vacation_days,
+      other: employment.other_benefits ? employment.other_benefits.split(',') : []
+    },
+    status: {
+      status: employment.employment_status as 'active' | 'future' | 'historical' | 'terminated' | 'on_leave' || 'active',
+      statusDate: employment.status_date || employment.created_at,
+      reason: employment.status_reason,
+      notes: employment.status_notes
+    },
+    conflicts: [],
+    changeHistory: [],
+    createdAt: employment.created_at,
+    updatedAt: employment.updated_at,
+    createdBy: employment.created_at,
+    updatedBy: employment.updated_at,
+    version: employment.version,
+    externalId: employment.external_id,
+    syncStatus: employment.sync_status as 'synced' | 'pending' | 'error',
+    lastSyncDate: employment.last_sync_date,
+    notes: employment.notes,
+    tags: employment.tags ? employment.tags.split(',') : [],
+    flags: employment.flags || []
+  };
 }

@@ -3,6 +3,7 @@ import { getApiClient } from './api-client';
 import { 
   Person, 
   PersonComposite, 
+  PersonWithMetadata,
   PersonListResponse,
   PaginationParams,
   PersonAddress,
@@ -14,7 +15,9 @@ import {
   PersonLanguage,
   PersonPermitVisa,
   PersonPassport,
-  PersonNote
+  PersonNote,
+  FieldMetadata,
+  ApiResponse
 } from '@/types/api.types';
 import { mapPersonListItemFromApi } from '../mappers/personMapper';
 import { PersonListItem } from '@/types/frontend.types';
@@ -38,6 +41,8 @@ export class PersonService {
       offset: params?.offset || 0
     };
     
+    console.log('🌐 [PERSON_SERVICE] Making API request to /persons/list with params:', queryParams);
+    
     const response = await client.get<{
       success: boolean;
       count: number;
@@ -56,19 +61,68 @@ export class PersonService {
           source: string;
         } | null;
       }>;
+      _links?: {
+        self: string;
+      };
     }>('/persons/list', queryParams);
     
-    // Map the API response directly to PersonListItem format
-    const mappedPersons = (response.data.data ?? []).map(item => 
-      mapPersonListItemFromApi(item)
-    );
+    console.log('🌐 [PERSON_SERVICE] Raw API response received:', {
+      success: response.data.success,
+      count: response.data.count,
+      totalCount: response.data.totalCount,
+      dataLength: response.data.data?.length,
+      hasLinks: !!response.data._links,
+      responseKeys: Object.keys(response.data),
+      responseType: typeof response.data,
+      isArray: Array.isArray(response.data)
+    });
+    console.log('🌐 [PERSON_SERVICE] Raw response data:', response.data);
+    console.log('🌐 [PERSON_SERVICE] Response data type check:', {
+      'response.data': typeof response.data,
+      'response.data.data': typeof response.data.data,
+      'Array.isArray(response.data)': Array.isArray(response.data),
+      'response.data length': response.data.length
+    });
     
-    return {
+    // Handle different possible response formats
+    let dataArray: any[] = [];
+    let totalCount = 0;
+    
+    if (Array.isArray(response.data)) {
+      // API returns data directly as array
+      console.log('🔄 [PERSON_SERVICE] Response is direct array format');
+      dataArray = response.data;
+      totalCount = response.data.length;
+    } else if (response.data.data && Array.isArray(response.data.data)) {
+      // API returns wrapped format {success, data, count, totalCount}
+      console.log('🔄 [PERSON_SERVICE] Response is wrapped format');
+      dataArray = response.data.data;
+      totalCount = response.data.totalCount ?? response.data.count ?? response.data.data.length;
+    } else {
+      console.error('🚨 [PERSON_SERVICE] Unexpected response format:', response.data);
+      dataArray = [];
+      totalCount = 0;
+    }
+    
+    console.log('🔄 [PERSON_SERVICE] Data array to process:', dataArray.length, 'items');
+    
+    // Map the API response directly to PersonListItem format
+    const mappedPersons = dataArray.map((item, index) => {
+      console.log(`🔄 [PERSON_SERVICE] Mapping person ${index + 1}:`, item);
+      const mapped = mapPersonListItemFromApi(item);
+      console.log(`✅ [PERSON_SERVICE] Mapped result ${index + 1}:`, mapped);
+      return mapped;
+    });
+    
+    const result = {
       persons: mappedPersons,
-      total: response.data.totalCount ?? 0,
+      total: totalCount,
       limit: queryParams.limit,
       offset: queryParams.offset
     };
+    
+    console.log('✅ [PERSON_SERVICE] Final service result:', result);
+    return result;
   }
 
   // Core Person Operations
@@ -352,6 +406,233 @@ export class PersonService {
     ];
     
     return this.getPerson(personId, includes);
+  }
+
+  /**
+   * Get a person with metadata for field labels and localization
+   * @param personId - The person ID to fetch
+   * @param languageCode - Optional language code for localized metadata
+   * @returns Promise<PersonWithMetadata>
+   */
+  async getPersonWithMetadata(
+    personId: string, 
+    languageCode: string = 'en'
+  ): Promise<PersonWithMetadata> {
+    try {
+      const client = getApiClient();
+      console.log('🌐 [PERSON_SERVICE] Requesting metadata for person:', personId);
+      
+      const response = await client.get<ApiResponse<PersonWithMetadata>>(
+        `${this.basePath}/${personId}/with-metadata`,
+        {
+          params: {
+            language_code: languageCode,
+            include: 'addresses,contact_details,employment,partners,children,emergency_contacts,languages_detail,permits_visas,passports,notes'
+          }
+        }
+      );
+      
+      console.log('🌐 [PERSON_SERVICE] Metadata response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        dataType: typeof response.data,
+        dataKeys: Object.keys(response.data || {}),
+        hasSuccess: 'success' in (response.data || {}),
+        success: response.data?.success,
+        hasData: 'data' in (response.data || {}),
+        isArray: Array.isArray(response.data)
+      });
+      console.log('🌐 [PERSON_SERVICE] Full metadata response:', response.data);
+      
+      // Handle different response formats
+      if (response.data && typeof response.data === 'object') {
+        if ('success' in response.data) {
+          // Wrapped format {success, data, ...}
+          if (!response.data.success) {
+            throw new Error(`API returned error: ${response.data.data || 'Unknown error'}`);
+          }
+          return response.data.data;
+        } else {
+          // Direct format - response contains {person, metadata, language_info}
+          console.log('🔄 [PERSON_SERVICE] Using direct response format for metadata');
+          
+          if (response.data.person && response.data.metadata) {
+            return {
+              person: response.data.person as PersonComposite,
+              metadata: response.data.metadata
+            };
+          } else {
+            // Fallback: assume entire response.data is the person data
+            return {
+              person: response.data as PersonComposite,
+              metadata: {
+                language_code: languageCode,
+                entity_context: 'person',
+                fields: {}
+              }
+            };
+          }
+        }
+      } else {
+        throw new Error('Invalid response format from metadata endpoint');
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch person with metadata:', error);
+      console.error('Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      // If metadata endpoint fails, try fallback to regular person endpoint
+      if (error.response?.status === 404 || error.response?.status === 500) {
+        console.log('🔄 [PERSON_SERVICE] Metadata endpoint failed, trying fallback to regular person endpoint');
+        try {
+          const fallbackPerson = await this.getPersonWithAllData(personId);
+          return {
+            person: fallbackPerson,
+            metadata: {
+              language_code: languageCode,
+              entity_context: 'person',
+              fields: {}
+            }
+          };
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+        }
+      }
+      
+      throw new Error(
+        error.response?.data?.message || 
+        `Unable to fetch person details for ID: ${personId}`
+      );
+    }
+  }
+
+  /**
+   * Get field metadata for a specific context (for form rendering)
+   * @param entityContext - The entity context (e.g., 'person', 'employment')
+   * @param languageCode - Language code for localization
+   * @returns Promise<Record<string, FieldMetadata>>
+   */
+  async getFieldMetadata(
+    entityContext: string = 'person',
+    languageCode: string = 'en'
+  ): Promise<Record<string, FieldMetadata>> {
+    try {
+      const client = getApiClient();
+      const response = await client.get<ApiResponse<Record<string, FieldMetadata>>>(
+        `/metadata/fields`,
+        {
+          params: {
+            entity_context: entityContext,
+            language_code: languageCode
+          }
+        }
+      );
+      
+      if (!response.data.success) {
+        throw new Error(`API returned error: ${response.data.data}`);
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('Failed to fetch field metadata:', error);
+      // Return empty metadata object on error - forms will use default labels
+      return {};
+    }
+  }
+
+  /**
+   * Helper method to get field label from metadata with fallback
+   * @param fieldId - The field identifier
+   * @param metadata - The metadata object
+   * @param defaultLabel - Fallback label if metadata not available
+   * @returns string
+   */
+  static getFieldLabel(
+    fieldId: string, 
+    metadata: Record<string, FieldMetadata>, 
+    defaultLabel: string
+  ): string {
+    if (!metadata || typeof metadata !== 'object') {
+      return defaultLabel;
+    }
+    const fieldMetadata = metadata[fieldId];
+    return fieldMetadata?.label || defaultLabel;
+  }
+
+  /**
+   * Helper method to get field description from metadata
+   * @param fieldId - The field identifier
+   * @param metadata - The metadata object
+   * @returns string | undefined
+   */
+  static getFieldDescription(
+    fieldId: string, 
+    metadata: Record<string, FieldMetadata>
+  ): string | undefined {
+    if (!metadata || typeof metadata !== 'object') {
+      return undefined;
+    }
+    return metadata[fieldId]?.description;
+  }
+
+  /**
+   * Helper method to get field placeholder from metadata
+   * @param fieldId - The field identifier
+   * @param metadata - The metadata object
+   * @param defaultPlaceholder - Fallback placeholder
+   * @returns string | undefined
+   */
+  static getFieldPlaceholder(
+    fieldId: string, 
+    metadata: Record<string, FieldMetadata>,
+    defaultPlaceholder?: string
+  ): string | undefined {
+    if (!metadata || typeof metadata !== 'object') {
+      return defaultPlaceholder;
+    }
+    return metadata[fieldId]?.placeholder || defaultPlaceholder;
+  }
+
+  /**
+   * Helper method to check if field is required from metadata
+   * @param fieldId - The field identifier
+   * @param metadata - The metadata object
+   * @param defaultRequired - Fallback required state
+   * @returns boolean
+   */
+  static isFieldRequired(
+    fieldId: string, 
+    metadata: Record<string, FieldMetadata>,
+    defaultRequired: boolean = false
+  ): boolean {
+    if (!metadata || typeof metadata !== 'object') {
+      return defaultRequired;
+    }
+    const fieldMetadata = metadata[fieldId];
+    return fieldMetadata?.is_required ?? defaultRequired;
+  }
+
+  /**
+   * Helper method to check if field is visible from metadata
+   * @param fieldId - The field identifier
+   * @param metadata - The metadata object
+   * @param defaultVisible - Fallback visible state
+   * @returns boolean
+   */
+  static isFieldVisible(
+    fieldId: string, 
+    metadata: Record<string, FieldMetadata>,
+    defaultVisible: boolean = true
+  ): boolean {
+    if (!metadata || typeof metadata !== 'object') {
+      return defaultVisible;
+    }
+    const fieldMetadata = metadata[fieldId];
+    return fieldMetadata?.is_visible ?? defaultVisible;
   }
 }
 

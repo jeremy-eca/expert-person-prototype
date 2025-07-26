@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { NavigationSection } from "./sections/NavigationSection";
 import { ProfileSection } from "./sections/ProfileSection/ProfileSection";
+import { EmploymentSection } from "./sections/EmploymentSection";
 import { TopNavigation } from "./sections/TopNavigation/TopNavigation";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { mapPersonToProfile } from "../../services/mappers/personMapper";
-import { PersonProfile } from "../../types/frontend.types";
+import { ApiConnectionStatus } from "../../components/ui/api-connection-status";
+import { usePersonData } from "../../hooks/usePersonData";
 import { ChevronLeftIcon } from "lucide-react";
-import { getMockProfile, getMockPersonComposite } from "./getMockProfile";
 
 export type ProfileSectionType = 
   | "details" 
@@ -28,75 +28,20 @@ interface AltRightPanelProps {
 
 export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Element => {
   const [activeProfileSection, setActiveProfileSection] = useState<ProfileSectionType>("details");
-  const [profile, setProfile] = useState<PersonProfile | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchPerson = async () => {
-      if (!personId) {
-        // Create empty profile for new person
-        setProfile({
-          id: 'new',
-          name: 'New Person',
-          initials: 'NP',
-          isVIP: false,
-          hasOutstandingTasks: false,
-          // Initialize with empty values for all required fields
-          dateOfBirth: undefined,
-          nationality: undefined,
-          languages: [],
-          currentLocation: undefined,
-          permanentHome: undefined,
-          locationHistory: [],
-          currentPosition: undefined,
-          employmentHistory: [],
-          contact: {
-            workEmail: '',
-            workPhone: '',
-            personalEmail: undefined,
-            mobilePhone: undefined
-          },
-          emergencyContact: undefined,
-          contactHistory: [],
-          familySummary: {
-            maritalStatus: 'Single',
-            totalDependents: 0,
-            passportsHeld: 0
-          },
-          familyMembers: [],
-          workAuthorization: undefined,
-          complianceDocuments: [],
-          moves: [],
-          documents: [],
-          communications: [],
-          activities: []
-        });
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Use mock data for now - replace with actual API call later
-        const person = getMockPersonComposite(personId);
-        const mappedProfile = mapPersonToProfile(person);
-        setProfile(mappedProfile);
-      } catch (err) {
-        console.error('Failed to fetch person:', err);
-        setError('Failed to load person details.');
-        
-        // Fallback to basic mock profile
-        setProfile(getMockProfile(personId));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPerson();
-  }, [personId]);
+  
+  // Use the new hook for person data with metadata support
+  const {
+    profile,
+    metadata,
+    isLoading: loading,
+    error,
+    updateProfile,
+    getFieldLabel
+  } = usePersonData({ 
+    personId, 
+    languageCode: 'en',
+    autoRefresh: false 
+  });
 
   // Navigation icons data for mapping
   const navigationIcons = [
@@ -235,13 +180,42 @@ export const AltRightPanel = ({ personId, onBack }: AltRightPanelProps): JSX.Ele
           activeSection={activeProfileSection}
           onSectionChange={setActiveProfileSection}
           profile={profile}
-          onProfileUpdate={setProfile}
+          onProfileUpdate={updateProfile}
         />
-        <ProfileSection 
-          activeSection={activeProfileSection} 
-          profile={profile}
-          onProfileUpdate={setProfile}
-        />
+        
+        {/* API Connection Status for new persons */}
+        {(!personId || personId === 'new') && (
+          <div className="w-80 p-6">
+            <ApiConnectionStatus 
+              autoTest={true}
+              showDetails={true}
+              className="mb-6"
+            />
+          </div>
+        )}
+
+        {/* Render the appropriate section based on activeProfileSection */}
+        {activeProfileSection === "work" ? (
+          <EmploymentSection 
+            personId={profile?.id || ""}
+            onSuccess={(message) => {
+              // Handle success notification - could add toast here
+              console.log('Employment operation successful:', message);
+            }}
+            onError={(error) => {
+              // Handle error notification - could add toast here  
+              console.error('Employment operation failed:', error);
+            }}
+          />
+        ) : (
+          <ProfileSection 
+            activeSection={activeProfileSection} 
+            profile={profile}
+            onProfileUpdate={updateProfile}
+            metadata={metadata}
+            getFieldLabel={getFieldLabel}
+          />
+        )}
       </div>
     </div>
   );

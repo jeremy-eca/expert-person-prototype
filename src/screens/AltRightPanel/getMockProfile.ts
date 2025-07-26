@@ -22,6 +22,12 @@ export function getMockProfile(id: string): PersonProfile {
       endDate: undefined,
       isActive: true,
       isSecondaryContract: false,
+      isPrimaryEmployment: true,
+      isFutureAssignment: false,
+      status: {
+        status: 'active' as const,
+        statusDate: "2022-01-15T09:00:00Z"
+      },
       managers: [
         { id: "mgr_001", name: "Sarah Johnson", email: "sarah.johnson@techcorp.com" },
         { id: "mgr_002", name: "David Chen", email: "david.chen@techcorp.com" }
@@ -46,6 +52,12 @@ export function getMockProfile(id: string): PersonProfile {
       endDate: undefined,
       isActive: true,
       isSecondaryContract: true,
+      isPrimaryEmployment: false,
+      isFutureAssignment: false,
+      status: {
+        status: 'active' as const,
+        statusDate: "2023-06-01T09:00:00Z"
+      },
       managers: [
         { id: "mgr_003", name: "Maria Rodriguez", email: "maria.rodriguez@innovationlabs.com" }
       ],
@@ -69,6 +81,12 @@ export function getMockProfile(id: string): PersonProfile {
       endDate: "2021-12-31",
       isActive: false,
       isSecondaryContract: false,
+      isPrimaryEmployment: true,
+      isFutureAssignment: false,
+      status: {
+        status: 'historical' as const,
+        statusDate: "2021-12-31T17:00:00Z"
+      },
       managers: [
         { id: "mgr_004", name: "James Wilson", email: "james.wilson@techcorp.com" }
       ],
@@ -92,6 +110,12 @@ export function getMockProfile(id: string): PersonProfile {
       endDate: "2019-05-15",
       isActive: false,
       isSecondaryContract: false,
+      isPrimaryEmployment: true,
+      isFutureAssignment: false,
+      status: {
+        status: 'historical' as const,
+        statusDate: "2019-05-15T17:00:00Z"
+      },
       managers: [
         { id: "mgr_005", name: "Alex Thompson", email: "alex.thompson@startuptech.com" }
       ],
@@ -115,6 +139,12 @@ export function getMockProfile(id: string): PersonProfile {
       endDate: "2017-08-31",
       isActive: false,
       isSecondaryContract: false,
+      isPrimaryEmployment: true,
+      isFutureAssignment: false,
+      status: {
+        status: 'historical' as const,
+        statusDate: "2017-08-31T17:00:00Z"
+      },
       managers: [
         { id: "mgr_006", name: "Jennifer Lee", email: "jennifer.lee@bigtech.com" }
       ],

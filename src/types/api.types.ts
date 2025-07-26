@@ -272,6 +272,34 @@ export interface PersonNote {
   created_at: string;
 }
 
+// Field Metadata for labels and localization
+export interface FieldMetadata {
+  field_id: string;
+  label: string;
+  description?: string;
+  placeholder?: string;
+  help_text?: string;
+  data_type: string;
+  is_required: boolean;
+  is_visible: boolean;
+  validation_rules?: Record<string, any>;
+  options?: Array<{
+    value: string;
+    label: string;
+    description?: string;
+  }>;
+}
+
+// Person With Metadata Response
+export interface PersonWithMetadata {
+  person: PersonComposite;
+  metadata: {
+    language_code: string;
+    entity_context: string;
+    fields: Record<string, FieldMetadata>;
+  };
+}
+
 // Composite Person Data
 export interface PersonComposite extends Person {
   addresses?: PersonAddress[];

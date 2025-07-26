@@ -85,30 +85,123 @@ export interface PersonProfile {
   activities?: Activity[];
 }
 
+// Employment Status and Change Tracking
+export interface EmploymentChangeHistory {
+  id: string;
+  employmentId: string;
+  changeType: 'created' | 'updated' | 'ended' | 'extended' | 'promoted' | 'transferred' | 'role_changed' | 'salary_changed';
+  changedBy: string;
+  changeDate: string;
+  changes: Record<string, { from: any; to: any; field: string }>;
+  reason?: string;
+  notes?: string;
+}
+
+export interface EmploymentStatus {
+  status: 'active' | 'future' | 'historical' | 'terminated' | 'on_leave';
+  statusDate: string;
+  reason?: string;
+  notes?: string;
+}
+
+export interface EmploymentConflict {
+  id: string;
+  type: 'overlap' | 'gap' | 'invalid_dates' | 'missing_data';
+  severity: 'error' | 'warning' | 'info';
+  message: string;
+  conflictingRecordId?: string;
+  suggestedAction?: string;
+}
+
 // Supporting Types
 export interface EmploymentRecord {
   id: string;
   personId: string;
+  
+  // Core Employment Information
   jobTitle?: string;
   jobFunction?: string;
+  jobFunctionId?: string; // Reference to API job function
   department?: string;
   employerName?: string;
   employmentType?: string;
+  employmentTypeId?: string; // Reference to API employment type
   jobGrade?: string;
+  jobGradeId?: string; // Reference to API job grade
   roleDescription?: string;
+  
+  // Location Information
   employerLocation?: string;
+  employerLocationId?: string; // Reference to API city
+  workLocation?: 'Office' | 'Remote' | 'Hybrid';
+  workArrangement?: string;
+  
+  // Employment Period
   startDate: string;
   endDate?: string;
   isActive: boolean;
+  plannedEndDate?: string; // For future assignments
+  
+  // Employment Type Classification
   isSecondaryContract: boolean;
+  isPrimaryEmployment: boolean;
+  isFutureAssignment: boolean;
+  
+  // Relationships
   managers?: Array<{
     id: string;
     name: string;
     email?: string;
+    role?: string;
+    isPrimary?: boolean;
   }>;
   employeeReferences?: string[];
+  reportingStructure?: string;
+  
+  // Additional Information
+  workingHours?: {
+    hoursPerWeek?: number;
+    schedule?: string;
+    timeZone?: string;
+  };
+  compensation?: {
+    salaryBand?: string;
+    currency?: string;
+    reviewDate?: string;
+  };
+  benefits?: {
+    healthInsurance?: boolean;
+    retirement?: boolean;
+    vacation?: number;
+    other?: string[];
+  };
+  
+  // Status and Tracking
+  status: EmploymentStatus;
+  conflicts?: EmploymentConflict[];
+  changeHistory?: EmploymentChangeHistory[];
+  
+  // Metadata
   createdAt: string;
   updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+  version?: number;
+  
+  // Integration Fields
+  externalId?: string;
+  syncStatus?: 'synced' | 'pending' | 'error';
+  lastSyncDate?: string;
+  
+  // Notes and Tags
+  notes?: string;
+  tags?: string[];
+  flags?: Array<{
+    type: string;
+    value: string;
+    setBy: string;
+    setDate: string;
+  }>;
 }
 
 export interface LocationHistoryItem {

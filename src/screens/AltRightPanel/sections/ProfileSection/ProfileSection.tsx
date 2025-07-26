@@ -5,20 +5,25 @@ import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../components/ui/textarea";
 import { Badge } from "../../../../components/ui/badge";
 import { LanguageEditor } from "../../../../components/ui/language-editor";
-import { SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, CheckIcon, Edit2Icon, Trash2Icon, BriefcaseIcon, CalendarIcon, BuildingIcon, MapIcon, UsersIcon } from "lucide-react";
+import { SaveIcon, XIcon, CameraIcon, UserIcon, SearchIcon, MapPinIcon, PlusIcon, CheckIcon, Edit2Icon, Trash2Icon, CalendarIcon, BuildingIcon, MapIcon, UsersIcon } from "lucide-react";
 import { ProfileSectionType } from "../../AltRightPanel";
 import { PersonProfile, LanguageSkill } from "../../../../types/frontend.types";
+import { FieldMetadata } from "../../../../types/api.types";
 
 interface ProfileSectionProps {
   activeSection: ProfileSectionType;
   profile: PersonProfile;
   onProfileUpdate: (profile: PersonProfile) => void;
+  metadata?: Record<string, FieldMetadata>;
+  getFieldLabel?: (fieldId: string, defaultLabel: string) => string;
 }
 
 export const ProfileSection = ({ 
   activeSection, 
   profile,
-  onProfileUpdate 
+  onProfileUpdate,
+  metadata = {},
+  getFieldLabel = (fieldId: string, defaultLabel: string) => defaultLabel
 }: ProfileSectionProps): JSX.Element => {
   // SVG data URI for map grid pattern
   const gridPatternSvg = "data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 10 0 L 0 0 0 10' fill='none' stroke='white' stroke-width='0.5' opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grid)' /%3E%3C/svg%3E";
@@ -1537,264 +1542,7 @@ export const ProfileSection = ({
     </>
   );
 
-  const renderWorkSection = () => {
-    const employmentRecords = profile?.employmentRecords || [];
-    
-    // Sort employment records: active first, then by start date (most recent first)
-    const sortedRecords = [...employmentRecords].sort((a, b) => {
-      // Active records first
-      if (a.isActive && !b.isActive) return -1;
-      if (!a.isActive && b.isActive) return 1;
-      
-      // Then by start date (most recent first)
-      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-    });
 
-    const formatEmploymentPeriod = (startDate: string, endDate?: string) => {
-      const start = new Date(startDate).toLocaleDateString('en-US', { 
-        month: 'short', 
-        year: 'numeric' 
-      });
-      const end = endDate 
-        ? new Date(endDate).toLocaleDateString('en-US', { 
-            month: 'short', 
-            year: 'numeric' 
-          })
-        : 'Present';
-      return `${start} - ${end}`;
-    };
-
-    const getContractBadgeColor = (record: EmploymentRecord) => {
-      if (record.isActive && record.isSecondaryContract) {
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      } else if (record.isActive) {
-        return 'bg-green-100 text-green-800 border-green-200';
-      } else {
-        return 'bg-gray-100 text-gray-600 border-gray-200';
-      }
-    };
-
-    const getContractBadgeText = (record: EmploymentRecord) => {
-      if (record.isActive && record.isSecondaryContract) {
-        return 'Secondary Active';
-      } else if (record.isActive) {
-        return 'Active';
-      } else {
-        return 'Inactive';
-      }
-    };
-
-    return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Work & Employment</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            onClick={() => setShowAddModal(true)}
-          >
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Add Employment
-          </Button>
-        </div>
-
-        {/* Employment Records */}
-        {sortedRecords.length > 0 ? (
-          <div className="space-y-4">
-            {sortedRecords.map((record) => (
-              <Card key={record.id} className="bg-gray-800 border-gray-700">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="text-lg font-semibold text-white">
-                          {record.jobTitle || 'Untitled Position'}
-                        </h4>
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs font-medium ${getContractBadgeColor(record)}`}
-                        >
-                          {getContractBadgeText(record)}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-gray-300 mb-3">
-                        <span className="font-medium">{record.employerName || 'Unknown Company'}</span>
-                        {record.department && (
-                          <>
-                            <span className="text-gray-500">•</span>
-                            <span>{record.department}</span>
-                          </>
-                        )}
-                      </div>
-
-                      <div className="text-sm text-gray-400 mb-3">
-                        {formatEmploymentPeriod(record.startDate, record.endDate)}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-400 hover:text-white hover:bg-gray-700"
-                        onClick={() => {
-                          setEditingItem(record);
-                          setShowEditModal(true);
-                        }}
-                      >
-                        <Edit2Icon className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                        onClick={() => handleDeleteEmployment(record.id)}
-                      >
-                        <Trash2Icon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Employment Details Grid */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {record.employmentType && (
-                      <div>
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">Type</span>
-                        <p className="text-sm text-gray-300 mt-1">{record.employmentType}</p>
-                      </div>
-                    )}
-                    {record.jobGrade && (
-                      <div>
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">Grade</span>
-                        <p className="text-sm text-gray-300 mt-1">{record.jobGrade}</p>
-                      </div>
-                    )}
-                    {record.employerLocation && (
-                      <div>
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">Location</span>
-                        <p className="text-sm text-gray-300 mt-1">{record.employerLocation}</p>
-                      </div>
-                    )}
-                    {record.jobFunction && (
-                      <div>
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">Function</span>
-                        <p className="text-sm text-gray-300 mt-1">{record.jobFunction}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Managers */}
-                  {record.managers && record.managers.length > 0 && (
-                    <div className="mb-4">
-                      <span className="text-xs text-gray-500 uppercase tracking-wide">Managers</span>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {record.managers.map((manager, index) => (
-                          <Badge 
-                            key={index}
-                            variant="secondary" 
-                            className="bg-blue-900/30 text-blue-300 border-blue-700"
-                          >
-                            {manager.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Role Description */}
-                  {record.roleDescription && (
-                    <div>
-                      <span className="text-xs text-gray-500 uppercase tracking-wide">Role Description</span>
-                      <p className="text-sm text-gray-300 mt-1 leading-relaxed">
-                        {record.roleDescription}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          /* Empty State */
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
-                <BriefcaseIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <h4 className="text-lg font-medium text-white mb-2">No Employment Records</h4>
-              <p className="text-gray-400 mb-6 max-w-sm mx-auto">
-                Add employment information to track work history, current positions, and career progression.
-              </p>
-              <Button
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                onClick={() => setShowAddModal(true)}
-              >
-                <PlusIcon className="w-4 h-4 mr-2" />
-                Add First Employment Record
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Employment Change History */}
-        {profile?.activities && profile.activities.some(a => a.type.includes('Employment')) && (
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-6">
-              <h4 className="text-sm font-medium text-white mb-4">Employment History</h4>
-              <div className="space-y-3">
-                {profile.activities
-                  .filter(activity => activity.type.includes('Employment'))
-                  .slice(0, 5)
-                  .map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-300">{activity.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">
-                            {new Date(activity.timestamp).toLocaleDateString()}
-                          </span>
-                          <span className="text-xs text-gray-500">•</span>
-                          <span className="text-xs text-gray-500">{activity.user}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    );
-  };
-
-  // Handler functions for employment management
-  const handleDeleteEmployment = async (employmentId: string) => {
-    if (!confirm('Are you sure you want to delete this employment record?')) {
-      return;
-    }
-    
-    try {
-      // Here you would call the API to delete the employment record
-      // await personService.deletePersonEmployment(profile.id, employmentId);
-      
-      // For now, just remove from local state
-      if (profile && onProfileUpdate) {
-        const updatedRecords = profile.employmentRecords?.filter(r => r.id !== employmentId) || [];
-        onProfileUpdate({
-          ...profile,
-          employmentRecords: updatedRecords
-        });
-      }
-    } catch (error) {
-      console.error('Failed to delete employment record:', error);
-      // Show error message to user
-    }
-  };
 
   const renderContactSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
@@ -1939,7 +1687,9 @@ export const ProfileSection = ({
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    {getFieldLabel('first_name', 'Full Name')} *
+                  </label>
                   <Input
                     value={emergencyContactForm.name}
                     onChange={(e) => setEmergencyContactForm(prev => ({ ...prev, name: e.target.value }))}
@@ -2117,7 +1867,9 @@ export const ProfileSection = ({
           {/* Bio Card */}
           <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
             <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
-              <CardTitle className="text-white text-lg font-medium">Bio</CardTitle>
+              <CardTitle className="text-white text-lg font-medium">
+                {getFieldLabel('bio', 'Bio')}
+              </CardTitle>
               {!isEditingBio ? (
                 <Button
                   variant="ghost"
@@ -2233,7 +1985,9 @@ export const ProfileSection = ({
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-white text-sm font-medium mb-2 block">Bio</label>
+                    <label className="text-white text-sm font-medium mb-2 block">
+                      {getFieldLabel('bio', 'Bio')}
+                    </label>
                     <Textarea
                       value={editBio}
                       onChange={(e) => setEditBio(e.target.value)}
@@ -2346,7 +2100,7 @@ export const ProfileSection = ({
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">
-                      Date of Birth
+                      {getFieldLabel('date_of_birth', 'Date of Birth')}
                     </label>
                     <Input
                       type="date"
@@ -2430,183 +2184,7 @@ export const ProfileSection = ({
             </CardContent>
           </Card>
 
-          {/* Work & Employment Card */}
-          <Card className="bg-[#252E38] border-0 rounded-xl shadow-[0px_6px_18px_0px_#00000026]">
-            <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
-              <CardTitle className="text-white text-lg font-medium">Work & Employment</CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                className="gap-2"
-              >
-                <PlusIcon className="w-4 h-4" />
-                Add Employment
-              </Button>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
-              {/* Employment Records */}
-              <div className="space-y-4">
-                {profile?.employmentRecords && profile.employmentRecords.length > 0 ? (
-                  profile.employmentRecords
-                    .sort((a, b) => {
-                      // Sort by active status first, then by start date
-                      if (a.isActive && !b.isActive) return -1;
-                      if (!a.isActive && b.isActive) return 1;
-                      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-                    })
-                    .map((record) => (
-                      <Card key={record.id} className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div>
-                              <h3 className="text-lg font-medium">
-                                {record.jobTitle || 'Untitled Position'}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {record.employerName || 'Unknown Company'}
-                                {record.department && ` • ${record.department}`}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              {record.isActive && (
-                                <Badge className="bg-green-100 text-green-800 border-green-200">
-                                  Active
-                                </Badge>
-                              )}
-                              {record.isSecondaryContract && (
-                                <Badge variant="outline" className="border-blue-200 text-blue-800">
-                                  Secondary Contract
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                            >
-                              <Edit2Icon className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2Icon className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="font-medium text-muted-foreground">Employment Period:</span>
-                            <p>
-                              {new Date(record.startDate).toLocaleDateString()} - {' '}
-                              {record.endDate 
-                                ? new Date(record.endDate).toLocaleDateString() 
-                                : 'Present'
-                              }
-                            </p>
-                          </div>
-                          <div>
-                            <span className="font-medium text-muted-foreground">Employment Type:</span>
-                            <p>{record.employmentType || 'Not specified'}</p>
-                          </div>
-                          {record.jobGrade && (
-                            <div>
-                              <span className="font-medium text-muted-foreground">Job Grade:</span>
-                              <p>{record.jobGrade}</p>
-                            </div>
-                          )}
-                          {record.employerLocation && (
-                            <div>
-                              <span className="font-medium text-muted-foreground">Location:</span>
-                              <p>{record.employerLocation}</p>
-                            </div>
-                          )}
-                          {record.managers && record.managers.length > 0 && (
-                            <div className="col-span-2">
-                              <span className="font-medium text-muted-foreground">Managers:</span>
-                              <div className="flex flex-wrap gap-2 mt-1">
-                                {record.managers.map((manager, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs">
-                                    {manager.name}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {record.roleDescription && (
-                            <div className="col-span-2">
-                              <span className="font-medium text-muted-foreground">Role Description:</span>
-                              <p className="mt-1 text-sm">{record.roleDescription}</p>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    ))
-                ) : (
-                  <Card className="p-8 text-center">
-                    <div className="text-muted-foreground">
-                      <BriefcaseIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-medium mb-2">No Employment Records</h3>
-                      <p className="text-sm mb-4">
-                        Add employment records to track job history and current positions.
-                      </p>
-                      <Button
-                        type="button"
-                        className="gap-2"
-                      >
-                        <PlusIcon className="w-4 h-4" />
-                        Add First Employment Record
-                      </Button>
-                    </div>
-                  </Card>
-                )}
-              </div>
-              
-              {/* Employment Change History */}
-              <Card className="p-6">
-                <h3 className="text-lg font-medium mb-4">Employment Change History</h3>
-                <div className="space-y-3">
-                  {profile?.activities
-                    ?.filter(activity => 
-                      activity.type.includes('Employment') || 
-                      activity.description.toLowerCase().includes('employment')
-                    )
-                    .slice(0, 10)
-                    .map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">{activity.description}</p>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(activity.timestamp).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            by {activity.user} • {activity.type}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  {(!profile?.activities || 
-                    profile.activities.filter(activity => 
-                      activity.type.includes('Employment') || 
-                      activity.description.toLowerCase().includes('employment')
-                    ).length === 0
-                  ) && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No employment history available
-                    </p>
-                  )}
-                </div>
-              </Card>
-            </CardContent>
-          </Card>
+          {/* Work & Employment section moved to separate navigation section */}
         </div>
 
         {/* Right Column - Narrower */}
@@ -2752,8 +2330,6 @@ export const ProfileSection = ({
       );
     case "contact":
       return renderContactSection();
-    case "work":
-      return renderWorkSection();
     case "family":
       return (
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">

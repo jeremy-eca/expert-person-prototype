@@ -52,6 +52,16 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
 
   const totalPages = Math.ceil(totalPeople / itemsPerPage);
 
+  // Debug logging for component mount
+  React.useEffect(() => {
+    console.log('🚀 [COMPONENT] TalentListSection mounted');
+  }, []);
+
+  // Debug logging for state changes
+  React.useEffect(() => {
+    console.log('📊 [COMPONENT] State changed - People:', people.length, 'Loading:', loading, 'Error:', error, 'Total:', totalPeople);
+  }, [people, loading, error, totalPeople]);
+
   // Fetch people data
   const fetchPeople = useCallback(async () => {
     try {
@@ -59,18 +69,47 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
       setError(null);
       
       const offset = (currentPage - 1) * itemsPerPage;
-      const result = await personService.getPersonsList({
+      const params = {
         limit: itemsPerPage,
         offset,
         search: searchTerm || undefined
+      };
+      
+      console.log('🔄 [LIST] Starting API request with params:', params);
+      console.log('🔄 [LIST] Current page:', currentPage, 'Items per page:', itemsPerPage);
+      
+      const result = await personService.getPersonsList(params);
+      
+      console.log('✅ [LIST] API Response received:', {
+        personsCount: result.persons.length,
+        total: result.total,
+        limit: result.limit,
+        offset: result.offset
       });
+      console.log('✅ [LIST] Raw persons data:', result.persons);
 
       // Data is already mapped to PersonListItem format by the service
       setPeople(result.persons);
       setTotalPeople(result.total);
-    } catch (err) {
-      console.error('Failed to fetch people:', err);
-      setError('Failed to load people. Please check your connection and try again.');
+      
+      console.log('✅ [LIST] State updated - People set:', result.persons.length, 'Total:', result.total);
+    } catch (err: any) {
+      console.error('❌ [LIST] Failed to fetch people:', err);
+      
+      // Provide specific error messages based on error type
+      let errorMessage = 'Failed to load people. Please check your connection and try again.';
+      
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please check your API credentials.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Insufficient permissions to view persons list.';
+      } else if (err.response?.status === 500) {
+        errorMessage = 'Server error. The API service may be temporarily unavailable.';
+      } else if (err.code === 'NETWORK_ERROR' || !err.response) {
+        errorMessage = 'Network error. Please check your internet connection and API server status.';
+      }
+      
+      setError(errorMessage);
       // Clear data on error
       setPeople([]);
       setTotalPeople(0);
@@ -186,6 +225,12 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
         </div>
 
         <div className="flex items-center justify-end gap-8 relative flex-1 grow">
+          {/* API Status Indicator */}
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-lg">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-xs text-green-800 font-medium">Real-time API</span>
+          </div>
+          
           <Button
             onClick={handleAddPerson}
             className="gap-2"
@@ -349,6 +394,12 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
                     Try adjusting your search term "{searchTerm}"
                   </p>
                 )}
+                {(() => {
+                  console.log('🔍 [GRID] No people to display - people array:', people);
+                  console.log('🔍 [GRID] Search term:', searchTerm);
+                  console.log('🔍 [GRID] Total people count:', totalPeople);
+                  return null;
+                })()}
               </div>
             ) : (
               <div className="flex">
@@ -361,14 +412,21 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
                   </div>
 
                   <div className="flex flex-col">
-                    {people.map((person, index) => (
-                      <div
-                        key={person.id}
-                        className={`flex items-center gap-2 p-3 border-b border-[#d9e3ec] cursor-pointer transition-colors hover:bg-blue-50 ${
-                          index % 2 === 0 ? 'bg-white' : 'bg-[#f7fbfe]'
-                        }`}
-                        onClick={() => handleRowClick(person.id)}
-                      >
+                    {(() => {
+                      console.log('🎯 [GRID] Rendering grid with people:', people.length, 'items');
+                      console.log('🎯 [GRID] People data for grid:', people);
+                      return null;
+                    })()}
+                    {people.map((person, index) => {
+                      console.log(`🎯 [GRID] Rendering row ${index + 1}:`, person);
+                      return (
+                        <div
+                          key={person.id}
+                          className={`flex items-center gap-2 p-3 border-b border-[#d9e3ec] cursor-pointer transition-colors hover:bg-blue-50 ${
+                            index % 2 === 0 ? 'bg-white' : 'bg-[#f7fbfe]'
+                          }`}
+                          onClick={() => handleRowClick(person.id)}
+                        >
                         <div className="flex items-center gap-3 w-[291px]">
                           <Avatar
                             className={`w-10 h-10 rounded-[30px]`}
@@ -396,7 +454,8 @@ export const TalentListSection = ({ onPersonSelect }: TalentListSectionProps): J
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
