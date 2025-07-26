@@ -1537,6 +1537,133 @@ export const ProfileSection = ({
     </>
   );
 
+  // Work & Employment Section Renderer
+  const renderWorkSection = () => {
+    return (
+      <>
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white">Current Position</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowEditModal(true)}
+              className="text-gray-300 hover:text-white"
+            >
+              <Edit2Icon className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+          </div>
+
+          {profile?.currentPosition ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Job Title</label>
+                  <p className="text-white mt-1">{profile.currentPosition.jobTitle}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Department</label>
+                  <p className="text-white mt-1">{profile.currentPosition.department}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Employment Type</label>
+                  <p className="text-white mt-1">{profile.currentPosition.employmentType}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Work Location</label>
+                  <p className="text-white mt-1">{profile.currentPosition.workLocation}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Start Date</label>
+                  <p className="text-white mt-1">{new Date(profile.currentPosition.startDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Manager</label>
+                  <p className="text-white mt-1">{profile.currentPosition.manager}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-400 mb-4">No current position information available</p>
+              <Button
+                onClick={() => setShowEditModal(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Add Current Position
+              </Button>
+            </div>
+          )}
+        </Card>
+
+        <Card className="p-6 mt-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white">Employment History</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAddModal(true)}
+              className="text-gray-300 hover:text-white"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Record
+            </Button>
+          </div>
+
+          {profile?.employmentHistory && profile.employmentHistory.length > 0 ? (
+            <div className="space-y-4">
+              {profile.employmentHistory.map((employment, index) => (
+                <div key={index} className="border border-gray-600 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-white">{employment.position}</h4>
+                      <p className="text-gray-300 text-sm">{employment.department}</p>
+                      <p className="text-gray-400 text-sm mt-1">{employment.period}</p>
+                      {employment.description && (
+                        <p className="text-gray-300 text-sm mt-2">{employment.description}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <Edit2Icon className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-400 hover:text-red-400"
+                      >
+                        <Trash2Icon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-400 mb-4">No employment history available</p>
+              <Button
+                onClick={() => setShowAddModal(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Add Employment Record
+              </Button>
+            </div>
+          )}
+        </Card>
+      </>
+    );
+  };
+
   const renderContactSection = () => (
     <div className="flex-1 p-8 bg-[#1D252D] overflow-y-auto">
       {/* Header */}
@@ -2494,11 +2621,7 @@ export const ProfileSection = ({
     case "contact":
       return renderContactSection();
     case "work":
-      return (
-        <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
-          <p className="text-white text-lg">Work & Employment section coming soon...</p>
-        </div>
-      );
+      return renderWorkSection();
     case "family":
       return (
         <div className="flex-1 p-8 bg-[#1D252D] flex items-center justify-center">
