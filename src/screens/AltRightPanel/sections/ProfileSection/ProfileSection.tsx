@@ -1729,6 +1729,7 @@ export const ProfileSection = ({
                 />
               </div>
             </div>
+          </div>
           </Card>
 
             <div className="flex gap-3 mt-6">
