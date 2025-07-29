@@ -1,6 +1,7 @@
 module.exports = {
   content: [
     "./src/**/*.{html,js,ts,jsx,tsx}",
+    "./node_modules/@ecainternational/eca-components/**/*.js",
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
   ],
@@ -85,6 +86,8 @@ module.exports = {
     },
     container: { center: true, padding: "2rem", screens: { "2xl": "1400px" } },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animate'),
+  ],
   darkMode: ["class"],
 };

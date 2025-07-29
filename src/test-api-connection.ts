@@ -1,6 +1,6 @@
 // Test script to verify API connection and HMAC authentication
-import { initializeApiClient } from './services/api/client';
-import { personService } from './services/api/personService';
+import { initializeApiClient } from './shared/services/api/client';
+import { personService } from './profiles/services/api/personService';
 
 // Initialize API client with environment variables
 initializeApiClient({

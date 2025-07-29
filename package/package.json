@@ -1,0 +1,138 @@
+{
+  "name": "@ecainternational/eca-components",
+  "description": "ECA Component Library",
+  "version": "3.1.0",
+  "type": "module",
+  "private": false,
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ECAInternational/eca-components.git"
+  },
+  "publishConfig": {
+    "@ECAInternational:registry": "https://npm.pkg.github.com"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "build-storybook": "npm run copy-tokens && storybook build",
+    "build-storybook-docs": "npm run copy-tokens && storybook build  --docs",
+    "test": "vitest --coverage.enabled true",
+    "chromatic": "chromatic --exit-zero-on-changes",
+    "copy-tokens": "ncp node_modules/@jeremy-eca/design-tokens/css/ tokens",
+    "lint": "npx eslint ./** --fix",
+    "typecheck": "tsc",
+    "prettify": "npx prettier . --write",
+    "prepare": "husky install",
+    "storybook": "npm run copy-tokens && storybook dev -p 6006",
+    "test-storybook": "test-storybook --maxWorkers=2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@chromatic-com/storybook": "^3.2.4",
+    "@headlessui/react": "^2.1.10",
+    "@playwright/test": "^1.49.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@storybook/addon-a11y": "^8.5.3",
+    "@storybook/addon-actions": "^8.5.3",
+    "@storybook/addon-docs": "^8.5.3",
+    "@storybook/addon-essentials": "^8.5.3",
+    "@storybook/addon-interactions": "^8.5.3",
+    "@storybook/addon-links": "^8.5.3",
+    "@storybook/blocks": "^8.5.3",
+    "@storybook/cli": "^8.5.3",
+    "@storybook/manager-api": "^8.5.3",
+    "@storybook/react": "^8.5.3",
+    "@storybook/react-vite": "^8.5.3",
+    "@storybook/test": "^8.4.7",
+    "@storybook/test-runner": "^0.21.0",
+    "@storybook/theming": "^8.2.8",
+    "@tanstack/react-ranger": "^0.0.4",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.1.0",
+    "@types/react-dom": "^18.2.22",
+    "@types/rollup-plugin-peer-deps-external": "^2.2.5",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^1.5.3",
+    "autoprefixer": "^10.4.20",
+    "axe-playwright": "^2.0.3",
+    "boxen": "^8.0.1",
+    "chromatic": "^11.22.2",
+    "clean-publish": "^4.2.0",
+    "daisyui": "^4.7.3",
+    "dedent": "^1.5.1",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^0.8.0",
+    "eslint-plugin-tailwindcss": "^3.15.1",
+    "husky": "^9.1.1",
+    "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.11",
+    "ncp": "^2.0.0",
+    "npm-run-all": "^4.1.5",
+    "polished": "^4.2.2",
+    "postcss": "^8.4.33",
+    "prettier": "^3.2.4",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.31.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "storybook": "^8.2.8",
+    "storybook-addon-data-theme-switcher": "^1.0.0",
+    "storybook-design-token": "^3.1.0",
+    "tailwindcss": "^3.4.9",
+    "tw-colors": "^3.3.1",
+    "vite": "^5.4.11",
+    "vitest": "^1.6.0",
+    "zx": "^8.2.4"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.31.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@flaticon/flaticon-uicons": "^3.1.0",
+    "@jeremy-eca/design-tokens": "file:../eca-design-tokens/jeremy-eca-design-tokens-1.5.0.tgz"
+  },
+  "resolutions": {
+    "jackspeak": "2.1.1"
+  }
+}
