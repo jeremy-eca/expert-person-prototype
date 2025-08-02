@@ -12,7 +12,7 @@
     "test:api": "node test-api-simple.cjs"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.0",
+    "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -34,13 +34,13 @@
     "react": "^18.2.0",
     "react-day-picker": "^9.8.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.61.1",
+    "react-hook-form": "^7.62.0",
     "react-hot-toast": "^2.5.2",
     "react-router-dom": "^6.8.1",
     "tailwind-merge": "2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "tw-colors": "^3.3.2",
-    "zod": "^4.0.10"
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@types/node": "^24.0.14",
